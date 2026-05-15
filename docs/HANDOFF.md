@@ -4,9 +4,8 @@
 2026-05-15
 
 ## 현재 상태
-**Phase 0~6 완료. TASK-001~028 완료.**
-5개 탭 모두 기능 구현 완료.
-다음: Phase 7 QA — TASK-029 모바일 UX, TASK-030 빈 상태, TASK-031 실사용 테스트, TASK-032 PWA 배포.
+**MVP v1 완성. TASK-001~032 전부 완료.**
+7일 실사용 테스트 대기 중.
 
 ## 완료 현황
 
@@ -19,79 +18,108 @@
 | 4 | TASK-017~021 | ✅ 생활 탭 전체 |
 | 5 | TASK-022~024 | ✅ 기록 탭 |
 | 6 | TASK-025~028 | ✅ 설정 탭 |
-| 7 | TASK-029~032 | ⏳ QA + PWA 배포 |
-
-## 전체 파일 구조
-
-```
-src/
-├─ app/App.tsx
-├─ components/
-│  ├─ common/FormModal.tsx
-│  ├─ layout/{AppShell, Header, BottomTabBar}.tsx
-│  ├─ pages/{Calendar, Money, Life, Records, Settings}Page.tsx
-│  ├─ calendar/  5개 (MonthView, DayCell, TodaySummary, DayEventPanel, EventFormModal)
-│  ├─ money/     8개 (Summary, Ledger, FixedExpense, Income, Subscription, Calculator + forms)
-│  ├─ life/      7개 (Checklist, Shopping, Supplies, Chore, Template + forms)
-│  └─ records/   2개 (RecordsPage, RecordFormModal)
-├─ data/
-│  ├─ models/index.ts        (15개 타입)
-│  ├─ repositories/base.ts, index.ts (15개 repo + exportAllData)
-│  └─ seed/index.ts
-└─ utils/
-   ├─ date.ts
-   ├─ calendarAggregator.ts
-   └─ constants.ts
-```
+| 7 | TASK-029~032 | ✅ QA + PWA 배포 |
 
 ## Git 커밋 이력
 
 ```
-c698987 feat: Phase 5-6 Records & Settings (TASK-022~028)
-71274f1 feat: Phase 4 Life tab (TASK-017~021)
+2ba0bf9 feat: Phase 7 QA + PWA (TASK-029~032)
+48a59ba docs: HANDOFF + TASK_LIST update
+c698987 feat: Phase 5-6 Records & Settings
+71274f1 feat: Phase 4 Life tab
 6be31fe feat: Phase 0-3 initialize project
 ```
 
-## 검증 결과
-- Type check: ✅ 통과 (strict 모드)
-- Build: ✅ 통과 (232kB JS gzip 66kB)
-- Dev server: `npm run dev` → localhost:3000
+## 최종 빌드 결과
+- Type check: ✅ 통과 (strict)
+- Build: ✅ 통과 (232kB JS, gzip 66kB)
+- PWA: ✅ Service Worker 생성 (dist/sw.js), 12개 파일 precache
+- Vercel: ✅ vercel.json 설정 완료
 
-## 핵심 패턴 (Codex 인수인계)
+## 전체 파일 구조
 
-1. **FormModal 재사용**: `src/components/common/FormModal.tsx` — Field, inputCls, FormActions
-2. **refreshKey 패턴**: 저장 후 `setRefreshKey(k=>k+1)` → useMemo 재계산
-3. **calendarAggregator**: 고정지출·구독 → 캘린더 실시간 변환 (저장 안 함)
-4. **수정 가능 판단**: `source_type === null` 인 CalendarEvent만 수정 가능
-5. **localStorage 키**: `onzip_*` 접두사 (15개)
-6. **Seed 방지**: `onzip_seed_done_v1` 키 확인 후 1회만 실행
-7. **LifeRecord 이름**: TypeScript 내장 `Record<K,V>` 충돌 방지로 LifeRecord 사용
-8. **서브탭 공통**: overflow-x-auto + flex-shrink-0 + border-b-2 패턴
+```
+onzip/
+├─ AGENTS.md
+├─ vercel.json
+├─ index.html             (PWA meta tags 포함)
+├─ vite.config.ts         (VitePWA 설정)
+├─ scripts/
+│  └─ generate-icons.mjs
+├─ public/
+│  └─ icons/              (icon-192.png, icon-512.png, icon-512-maskable.png)
+├─ src/
+│  ├─ app/App.tsx
+│  ├─ components/
+│  │  ├─ common/
+│  │  │  ├─ FormModal.tsx    ← 재사용 바텀시트
+│  │  │  └─ EmptyState.tsx   ← 빈 상태 컴포넌트
+│  │  ├─ layout/             ← AppShell(safe-area), Header, BottomTabBar(44px touch)
+│  │  ├─ pages/              ← 5개 탭 라우터
+│  │  ├─ calendar/           ← 5개 컴포넌트
+│  │  ├─ money/              ← 8개 컴포넌트
+│  │  ├─ life/               ← 7개 컴포넌트
+│  │  ├─ records/            ← 2개 컴포넌트
+│  │  └─ (settings in pages/SettingsPage.tsx)
+│  ├─ data/
+│  │  ├─ models/index.ts     ← 15개 TypeScript 타입
+│  │  ├─ repositories/       ← 15개 repo + exportAllData
+│  │  └─ seed/               ← 최초 실행 예시 데이터
+│  ├─ styles/index.css       ← Tailwind + 모바일 UX 유틸리티
+│  └─ utils/
+│     ├─ date.ts
+│     ├─ calendarAggregator.ts
+│     └─ constants.ts
+└─ docs/
+   ├─ HANDOFF.md
+   ├─ TASK_LIST.md
+   ├─ DATA_MODEL.md
+   ├─ README_WORKFLOW.md
+   └─ TEST_CHECKLIST.md      ← 8개 골든패스 시나리오
+```
 
-## 다음 작업 — Phase 7 QA (TASK-029~032)
+## Vercel 배포 방법
 
-**TASK-029**: 모바일 UX 개선
-- 입력 폼 하단 고정 버튼 확인
-- 터치 영역 최소 44px
-- 긴 목록 스크롤 최적화
+```bash
+# 1. Vercel CLI 설치
+npm install -g vercel
 
-**TASK-030**: 빈 상태 화면
-- EmptyState 공통 컴포넌트 생성
-- 각 탭 빈 상태 문구 + 추가 버튼
+# 2. 로그인
+vercel login
 
-**TASK-031**: 7일 실사용 테스트
-- 시나리오: 일정 추가 → 지출 입력 → 장보기 → 기록 → 생활용품 확인
+# 3. 배포 (프로젝트 루트에서)
+vercel --prod
 
-**TASK-032**: PWA + Vercel 배포
-- vite-plugin-pwa 설치
-- manifest.json (앱명, 아이콘)
-- Vercel CLI 배포
+# 4. 자동 설정: Framework = Vite, Output = dist/
+```
 
-## 재개 명령어
+또는 GitHub 연결 후 main 브랜치 push 시 자동 배포.
+
+## 로컬 실행
+
 ```bash
 cd C:\Users\user\Desktop\자동화\onzip
-npm run dev       # localhost:3000 확인
-npm run typecheck
-npm run build
-git log --oneline
+npm run dev        # localhost:3000 (개발)
+npm run build      # dist/ 생성 (프로덕션)
+npm run preview    # dist/ 로컬 미리보기
+npm run typecheck  # 타입 체크
 ```
+
+## 7일 실사용 테스트 후 다음 단계 (v2 후보)
+
+1. **Supabase 연동** — 멀티 디바이스 공유, 부부 실시간 동기화
+2. **다크 모드** — ThemeProvider + Tailwind dark: 클래스
+3. **카테고리 커스터마이징** — 설정 탭 확장 (TASK-026 미구현)
+4. **PWA 푸시 알림** — 고정지출 납부일 알림
+5. **반복 일정 자동 생성** — repeat_rule 기반 자동 event 생성
+6. **아이 성장 기록** — 3~4인 가족 확장
+
+## Codex 인수인계 핵심 패턴
+
+1. `FormModal + Field + FormActions` — 모든 form modal 공통 패턴
+2. `refreshKey + useMemo` — 저장 후 재계산 트리거
+3. `calendarAggregator.getAggregatedEvents()` — 고정지출·구독 실시간 캘린더 변환
+4. `source_type === null` — 직접 추가 일정만 수정 가능
+5. `onzip_*` localStorage 키 (15개)
+6. `LifeRecord` (TypeScript 내장 Record 충돌 방지)
+7. `onzip_seed_done_v1` — Seed 중복 방지 플래그
