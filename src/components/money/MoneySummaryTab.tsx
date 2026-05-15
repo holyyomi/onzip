@@ -5,6 +5,7 @@ import {
   subscriptionRepo,
 } from '../../data/repositories'
 import { formatAmount } from '../../utils/date'
+import PaymentProgressCard from './PaymentProgressCard'
 
 interface Props {
   year: number
@@ -125,6 +126,9 @@ export default function MoneySummaryTab({ year, month, refreshKey }: Props) {
           </div>
         </div>
       </div>
+
+      {/* 납부 진행 현황 */}
+      <PaymentProgressCard />
 
       {/* 오늘 납부 */}
       {data.todayPayments.length > 0 && (
