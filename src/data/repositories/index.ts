@@ -346,32 +346,3 @@ export const choreRepo = new ChoreRepository()
 export const lifeRecordRepo = new LifeRecordRepository()
 export const templateRepo = new TemplateRepository()
 export const appSettingsRepo = new AppSettingsRepository()
-
-// ─────────────────────────────────
-// 전체 데이터 export/import (백업용)
-// ─────────────────────────────────
-
-export function exportAllData(): string {
-  return JSON.stringify(
-    {
-      households: householdRepo.getAll(),
-      members: memberRepo.getAll(),
-      calendar_events: calendarEventRepo.getAll(),
-      ledger_entries: ledgerEntryRepo.getAll(),
-      fixed_expenses: fixedExpenseRepo.getAll(),
-      incomes: incomeRepo.getAll(),
-      subscriptions: subscriptionRepo.getAll(),
-      checklists: checklistRepo.getAll(),
-      checklist_items: checklistItemRepo.getAll(),
-      shopping_items: shoppingItemRepo.getAll(),
-      household_supplies: householdSupplyRepo.getAll(),
-      chores: choreRepo.getAll(),
-      records: lifeRecordRepo.getAll(),
-      templates: templateRepo.getAll(),
-      app_settings: appSettingsRepo.getAll(),
-      tab_memos: JSON.parse(localStorage.getItem('onzip_tab_memos') ?? '{}'),
-    },
-    null,
-    2,
-  )
-}

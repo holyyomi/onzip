@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import FormModal, { Field, inputCls, FormActions } from '../common/FormModal'
 import { memberRepo, householdRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
-import { exportAllData } from '../../data/repositories'
 import {
   getCategories,
   addCategory,
@@ -10,23 +9,16 @@ import {
   isDefault,
   type CategoryType,
 } from '../../utils/categoryStore'
-import { exportLedgerCSV } from '../../utils/csvExport'
 import { ledgerEntryRepo, fixedExpenseRepo, subscriptionRepo } from '../../data/repositories'
-import { checkSupabaseConnection } from '../../data/supabase/client'
-import {
-  pullSupabaseDataToLocalStorage,
-  pushLocalDataToSupabase,
-} from '../../data/supabase/sync'
 import type { Member, MemberRole } from '../../data/models'
 import TabMemoCard from '../common/TabMemoCard'
 
-type SettingsSubTab = 'home' | 'members' | 'categories' | 'backup'
+type SettingsSubTab = 'home' | 'members' | 'categories'
 
 const SUB_TABS: { value: SettingsSubTab; label: string }[] = [
   { value: 'home', label: '집 정보' },
   { value: 'members', label: '구성원' },
   { value: 'categories', label: '카테고리' },
-  { value: 'backup', label: '백업' },
 ]
 
 export default function SettingsPage() {
@@ -50,7 +42,6 @@ export default function SettingsPage() {
       {activeTab === 'home' && <HomeInfoTab onRefresh={onRefresh} />}
       {activeTab === 'members' && <MembersTab refreshKey={refreshKey} onRefresh={onRefresh} />}
       {activeTab === 'categories' && <CategoryTab />}
-      {activeTab === 'backup' && <BackupTab />}
 
       <div className="px-5 py-5">
         <TabMemoCard tab="settings" title="설정 메모" placeholder="나중에 바꿀 설정, 배포 전에 확인할 내용을 적어두세요." />
@@ -366,201 +357,4 @@ function CategorySection({
       </div>
     </div>
   )
-}
-
-// ─────────────────────────────────
-// 백업 (TASK-028)
-// ─────────────────────────────────
-
-type SyncAction = 'check' | 'push' | 'pull'
-
-function BackupTab() {
-  const [imported, setImported] = useState(false)
-  const [syncBusy, setSyncBusy] = useState<SyncAction | null>(null)
-  const [syncStatus, setSyncStatus] = useState('')
-
-  function handleExportLedgerCSV() {
-    const entries = ledgerEntryRepo.getAll()
-    exportLedgerCSV(entries)
-  }
-
-  function handleExportJSON() {
-    const data = exportAllData()
-    const blob = new Blob([data], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `onzip_backup_${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
-  function handleImportJSON(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      try {
-        const json = JSON.parse(ev.target?.result as string)
-        const keys = [
-          'households', 'members', 'calendar_events', 'ledger_entries',
-          'fixed_expenses', 'incomes', 'subscriptions', 'checklists',
-          'checklist_items', 'shopping_items', 'household_supplies',
-          'chores', 'records', 'templates', 'app_settings',
-          'tab_memos',
-        ]
-        keys.forEach((k) => {
-          if (json[k]) localStorage.setItem(`onzip_${k}`, JSON.stringify(json[k]))
-        })
-        setImported(true)
-        alert('가져오기 완료! 앱을 새로고침하세요.')
-      } catch {
-        alert('파일 형식이 올바르지 않습니다')
-      }
-    }
-    reader.readAsText(file)
-  }
-
-  async function handleCheckSupabase() {
-    setSyncBusy('check')
-    setSyncStatus('Supabase 연결을 확인하는 중입니다...')
-    try {
-      const ok = await checkSupabaseConnection()
-      setSyncStatus(ok ? 'Supabase 연결 성공' : 'Supabase 연결 실패: .env 또는 SQL 적용 상태를 확인하세요.')
-    } catch (error) {
-      setSyncStatus(getSyncErrorMessage(error))
-    } finally {
-      setSyncBusy(null)
-    }
-  }
-
-  async function handlePushSupabase() {
-    if (!confirm('현재 이 기기의 데이터를 가족 공유 저장소에 올릴까요? 먼저 "내 데이터 파일로 저장"을 해두면 안전합니다.')) return
-    setSyncBusy('push')
-    setSyncStatus('Supabase로 업로드하는 중입니다...')
-    try {
-      const result = await pushLocalDataToSupabase()
-      const total = Object.values(result.inserted).reduce((sum, count) => sum + count, 0)
-      setSyncStatus(`업로드 완료: ${total}건 동기화`)
-    } catch (error) {
-      setSyncStatus(getSyncErrorMessage(error))
-    } finally {
-      setSyncBusy(null)
-    }
-  }
-
-  async function handlePullSupabase() {
-    if (!confirm('가족 공유 저장소의 데이터를 이 기기로 가져올까요? 지금 이 기기의 데이터가 바뀔 수 있으니 먼저 "내 데이터 파일로 저장"을 해두면 안전합니다.')) return
-    setSyncBusy('pull')
-    setSyncStatus('Supabase에서 내려받는 중입니다...')
-    try {
-      const result = await pullSupabaseDataToLocalStorage()
-      const total = Object.values(result.pulled).reduce((sum, count) => sum + count, 0)
-      setImported(true)
-      setSyncStatus(`다운로드 완료: ${total}건 반영. 새로고침하면 화면에 적용됩니다.`)
-      alert('가족 공유 데이터 가져오기 완료! 앱을 새로고침하세요.')
-    } catch (error) {
-      setSyncStatus(getSyncErrorMessage(error))
-    } finally {
-      setSyncBusy(null)
-    }
-  }
-
-  // 현재 앱 데이터 용량 계산
-  const usedKB = useMemo(() => {
-    let total = 0
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i) ?? ''
-      if (key.startsWith('onzip_')) {
-        total += (localStorage.getItem(key) ?? '').length
-      }
-    }
-    return Math.round(total / 1024)
-  }, [])
-
-  const household = householdRepo.getDefault()
-
-  return (
-    <div className="p-4 space-y-3">
-      {/* 사용량 */}
-      <div className="bg-blue-50 rounded-xl p-4">
-          <p className="text-xs text-blue-400 font-medium">내 기기에 저장된 양</p>
-        <p className="text-lg font-bold text-blue-700 mt-1">{usedKB} KB / 5,120 KB</p>
-        <div className="h-1.5 bg-blue-100 rounded-full mt-2 overflow-hidden">
-          <div className="h-full bg-blue-400 rounded-full" style={{ width: `${Math.min(usedKB / 51.2, 100)}%` }} />
-        </div>
-        <p className="text-xs text-blue-300 mt-1">집 이름: {household.name}</p>
-      </div>
-
-      <button onClick={handleExportLedgerCSV}
-        className="w-full bg-white rounded-xl px-4 py-4 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-800">돈 기록을 표 파일로 저장</p>
-          <p className="text-xs text-gray-400 mt-0.5">엑셀에서 열 수 있어요</p>
-        </div>
-        <span className="text-green-500 text-lg">↓</span>
-      </button>
-
-      <button onClick={handleExportJSON}
-        className="w-full bg-white rounded-xl px-4 py-4 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-800">내 데이터 파일로 저장</p>
-          <p className="text-xs text-gray-400 mt-0.5">일정, 돈, 장보기를 백업해요</p>
-        </div>
-        <span className="text-blue-500 text-lg">↓</span>
-      </button>
-
-      <label className="block w-full bg-white rounded-xl px-4 py-4 cursor-pointer">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-800">파일에서 되돌리기</p>
-            <p className="text-xs text-gray-400 mt-0.5">저장해 둔 백업 파일을 불러와요</p>
-          </div>
-          <span className="text-blue-500 text-lg">↑</span>
-        </div>
-        <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
-      </label>
-
-      <div className="bg-white rounded-xl p-4 space-y-3">
-        <div>
-          <p className="text-sm font-semibold text-gray-800">가족 공유</p>
-          <p className="text-xs text-gray-400 mt-0.5">내 휴대폰과 가족 휴대폰에서 같은 내용을 쓰기 위한 기능입니다</p>
-        </div>
-
-        <button onClick={handleCheckSupabase} disabled={syncBusy !== null}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 disabled:opacity-50">
-          {syncBusy === 'check' ? '확인 중...' : '공유 연결 확인'}
-        </button>
-
-        <div className="grid grid-cols-2 gap-2">
-          <button onClick={handlePushSupabase} disabled={syncBusy !== null}
-            className="py-3 bg-blue-500 text-white rounded-lg text-sm font-medium disabled:opacity-50">
-            {syncBusy === 'push' ? '올리는 중...' : '이 기기 내용 올리기'}
-          </button>
-          <button onClick={handlePullSupabase} disabled={syncBusy !== null}
-            className="py-3 bg-green-500 text-white rounded-lg text-sm font-medium disabled:opacity-50">
-            {syncBusy === 'pull' ? '가져오는 중...' : '공유 내용 가져오기'}
-          </button>
-        </div>
-
-        {syncStatus && (
-          <p className="text-xs text-gray-500 leading-relaxed">{syncStatus}</p>
-        )}
-      </div>
-
-      {imported && (
-        <p className="text-xs text-green-500 text-center">가져오기 완료! 새로고침(F5)으로 적용하세요.</p>
-      )}
-
-      <div className="bg-yellow-50 rounded-xl p-3">
-        <p className="text-xs text-yellow-600">
-          주의: 파일에서 되돌리기와 공유 내용 가져오기는 현재 내용을 바꿀 수 있습니다. 먼저 내 데이터 파일로 저장해두세요.
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function getSyncErrorMessage(error: unknown): string {
-  return error instanceof Error ? `Supabase 오류: ${error.message}` : 'Supabase 오류가 발생했습니다'
 }
