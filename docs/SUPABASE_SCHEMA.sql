@@ -19,8 +19,23 @@ create extension if not exists "uuid-ossp";
 create table households (
   id         uuid primary key default uuid_generate_v4(),
   name       text not null default '우리집',
+  local_alias text,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  unique (local_alias)
+);
+
+-- ─────────────────────────────────
+-- household_users (Supabase Auth 사용자와 집 연결)
+-- ─────────────────────────────────
+create table household_users (
+  id           uuid primary key default uuid_generate_v4(),
+  household_id uuid not null references households(id) on delete cascade,
+  user_id      uuid not null references auth.users(id) on delete cascade,
+  role         text not null default 'member' check (role in ('owner','member')),
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now(),
+  unique (household_id, user_id)
 );
 
 -- ─────────────────────────────────
@@ -31,10 +46,12 @@ create table members (
   household_id uuid not null references households(id) on delete cascade,
   name         text not null,
   role         text not null check (role in ('me','spouse','child','parent','family','shared')),
+  local_alias  text check (local_alias in ('me','spouse','shared')),
   color        text not null default '#3B82F6',
   is_active    boolean not null default true,
   created_at   timestamptz not null default now(),
-  updated_at   timestamptz not null default now()
+  updated_at   timestamptz not null default now(),
+  unique (household_id, local_alias)
 );
 
 -- ─────────────────────────────────
@@ -256,11 +273,35 @@ create table app_settings (
 -- ─────────────────────────────────
 -- RLS (Row Level Security) — 멀티 테넌트 보안
 -- ─────────────────────────────────
--- 참고: Supabase Auth 연동 후 각 테이블에 RLS 정책 추가 필요
+-- 참고: Supabase Auth 연동 후 아래 패턴으로 RLS 정책 추가 필요
+-- 핵심 원칙: auth.uid()가 household_users에 연결된 household 데이터만 접근 가능.
+--
 -- alter table households enable row level security;
--- create policy "household_members_only" on households
---   using (id in (select household_id from members where auth.uid() = id));
--- (기타 테이블도 동일 패턴)
+-- alter table household_users enable row level security;
+-- alter table members enable row level security;
+-- alter table calendar_events enable row level security;
+-- alter table ledger_entries enable row level security;
+-- alter table fixed_expenses enable row level security;
+-- alter table incomes enable row level security;
+-- alter table subscriptions enable row level security;
+-- alter table checklists enable row level security;
+-- alter table checklist_items enable row level security;
+-- alter table shopping_items enable row level security;
+-- alter table household_supplies enable row level security;
+-- alter table chores enable row level security;
+-- alter table records enable row level security;
+-- alter table app_settings enable row level security;
+--
+-- create policy "households_select_member" on households
+--   for select using (
+--     exists (
+--       select 1 from household_users hu
+--       where hu.household_id = households.id
+--       and hu.user_id = auth.uid()
+--     )
+--   );
+--
+-- 테이블별 CRUD 정책은 Auth 구현 시 실제 사용자 초대/소유자 모델에 맞춰 추가한다.
 
 -- ─────────────────────────────────
 -- Indexes
@@ -270,3 +311,5 @@ create index idx_ledger_entries_household_date on ledger_entries(household_id, d
 create index idx_fixed_expenses_household on fixed_expenses(household_id);
 create index idx_records_household_date on records(household_id, record_date);
 create index idx_shopping_items_household on shopping_items(household_id, is_done);
+create index idx_household_users_user on household_users(user_id);
+create index idx_members_household_alias on members(household_id, local_alias);

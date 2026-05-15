@@ -9,6 +9,7 @@
 - 모든 화면은 `repo.getAll()`, `repo.create()`, `repo.update()`, `repo.delete()`를 직접 호출한다.
 - `docs/SUPABASE_SCHEMA.sql`은 준비되어 있지만, 앱 모델과 완전히 1:1로 바로 붙이기 전 확인할 차이가 있다.
 - `.env`는 `.gitignore`에 포함되어 있어 Supabase URL/anon key를 저장할 준비가 되어 있다.
+- `SUPABASE_SCHEMA.sql`은 uuid 기본키를 유지하되 로컬 `"default"`, `"me"`, `"spouse"`, `"shared"` 값을 매핑할 수 있도록 `local_alias` 필드를 포함한다.
 
 ## 먼저 결정해야 할 설계 이슈
 
@@ -26,7 +27,7 @@ shared
 
 권장안:
 - Supabase에서는 `members.id`를 uuid로 유지한다.
-- 앱에서 쓰는 `me`, `spouse`, `shared`는 `role` 또는 별도 `local_alias` 개념으로 매핑한다.
+- 앱에서 쓰는 `me`, `spouse`, `shared`는 `members.local_alias`로 매핑한다.
 - 마이그레이션 시 로컬 `member_id` 값을 Supabase에 생성된 실제 uuid로 치환한다.
 
 대안:
@@ -53,7 +54,7 @@ shared
 
 권장안:
 - 최초 연결 시 Supabase household를 생성하거나 선택한다.
-- 로컬 `"default"`는 실제 Supabase household uuid로 마이그레이션한다.
+- 로컬 `"default"`는 `households.local_alias = 'default'`로 찾고, 실제 Supabase household uuid로 마이그레이션한다.
 - 마이그레이션 후 localStorage에도 uuid 기반 `household_id`를 저장해 다음 동기화부터 같은 기준을 쓴다.
 
 ### 4. 인증과 RLS 순서
@@ -66,12 +67,20 @@ shared
 3. 인증 없이 단일 household 동기화 검증
 4. 마이그레이션 도구 구현
 5. Supabase Auth 추가
-6. household membership 테이블 또는 정책 확정
+6. `household_users` 기반 사용자 연결/초대 정책 확정
 7. RLS 활성화
 
 ## 구현 단계
 
-### TASK-034: Supabase 프로젝트 생성 및 SQL 적용
+### TASK-034: Supabase SQL 스키마 최종 보강
+
+완료 기준:
+- `households.local_alias` 추가
+- `members.local_alias` 추가
+- `household_users` 추가
+- RLS 정책 초안이 `household_users` 기준으로 정리됨
+
+### TASK-035: Supabase 프로젝트 생성 및 SQL 적용
 
 사용자가 Supabase 프로젝트를 만들고 `docs/SUPABASE_SCHEMA.sql`을 SQL Editor에서 실행한다.
 
@@ -86,7 +95,7 @@ VITE_SUPABASE_ANON_KEY
 - anon key는 코드에 직접 넣지 않는다.
 - `.env` 파일은 커밋하지 않는다.
 
-### TASK-035: Supabase 클라이언트/env 설정
+### TASK-036: Supabase 클라이언트/env 설정
 
 예상 변경:
 
@@ -102,7 +111,7 @@ src/data/supabase/types.ts
 - `client.ts`에서 env 누락 시 명확한 에러 처리
 - 연결 확인용 헬퍼 추가
 
-### TASK-036: 로컬 데이터 마이그레이션 전략 구현
+### TASK-037: 로컬 데이터 마이그레이션 전략 구현
 
 예상 변경:
 
@@ -117,7 +126,7 @@ src/data/supabase/idMapping.ts
 - 각 테이블의 `household_id`, `member_id`, 관련 외래키 변환
 - 마이그레이션 전 JSON 백업 안내
 
-### TASK-037: 원격 동기화 저장소 계층 구현
+### TASK-038: 원격 동기화 저장소 계층 구현
 
 예상 변경:
 
@@ -132,7 +141,7 @@ src/data/repositories/base.ts
 - 앱 시작 시 Supabase pull 후 localStorage hydrate
 - 충돌 정책은 일단 `updated_at` 최신값 우선
 
-### TASK-038: 인증/Auth 및 RLS 정책 적용
+### TASK-039: 인증/Auth 및 RLS 정책 적용
 
 예상 변경:
 
@@ -158,5 +167,5 @@ docs/SUPABASE_SCHEMA.sql
 ## 다음 액션
 
 1. 사용자가 Supabase 프로젝트를 생성한다.
-2. `docs/SUPABASE_SCHEMA.sql`을 적용하기 전에 `members.id`, `households.id` 마이그레이션 전략을 최종 확인한다.
-3. `TASK-035`부터 작은 PR/커밋 단위로 진행한다.
+2. `docs/SUPABASE_SCHEMA.sql`을 SQL Editor에서 실행한다.
+3. `TASK-036`부터 작은 PR/커밋 단위로 진행한다.

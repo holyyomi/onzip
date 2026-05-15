@@ -77,8 +77,9 @@
 | TASK | 내용 | 상태 |
 |---|---|---|
 | TASK-033 | Supabase 연동 설계 점검 및 계획서 작성 | ✅ 완료 |
-| TASK-034 | Supabase 프로젝트 생성 및 SQL 적용 | 대기 |
-| TASK-035 | Supabase 클라이언트/env 설정 | 대기 |
-| TASK-036 | 로컬 데이터 마이그레이션 전략 구현 | 대기 |
-| TASK-037 | 원격 동기화 저장소 계층 구현 | 대기 |
-| TASK-038 | 인증/Auth 및 RLS 정책 적용 | 대기 |
+| TASK-034 | Supabase SQL 스키마 최종 보강 | ✅ 완료 |
+| TASK-035 | Supabase 프로젝트 생성 및 SQL 적용 | 대기 |
+| TASK-036 | Supabase 클라이언트/env 설정 | 대기 |
+| TASK-037 | 로컬 데이터 마이그레이션 전략 구현 | 대기 |
+| TASK-038 | 원격 동기화 저장소 계층 구현 | 대기 |
+| TASK-039 | 인증/Auth 및 RLS 정책 적용 | 대기 |
