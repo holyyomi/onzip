@@ -21,6 +21,7 @@ localStorage 기반 (Step 1 MVP). 키 구조는 Supabase 테이블 구조와 맞
 | records | `onzip_records` | 생활 기록 |
 | templates | `onzip_templates` | 템플릿 |
 | app_settings | `onzip_app_settings` | 앱 설정 |
+| supabase_id_map | `onzip_supabase_id_map` | Supabase 마이그레이션용 로컬 ID → 원격 UUID 매핑 |
 
 ## 주요 필드 규칙
 

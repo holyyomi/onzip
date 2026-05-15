@@ -204,7 +204,9 @@ onzip/
     │   │   ├── base.ts         # BaseRepository<T>, newId(), now()
     │   │   └── index.ts        # ★ 15개 repo 싱글톤 + exportAllData()
     │   ├── supabase/
-    │   │   └── client.ts       # lazy Supabase client + 연결 확인 헬퍼
+    │   │   ├── client.ts       # lazy Supabase client + 연결 확인 헬퍼
+    │   │   ├── idMapping.ts    # localStorage ID → Supabase uuid 매핑
+    │   │   └── migration.ts    # localStorage 데이터 Supabase row 변환/업서트
     │   └── seed/
     │       └── index.ts        # runSeed() — onzip_seed_done_v1 키로 1회 실행
     └── utils/
@@ -280,6 +282,7 @@ onzip_subscriptions, onzip_checklists, onzip_checklist_items,
 onzip_shopping_items, onzip_household_supplies, onzip_chores,
 onzip_records, onzip_templates, onzip_app_settings,
 onzip_custom_categories (카테고리 커스터마이징),
+onzip_supabase_id_map (Supabase 마이그레이션 ID 매핑),
 onzip_seed_done_v1 (Seed 실행 플래그)
 ```
 
@@ -338,6 +341,7 @@ type RecordType = 'life' | 'spending_note' | 'family_meeting' | 'anniversary' | 
 - Supabase SQL은 `members.id`와 `households.id`를 uuid로 정의한다.
 - `SUPABASE_SCHEMA.sql`은 로컬 ID 마이그레이션을 위해 `households.local_alias`, `members.local_alias`, `household_users`를 포함한다.
 - Supabase 클라이언트는 `src/data/supabase/client.ts`에 lazy helper로 준비되어 있으며, env가 없으면 앱 시작 시점에는 실패하지 않는다.
+- 로컬 데이터 마이그레이션 유틸은 `src/data/supabase/migration.ts`에 있으며, 실제 실행은 Supabase SQL 적용과 `.env` 설정 후 수동으로 해야 한다.
 - 바로 BaseRepository를 Supabase CRUD로 교체하면 동기식 화면 코드가 깨질 수 있다.
 - 권장 전략은 uuid 유지 + 마이그레이션 매핑 + localStorage 기반 sync 계층을 먼저 붙이는 방식이다.
 

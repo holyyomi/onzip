@@ -21,8 +21,7 @@ create table households (
   name       text not null default '우리집',
   local_alias text,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (local_alias)
+  updated_at timestamptz not null default now()
 );
 
 -- ─────────────────────────────────
@@ -311,5 +310,6 @@ create index idx_ledger_entries_household_date on ledger_entries(household_id, d
 create index idx_fixed_expenses_household on fixed_expenses(household_id);
 create index idx_records_household_date on records(household_id, record_date);
 create index idx_shopping_items_household on shopping_items(household_id, is_done);
+create index idx_households_local_alias on households(local_alias);
 create index idx_household_users_user on household_users(user_id);
 create index idx_members_household_alias on members(household_id, local_alias);

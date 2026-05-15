@@ -10,6 +10,7 @@
 - `docs/SUPABASE_SCHEMA.sql`은 준비되어 있지만, 앱 모델과 완전히 1:1로 바로 붙이기 전 확인할 차이가 있다.
 - `.env`는 `.gitignore`에 포함되어 있어 Supabase URL/anon key를 저장할 준비가 되어 있다.
 - `SUPABASE_SCHEMA.sql`은 uuid 기본키를 유지하되 로컬 `"default"`, `"me"`, `"spouse"`, `"shared"` 값을 매핑할 수 있도록 `local_alias` 필드를 포함한다.
+- 로컬→Supabase ID 매핑은 `onzip_supabase_id_map`에 저장해 같은 마이그레이션을 재실행해도 동일한 원격 uuid를 사용한다.
 
 ## 먼저 결정해야 할 설계 이슈
 
@@ -54,7 +55,7 @@ shared
 
 권장안:
 - 최초 연결 시 Supabase household를 생성하거나 선택한다.
-- 로컬 `"default"`는 `households.local_alias = 'default'`로 찾고, 실제 Supabase household uuid로 마이그레이션한다.
+- 로컬 `"default"`는 `households.local_alias = 'default'` 힌트를 남기고, 실제 Supabase household uuid로 마이그레이션한다.
 - 마이그레이션 후 localStorage에도 uuid 기반 `household_id`를 저장해 다음 동기화부터 같은 기준을 쓴다.
 
 ### 4. 인증과 RLS 순서
@@ -119,6 +120,14 @@ src/data/supabase/client.ts
 
 ### TASK-037: 로컬 데이터 마이그레이션 전략 구현
 
+완료 기준:
+- `src/data/supabase/idMapping.ts` 추가
+- `src/data/supabase/migration.ts` 추가
+- localStorage 데이터를 Supabase row payload로 변환
+- `default`, `me`, `spouse`, `shared`를 uuid로 매핑
+- `templates.items`를 Supabase `items_json`으로 변환
+- 실제 실행은 `.env`와 Supabase SQL 적용 후 수동 호출로 제한
+
 예상 변경:
 
 ```text
@@ -175,4 +184,5 @@ docs/SUPABASE_SCHEMA.sql
 1. 사용자가 Supabase 프로젝트를 생성한다.
 2. `docs/SUPABASE_SCHEMA.sql`을 SQL Editor에서 실행한다.
 3. Supabase 값이 준비되면 `.env.example`을 기준으로 로컬 `.env`를 만든다.
-4. `TASK-037`부터 작은 PR/커밋 단위로 진행한다.
+4. `migrateLocalDataToSupabase()`는 Supabase SQL 적용과 `.env` 설정 후 수동 실행한다.
+5. 다음 구현은 `TASK-038` 원격 동기화 저장소 계층이다.
