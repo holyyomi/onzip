@@ -60,13 +60,15 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       <section className="rounded-[28px] bg-[#222222] p-6 text-white overflow-hidden relative">
         <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-[#ff385c]" />
         <div className="relative">
-          <div className="flex items-center gap-2 mb-5">
-            <span className="h-9 w-9 rounded-[14px] bg-[#ff385c] text-white flex items-center justify-center text-sm font-semibold">
-              온
-            </span>
+          <div className="flex items-center gap-3 mb-6">
+            <img
+              src="/icons/icon-192.png"
+              alt=""
+              className="h-16 w-16 rounded-[22px]"
+            />
             <div>
-              <p className="text-lg font-semibold leading-tight">{APP_NAME}</p>
-              <p className="text-xs text-white/65 leading-tight">{APP_TAGLINE}</p>
+              <p className="text-[34px] font-semibold leading-none">{APP_NAME}</p>
+              <p className="text-sm text-white/68 leading-tight mt-1">{APP_TAGLINE}</p>
             </div>
           </div>
           <p className="text-sm font-semibold text-white/70">오늘 우리집</p>

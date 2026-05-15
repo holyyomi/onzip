@@ -55,7 +55,7 @@ npm run build
 - 설정 탭: 집 정보, 구성원, 카테고리, 설정 메모
 - PWA: manifest, service worker, Vercel 설정
 - 디자인: Airbnb + Apple 혼합 톤의 밝은 모바일 앱 UI
-- 브랜드: 화면 헤더와 홈 카드에 `온집` 로고/이름 표시
+- 브랜드: imagegen으로 생성한 `assets/brand/onzip-logo.png` 원본에서 PWA 아이콘을 만들고, `온집` 이름을 헤더/홈/설정에 명확히 표시
 - 빠른 추가: 저장 후 홈/일정/돈/생활/기록 화면 즉시 갱신, 완료 알림 표시
 - 입력 UX: 돈/장보기/일정 추가는 핵심 필드만 먼저 보이고 날짜/담당자/반복 등은 `자세히` 안에 배치
 
@@ -107,6 +107,17 @@ src/
     categoryStore.ts
     tabMemoStore.ts
     csvExport.ts
+assets/
+  brand/
+    onzip-logo.png
+public/
+  icons/
+    icon-192.png
+    icon-512.png
+    icon-512-maskable.png
+    icon.svg
+scripts/
+  generate-icons.mjs
 ```
 
 ---

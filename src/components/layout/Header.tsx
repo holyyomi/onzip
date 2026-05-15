@@ -22,16 +22,16 @@ export default function Header({ activeTab, onOpenQuickAdd }: Props) {
   return (
     <header className="bg-white/85 backdrop-blur-xl border-b border-[#ebebeb] px-5 py-4 flex items-center justify-between sticky top-0 z-10">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="h-11 w-11 rounded-[16px] bg-[#ff385c] text-white flex items-center justify-center text-base font-semibold flex-shrink-0">
-          온
-        </div>
+        <img
+          src="/icons/icon-192.png"
+          alt=""
+          className="h-12 w-12 rounded-[16px] flex-shrink-0"
+        />
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-[#222222]">{APP_NAME}</p>
-            <span className="h-1 w-1 rounded-full bg-[#dddddd]" />
-            <p className="text-xs font-medium text-[#6a6a6a] truncate">{householdName}</p>
-          </div>
-          <h1 className="text-2xl font-semibold text-[#222222] leading-tight">{TAB_TITLE[activeTab]}</h1>
+          <p className="text-[26px] font-semibold text-[#222222] leading-none">{APP_NAME}</p>
+          <p className="text-xs font-medium text-[#6a6a6a] truncate mt-1">
+            {householdName} · {TAB_TITLE[activeTab]}
+          </p>
         </div>
       </div>
       <div className="flex items-center gap-2">

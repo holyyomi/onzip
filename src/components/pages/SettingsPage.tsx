@@ -74,11 +74,9 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
     <div className="p-4 space-y-4">
       <div className="rounded-[28px] bg-[#222222] p-5 text-white">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-[18px] bg-[#ff385c] flex items-center justify-center text-base font-semibold">
-            온
-          </div>
+          <img src="/icons/icon-192.png" alt="" className="h-14 w-14 rounded-[20px]" />
           <div>
-            <p className="text-xl font-semibold">{APP_NAME}</p>
+            <p className="text-[28px] font-semibold leading-none">{APP_NAME}</p>
             <p className="text-sm text-white/65">{APP_TAGLINE}</p>
           </div>
         </div>

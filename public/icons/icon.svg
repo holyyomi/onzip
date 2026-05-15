@@ -1,5 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#3B82F6"/>
-  <text x="256" y="360" font-family="-apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif"
-    font-size="300" font-weight="700" fill="white" text-anchor="middle">온</text>
+  <rect width="512" height="512" rx="108" fill="#fffafa"/>
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="#ff5a68" stroke-width="24"/>
+  <path d="M112 272L256 152l144 120" fill="none" stroke="#ff5a68" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M144 272v96h74" fill="none" stroke="#ff5a68" stroke-width="40" stroke-linecap="round"/>
+  <path d="M370 272v72" fill="none" stroke="#ff5a68" stroke-width="40" stroke-linecap="round"/>
+  <path d="M220 348l48 48 96-104" fill="none" stroke="#ff5a68" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="176" y="218" width="56" height="56" rx="16" fill="#ffebe5"/>
+  <rect x="268" y="218" width="56" height="56" rx="16" fill="#ffdccc"/>
 </svg>
