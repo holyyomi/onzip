@@ -11,6 +11,7 @@ import {
 } from '../../data/repositories'
 import { getTodayAggregated } from '../../utils/calendarAggregator'
 import { formatAmount, todayMonth, todayStr, todayYear } from '../../utils/date'
+import TabMemoCard from '../common/TabMemoCard'
 
 interface Props {
   onQuickAdd: (type: QuickAddType) => void
@@ -53,33 +54,37 @@ export default function HomePage({ onQuickAdd, onTabChange }: Props) {
   const hasNoTodayWork = todaySchedules.length === 0 && todayPayments.length === 0 && data.dueChecklists.length === 0
 
   return (
-    <div className="px-5 py-5 space-y-4">
-      <section className="bg-[#fff3b0] rounded-xl border border-[#eadf9a] p-5">
-        <p className="text-sm text-[#7a5f12] font-medium">오늘 할 일</p>
-        <h2 className="text-2xl font-semibold text-[#2f2a25] mt-1 leading-snug">
+    <div className="px-5 py-5 space-y-5">
+      <section className="rounded-[28px] bg-[#222222] p-6 text-white overflow-hidden relative">
+        <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-[#ff385c]" />
+        <div className="relative">
+          <p className="text-sm font-semibold text-white/70">우리집 오늘</p>
+          <h2 className="text-[28px] font-semibold mt-2 leading-tight">
           {hasNoTodayWork ? '오늘은 여유로워요' : `${todaySchedules.length + todayPayments.length + data.dueChecklists.length}가지만 확인하면 돼요`}
-        </h2>
-        <p className="text-sm text-[#7a5f12] mt-2">
-          일정, 납부, 장보기를 한곳에서 가볍게 챙겨요.
-        </p>
+          </h2>
+          <p className="text-sm text-white/75 mt-3 leading-relaxed">
+            일정, 돈, 장보기, 할 일을 한 화면에서 쉽게 챙겨요.
+          </p>
+        </div>
       </section>
 
-      <section className="grid grid-cols-3 gap-2">
-        <QuickButton label="지출 적기" onClick={() => onQuickAdd('expense')} />
-        <QuickButton label="장보기" onClick={() => onQuickAdd('shopping')} />
-        <QuickButton label="일정 넣기" onClick={() => onQuickAdd('schedule')} />
+      <section className="grid grid-cols-2 gap-3">
+        <QuickButton icon="원" label="돈 쓴 것" onClick={() => onQuickAdd('expense')} />
+        <QuickButton icon="장" label="살 것" onClick={() => onQuickAdd('shopping')} />
+        <QuickButton icon="일" label="일정" onClick={() => onQuickAdd('schedule')} />
+        <QuickButton icon="메" label="가족 기록" onClick={() => onQuickAdd('record')} />
       </section>
 
       <section className="grid grid-cols-2 gap-3">
         <InfoCard
-          tint="bg-[#eef6ff]"
+          tint="bg-white"
           label="이번 달 쓴 돈"
           value={formatAmount(data.monthExpense)}
           note={`들어온 돈 ${formatAmount(data.monthIncome)}`}
           onClick={() => onTabChange('money')}
         />
         <InfoCard
-          tint="bg-[#f1f8ee]"
+          tint="bg-white"
           label="장보기 남은 것"
           value={`${data.pendingShopping.length}개`}
           note={data.pendingShopping.slice(0, 2).map((item) => item.name).join(', ') || '목록이 비었어요'}
@@ -87,10 +92,10 @@ export default function HomePage({ onQuickAdd, onTabChange }: Props) {
         />
       </section>
 
-      <section className="bg-white rounded-xl border border-[#e8e1d8] p-4">
+      <section className="oz-card p-5">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-semibold text-[#2f2a25]">오늘 확인</h3>
-          <button onClick={() => onTabChange('calendar')} className="text-sm text-[#7c3aed] font-medium">
+          <h3 className="text-lg font-semibold text-[#222222]">오늘 확인</h3>
+          <button onClick={() => onTabChange('calendar')} className="text-sm text-[#ff385c] font-semibold">
             전체 보기
           </button>
         </div>
@@ -115,31 +120,40 @@ export default function HomePage({ onQuickAdd, onTabChange }: Props) {
 
       <section className="grid grid-cols-2 gap-3">
         <InfoCard
-          tint="bg-[#fff0e6]"
+          tint="bg-white"
           label="매달 나가는 돈"
           value={formatAmount(data.monthlyFixed + data.monthlySubs)}
           note="고정지출과 구독"
           onClick={() => onTabChange('money')}
         />
         <InfoCard
-          tint="bg-[#f4efff]"
+          tint="bg-white"
           label="가족 기록"
           value="메모하기"
           note="회의록, 집 이야기"
           onClick={() => onQuickAdd('record')}
         />
       </section>
+
+      <TabMemoCard
+        tab="home"
+        title="우리집 메모"
+        placeholder="오늘 가족에게 알려줄 말, 잊으면 안 되는 일을 적어두세요."
+      />
     </div>
   )
 }
 
-function QuickButton({ label, onClick }: { label: string; onClick: () => void }) {
+function QuickButton({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="min-h-[64px] bg-[#2f2a25] text-white rounded-lg px-3 text-sm font-semibold leading-tight"
+      className="min-h-[92px] oz-card px-4 py-4 text-left active:scale-[0.98] transition"
     >
-      {label}
+      <span className="h-10 w-10 rounded-full bg-[#ff385c] text-white flex items-center justify-center text-sm font-semibold mb-3">
+        {icon}
+      </span>
+      <span className="text-lg font-semibold text-[#222222] leading-tight">{label}</span>
     </button>
   )
 }
@@ -158,26 +172,26 @@ function InfoCard({
   onClick: () => void
 }) {
   return (
-    <button onClick={onClick} className={`${tint} rounded-xl border border-[#e8e1d8] p-4 text-left min-h-[118px]`}>
-      <p className="text-sm text-[#6f665d] font-medium">{label}</p>
-      <p className="text-xl font-semibold text-[#2f2a25] mt-2 leading-tight">{value}</p>
-      <p className="text-xs text-[#8f857a] mt-2 line-clamp-2">{note}</p>
+    <button onClick={onClick} className={`${tint} oz-card p-4 text-left min-h-[126px] active:scale-[0.99] transition`}>
+      <p className="text-sm text-[#6a6a6a] font-semibold">{label}</p>
+      <p className="text-[22px] font-semibold text-[#222222] mt-2 leading-tight">{value}</p>
+      <p className="text-xs text-[#6a6a6a] mt-2 line-clamp-2">{note}</p>
     </button>
   )
 }
 
 function HomeLine({ label, text }: { label: string; text: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg bg-[#fbfaf8] border border-[#eee7de] px-3 py-3">
-      <span className="text-xs font-semibold text-[#7c3aed] bg-[#f4efff] rounded px-2 py-1">{label}</span>
-      <span className="text-sm text-[#3b342d] font-medium truncate">{text}</span>
+    <div className="flex items-center gap-3 rounded-[18px] bg-[#f7f7f7] border border-[#ebebeb] px-3 py-3">
+      <span className="text-xs font-semibold text-[#ff385c] bg-[#fff0f3] rounded-full px-2.5 py-1">{label}</span>
+      <span className="text-sm text-[#222222] font-medium truncate">{text}</span>
     </div>
   )
 }
 
 function EmptyLine({ text }: { text: string }) {
   return (
-    <div className="rounded-lg bg-[#fbfaf8] border border-[#eee7de] px-3 py-4 text-sm text-[#8f857a] text-center">
+    <div className="rounded-[18px] bg-[#f7f7f7] border border-[#ebebeb] px-3 py-4 text-sm text-[#6a6a6a] text-center">
       {text}
     </div>
   )

@@ -124,6 +124,14 @@ npm run dev              # localhost:3000
 - **쉬운 말 우선**: JSON/Supabase 같은 기술 용어를 사용자용 표현으로 완화
 - **큰 터치 영역**: 홈 빠른 입력과 하단 탭을 모바일에서 누르기 쉽게 확대
 
+### UX 리디자인 2차 (Codex)
+- **Airbnb + Apple 혼합 톤**: 흰 카드, #f7f7f7 배경, #222 잉크, #ff385c 포인트 컬러로 정리
+- **앱형 하단 탭**: 아이콘형 원형 배지 + 라벨 구조로 모바일 PWA 느낌 강화
+- **홈 화면 재구성**: 어두운 오늘 카드, 2열 큰 빠른 입력, 한눈에 보는 요약 카드 적용
+- **공통 서브탭 개선**: 돈/생활/설정 서브탭을 pill 버튼으로 통일
+- **탭별 메모장 추가**: 홈/일정/돈/생활/설정에 자동 저장 메모장 추가 (`onzip_tab_memos`)
+- **백업 포함**: JSON 백업/복원에 `tab_memos` 포함
+
 ---
 
 ## 4. 전체 파일 구조
@@ -164,7 +172,8 @@ onzip/
     │   │   ├── FormModal.tsx      # ★ 재사용 바텀시트 (Field, inputCls, FormActions)
     │   │   ├── EmptyState.tsx     # 빈 상태 컴포넌트
     │   │   ├── QuickAddMenu.tsx   # 헤더 + 바텀시트 메뉴 (7가지)
-    │   │   └── QuickAddModal.tsx  # QuickAddType → 해당 Form 라우팅
+    │   │   ├── QuickAddModal.tsx  # QuickAddType → 해당 Form 라우팅
+    │   │   └── TabMemoCard.tsx    # 탭별 자동 저장 메모장
     │   ├── layout/
     │   │   ├── AppShell.tsx       # safe-area, max-w-lg
     │   │   ├── Header.tsx         # 집 이름(householdRepo), + 버튼
@@ -224,6 +233,7 @@ onzip/
         ├── calendarAggregator.ts  # ★ 이벤트 집계 (고정지출·구독 실시간 변환)
         ├── constants.ts        # 카테고리·결제수단·납부일 옵션
         ├── categoryStore.ts    # 커스텀 카테고리 저장소
+        ├── tabMemoStore.ts     # 홈/일정/돈/생활/설정 탭별 메모 localStorage
         └── csvExport.ts        # CSV 내보내기 (UTF-8 BOM)
 ```
 
@@ -292,6 +302,7 @@ onzip_subscriptions, onzip_checklists, onzip_checklist_items,
 onzip_shopping_items, onzip_household_supplies, onzip_chores,
 onzip_records, onzip_templates, onzip_app_settings,
 onzip_custom_categories (카테고리 커스터마이징),
+onzip_tab_memos (탭별 메모장),
 onzip_supabase_id_map (Supabase 마이그레이션 ID 매핑),
 onzip_seed_done_v1 (Seed 실행 플래그)
 ```
@@ -311,12 +322,16 @@ Supabase 테이블명은 `records` 유지.
 ### 패턴 9: 서브탭 공통 구조
 ```tsx
 // MoneyPage, LifePage, SettingsPage 모두 동일 패턴
-<div className="flex overflow-x-auto bg-white border-b border-gray-100 px-2 hide-scrollbar">
+<div className="oz-tab-strip bg-[#f7f7f7]">
   {SUB_TABS.map(t => (
-    <button className={`flex-shrink-0 px-3 py-3 text-sm font-medium border-b-2 ${
-      activeTab === t.value ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent'
+    <button className={`oz-sub-tab ${
+      activeTab === t.value ? 'bg-[#222222] text-white border-[#222222]' : 'bg-white text-[#6a6a6a] border-[#dddddd]'
     }`}>
 ```
+
+### 패턴 10: 탭별 메모장
+탭별 메모는 `src/utils/tabMemoStore.ts`가 `onzip_tab_memos`에 저장한다.
+UI는 `src/components/common/TabMemoCard.tsx`를 재사용하며, 홈/일정/돈/생활/설정 탭에 배치되어 있다.
 
 ---
 

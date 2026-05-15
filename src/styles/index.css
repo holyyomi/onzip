@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 html {
-  background: #f4efe7;
+  background: #f7f7f7;
 }
 
 body {
-  background: #f4efe7;
-  color: #2f2a25;
+  background: #f7f7f7;
+  color: #222222;
 }
 
 /* ─── 모바일 UX 유틸리티 ─── */
@@ -53,7 +53,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* 터치 하이라이트 제거 */
@@ -68,4 +68,26 @@ a {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+@layer components {
+  .oz-card {
+    @apply rounded-[24px] border border-[#ebebeb] bg-white;
+    box-shadow:
+      rgba(0, 0, 0, 0.02) 0 0 0 1px,
+      rgba(0, 0, 0, 0.04) 0 2px 6px 0,
+      rgba(0, 0, 0, 0.08) 0 8px 20px 0;
+  }
+
+  .oz-pill-primary {
+    @apply rounded-full bg-[#ff385c] text-white active:bg-[#e00b41] active:scale-[0.98] transition;
+  }
+
+  .oz-tab-strip {
+    @apply flex gap-2 overflow-x-auto px-4 py-3 hide-scrollbar;
+  }
+
+  .oz-sub-tab {
+    @apply flex-shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition-colors;
+  }
 }

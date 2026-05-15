@@ -13,6 +13,7 @@ import CalendarWeekView from '../calendar/CalendarWeekView'
 import TodaySummaryCard from '../calendar/TodaySummaryCard'
 import DayEventPanel from '../calendar/DayEventPanel'
 import EventFormModal from '../calendar/EventFormModal'
+import TabMemoCard from '../common/TabMemoCard'
 
 type ViewMode = 'month' | 'week'
 
@@ -87,26 +88,23 @@ export default function CalendarPage() {
 
   return (
     <div>
-      {/* 오늘 요약 카드 */}
       <TodaySummaryCard key={refreshKey} />
 
-      {/* 보기 전환 탭 */}
-      <div className="flex px-4 py-2 gap-2 bg-white border-b border-gray-100">
+      <div className="flex px-4 py-3 gap-2 bg-[#f7f7f7]">
         {(['month', 'week'] as const).map((mode) => (
           <button key={mode} onClick={() => setViewMode(mode)}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              viewMode === mode ? 'bg-blue-500 text-white' : 'text-gray-400 border border-gray-200'
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+              viewMode === mode ? 'bg-[#222222] text-white' : 'text-[#6a6a6a] border border-[#dddddd] bg-white'
             }`}>
-            {mode === 'month' ? '월간' : '주간'}
+            {mode === 'month' ? '한 달' : '한 주'}
           </button>
         ))}
         <button onClick={handleToday}
-          className="ml-auto px-3 py-1.5 text-xs text-blue-500 border border-blue-200 rounded-full">
+          className="ml-auto px-4 py-2 text-sm font-semibold text-[#ff385c] border border-[#ffd1da] bg-white rounded-full">
           오늘
         </button>
       </div>
 
-      {/* 캘린더 뷰 */}
       {viewMode === 'month' ? (
         <CalendarMonthView
           year={year} month={month} events={events}
@@ -123,13 +121,16 @@ export default function CalendarPage() {
         />
       )}
 
-      <div className="h-2 bg-gray-100" />
+      <div className="h-2 bg-[#f7f7f7]" />
 
-      {/* 선택 날짜 이벤트 패널 */}
       <DayEventPanel
         date={selectedDate} events={selectedDateEvents}
         onAddEvent={handleAddEvent} onEditEvent={handleEditEvent}
       />
+
+      <div className="px-5 py-5">
+        <TabMemoCard tab="calendar" title="일정 메모" placeholder="가족 약속, 병원 예약, 준비물을 간단히 적어두세요." />
+      </div>
 
       {showModal && (
         <EventFormModal

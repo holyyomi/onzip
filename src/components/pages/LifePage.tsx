@@ -4,13 +4,14 @@ import ShoppingTab from '../life/ShoppingTab'
 import SuppliesTab from '../life/SuppliesTab'
 import ChoreTab from '../life/ChoreTab'
 import TemplateTab from '../life/TemplateTab'
+import TabMemoCard from '../common/TabMemoCard'
 
 type LifeSubTab = 'checklist' | 'shopping' | 'supplies' | 'chore' | 'template'
 
 const SUB_TABS: { value: LifeSubTab; label: string }[] = [
-  { value: 'checklist', label: '체크리스트' },
+  { value: 'checklist', label: '할 일' },
   { value: 'shopping', label: '장보기' },
-  { value: 'supplies', label: '생활용품' },
+  { value: 'supplies', label: '용품' },
   { value: 'chore', label: '집안일' },
   { value: 'template', label: '템플릿' },
 ]
@@ -23,16 +24,15 @@ export default function LifePage() {
 
   return (
     <div>
-      {/* 서브탭 */}
-      <div className="flex overflow-x-auto bg-white border-b border-gray-100 px-2">
+      <div className="oz-tab-strip bg-[#f7f7f7]">
         {SUB_TABS.map((t) => (
           <button
             key={t.value}
             onClick={() => setActiveTab(t.value)}
-            className={`flex-shrink-0 px-3 py-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`oz-sub-tab ${
               activeTab === t.value
-                ? 'text-blue-600 border-blue-600'
-                : 'text-gray-400 border-transparent'
+                ? 'bg-[#222222] text-white border-[#222222]'
+                : 'bg-white text-[#6a6a6a] border-[#dddddd]'
             }`}
           >
             {t.label}
@@ -53,6 +53,10 @@ export default function LifePage() {
         <ChoreTab refreshKey={refreshKey} onRefresh={onRefresh} />
       )}
       {activeTab === 'template' && <TemplateTab onRefresh={onRefresh} />}
+
+      <div className="px-5 py-5">
+        <TabMemoCard tab="life" title="생활 메모" placeholder="살 것, 챙길 것, 집안일 메모를 편하게 적어두세요." />
+      </div>
     </div>
   )
 }

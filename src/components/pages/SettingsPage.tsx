@@ -18,6 +18,7 @@ import {
   pushLocalDataToSupabase,
 } from '../../data/supabase/sync'
 import type { Member, MemberRole } from '../../data/models'
+import TabMemoCard from '../common/TabMemoCard'
 
 type SettingsSubTab = 'home' | 'members' | 'categories' | 'backup'
 
@@ -35,11 +36,11 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <div className="flex bg-white border-b border-gray-100 px-2">
+      <div className="oz-tab-strip bg-[#f7f7f7]">
         {SUB_TABS.map((t) => (
           <button key={t.value} onClick={() => setActiveTab(t.value)}
-            className={`flex-1 px-2 py-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === t.value ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent'
+            className={`oz-sub-tab ${
+              activeTab === t.value ? 'bg-[#222222] text-white border-[#222222]' : 'bg-white text-[#6a6a6a] border-[#dddddd]'
             }`}>
             {t.label}
           </button>
@@ -50,6 +51,10 @@ export default function SettingsPage() {
       {activeTab === 'members' && <MembersTab refreshKey={refreshKey} onRefresh={onRefresh} />}
       {activeTab === 'categories' && <CategoryTab />}
       {activeTab === 'backup' && <BackupTab />}
+
+      <div className="px-5 py-5">
+        <TabMemoCard tab="settings" title="설정 메모" placeholder="나중에 바꿀 설정, 배포 전에 확인할 내용을 적어두세요." />
+      </div>
     </div>
   )
 }
@@ -76,7 +81,7 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
   return (
     <div className="p-4 space-y-4">
       {/* 집 이름 편집 */}
-      <div className="bg-white rounded-xl p-4">
+      <div className="oz-card p-4">
         <p className="text-xs text-gray-400 font-medium mb-3">집 이름</p>
         <div className="flex gap-2">
           <input
@@ -89,8 +94,8 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
             maxLength={20}
           />
           <button onClick={handleSave}
-            className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-              saved ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'
+            className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-colors ${
+              saved ? 'bg-[#0a7f52] text-white' : 'bg-[#ff385c] text-white'
             }`}>
             {saved ? '저장됨' : '저장'}
           </button>
@@ -99,7 +104,7 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
       </div>
 
       {/* 앱 현황 */}
-      <div className="bg-white rounded-xl p-4">
+      <div className="oz-card p-4">
         <p className="text-xs text-gray-400 font-medium mb-3">앱 현황</p>
         <div className="grid grid-cols-2 gap-3">
           <StatCard label="가계부 내역" value={`${totalEntries}건`} />
@@ -110,7 +115,7 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
       </div>
 
       {/* 앱 버전 */}
-      <div className="bg-white rounded-xl px-4 py-3 flex justify-between items-center">
+      <div className="oz-card px-4 py-3 flex justify-between items-center">
         <span className="text-sm text-gray-600">앱 버전</span>
         <span className="text-sm text-gray-400">v1.0.0</span>
       </div>
@@ -120,9 +125,9 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-gray-50 rounded-lg p-3 text-center">
-      <p className="text-xs text-gray-400">{label}</p>
-      <p className="text-lg font-bold text-gray-700 mt-0.5">{value}</p>
+    <div className="bg-[#f7f7f7] rounded-[18px] p-3 text-center">
+      <p className="text-xs text-[#6a6a6a]">{label}</p>
+      <p className="text-lg font-semibold text-[#222222] mt-0.5">{value}</p>
     </div>
   )
 }
@@ -151,7 +156,7 @@ function MembersTab({ refreshKey, onRefresh }: { refreshKey: number; onRefresh: 
       <div className="px-4 py-3 bg-white border-b border-gray-100 flex justify-between items-center">
         <span className="text-sm font-semibold text-gray-700">가족 구성원</span>
         <button onClick={() => { setEditingId(null); setShowModal(true) }}
-          className="text-sm text-blue-500 border border-blue-200 rounded-lg px-3 py-1.5">
+          className="text-sm text-[#ff385c] border border-[#ffd1da] rounded-full px-3 py-1.5 font-semibold">
           + 추가
         </button>
       </div>
@@ -159,7 +164,7 @@ function MembersTab({ refreshKey, onRefresh }: { refreshKey: number; onRefresh: 
       <div className="p-4 space-y-2">
         {members.map((m) => (
           <button key={m.id} onClick={() => { setEditingId(m.id); setShowModal(true) }}
-            className={`w-full bg-white rounded-xl px-4 py-3 flex items-center gap-3 text-left ${!m.is_active ? 'opacity-40' : ''}`}>
+            className={`w-full oz-card px-4 py-3 flex items-center gap-3 text-left ${!m.is_active ? 'opacity-40' : ''}`}>
             <span className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
               style={{ backgroundColor: m.color }}>
               {m.name[0]}
@@ -242,7 +247,7 @@ function MemberFormModal({ memberId, onSaved, onClose }: {
         <div className="flex items-center justify-between mb-4 py-2">
           <span className="text-sm text-gray-700">활성 상태</span>
           <button onClick={() => setIsActive((v) => !v)}
-            className={`w-10 h-6 rounded-full transition-colors ${isActive ? 'bg-blue-500' : 'bg-gray-200'}`}>
+            className={`w-10 h-6 rounded-full transition-colors ${isActive ? 'bg-[#ff385c]' : 'bg-gray-200'}`}>
             <span className={`block w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${isActive ? 'translate-x-4' : 'translate-x-0'}`} />
           </button>
         </div>
@@ -321,7 +326,7 @@ function CategorySection({
   const categories = getCategories(type)
 
   return (
-    <div className="bg-white rounded-xl p-4">
+    <div className="oz-card p-4">
       <p className="text-sm font-semibold text-gray-700 mb-3">{label}</p>
 
       <div className="flex flex-wrap gap-2 mb-3">
@@ -330,12 +335,12 @@ function CategorySection({
           return (
             <div key={cat}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border ${
-                def ? 'bg-gray-50 text-gray-600 border-gray-200' : 'bg-blue-50 text-blue-600 border-blue-200'
+                def ? 'bg-gray-50 text-gray-600 border-gray-200' : 'bg-[#fff0f3] text-[#ff385c] border-[#ffd1da]'
               }`}>
               <span>{cat}</span>
               {!def && (
                 <button onClick={() => onRemove(cat)}
-                  className="text-blue-400 hover:text-blue-600 ml-0.5 font-bold text-sm leading-none">
+                  className="text-[#ff385c] ml-0.5 font-bold text-sm leading-none">
                   ×
                 </button>
               )}
@@ -352,10 +357,10 @@ function CategorySection({
           value={inputValue}
           onChange={(e) => onInputChange(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && onAdd()}
-          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+          className="flex-1 border border-gray-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#222222]"
         />
         <button onClick={onAdd}
-          className="px-3 py-2 bg-blue-500 text-white text-sm rounded-lg font-medium">
+          className="px-4 py-2 bg-[#ff385c] text-white text-sm rounded-full font-semibold">
           추가
         </button>
       </div>
@@ -402,6 +407,7 @@ function BackupTab() {
           'fixed_expenses', 'incomes', 'subscriptions', 'checklists',
           'checklist_items', 'shopping_items', 'household_supplies',
           'chores', 'records', 'templates', 'app_settings',
+          'tab_memos',
         ]
         keys.forEach((k) => {
           if (json[k]) localStorage.setItem(`onzip_${k}`, JSON.stringify(json[k]))

@@ -85,3 +85,4 @@
 | TASK-039 | 인증/Auth 및 RLS 정책 적용 | 대기 |
 | TASK-040 | 설정 백업 탭 Supabase 수동 동기화 UI | ✅ 완료 |
 | TASK-041 | Notion 기반 홈 중심 1차 UX 리디자인 | ✅ 완료 |
+| TASK-042 | Airbnb+Apple 모바일 앱 디자인 2차 개편 + 탭별 메모장 | ✅ 완료 |

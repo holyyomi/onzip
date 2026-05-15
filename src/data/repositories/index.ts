@@ -369,6 +369,7 @@ export function exportAllData(): string {
       records: lifeRecordRepo.getAll(),
       templates: templateRepo.getAll(),
       app_settings: appSettingsRepo.getAll(),
+      tab_memos: JSON.parse(localStorage.getItem('onzip_tab_memos') ?? '{}'),
     },
     null,
     2,
