@@ -17,13 +17,17 @@ import TabMemoCard from '../common/TabMemoCard'
 
 type ViewMode = 'month' | 'week'
 
+interface Props {
+  externalRefreshKey: number
+}
+
 function addDays(dateStr: string, days: number): string {
   const [y, m, d] = dateStr.split('-').map(Number)
   const result = new Date(y, m - 1, d + days)
   return formatDate(result)
 }
 
-export default function CalendarPage() {
+export default function CalendarPage({ externalRefreshKey }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('month')
   const [year, setYear] = useState(todayYear())
   const [month, setMonth] = useState(todayMonth())
@@ -35,7 +39,7 @@ export default function CalendarPage() {
   const events = useMemo(
     () => getAggregatedEvents(year, month),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [year, month, refreshKey],
+    [year, month, refreshKey, externalRefreshKey],
   )
 
   const selectedDateEvents = events.filter((e) => e.date === selectedDate)
@@ -88,7 +92,7 @@ export default function CalendarPage() {
 
   return (
     <div>
-      <TodaySummaryCard key={refreshKey} />
+      <TodaySummaryCard key={`${refreshKey}-${externalRefreshKey}`} />
 
       <div className="flex px-4 py-3 gap-2 bg-[#f7f7f7]">
         {(['month', 'week'] as const).map((mode) => (

@@ -8,6 +8,10 @@ import TabMemoCard from '../common/TabMemoCard'
 
 type LifeSubTab = 'checklist' | 'shopping' | 'supplies' | 'chore' | 'template'
 
+interface Props {
+  externalRefreshKey: number
+}
+
 const SUB_TABS: { value: LifeSubTab; label: string }[] = [
   { value: 'checklist', label: '할 일' },
   { value: 'shopping', label: '장보기' },
@@ -16,11 +20,12 @@ const SUB_TABS: { value: LifeSubTab; label: string }[] = [
   { value: 'template', label: '템플릿' },
 ]
 
-export default function LifePage() {
+export default function LifePage({ externalRefreshKey }: Props) {
   const [activeTab, setActiveTab] = useState<LifeSubTab>('checklist')
   const [refreshKey, setRefreshKey] = useState(0)
 
   const onRefresh = () => setRefreshKey((k) => k + 1)
+  const pageRefreshKey = refreshKey + externalRefreshKey
 
   return (
     <div>
@@ -41,16 +46,16 @@ export default function LifePage() {
       </div>
 
       {activeTab === 'checklist' && (
-        <ChecklistTab refreshKey={refreshKey} onRefresh={onRefresh} />
+        <ChecklistTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
       )}
       {activeTab === 'shopping' && (
-        <ShoppingTab refreshKey={refreshKey} onRefresh={onRefresh} />
+        <ShoppingTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
       )}
       {activeTab === 'supplies' && (
-        <SuppliesTab refreshKey={refreshKey} onRefresh={onRefresh} />
+        <SuppliesTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
       )}
       {activeTab === 'chore' && (
-        <ChoreTab refreshKey={refreshKey} onRefresh={onRefresh} />
+        <ChoreTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
       )}
       {activeTab === 'template' && <TemplateTab onRefresh={onRefresh} />}
 

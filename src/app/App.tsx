@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import AppShell from '../components/layout/AppShell'
 import HomePage from '../components/pages/HomePage'
 import CalendarPage from '../components/pages/CalendarPage'
@@ -15,6 +15,9 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
   const [showQuickMenu, setShowQuickMenu] = useState(false)
   const [quickAddType, setQuickAddType] = useState<QuickAddType | null>(null)
+  const [appRefreshKey, setAppRefreshKey] = useState(0)
+  const [savedMessage, setSavedMessage] = useState('')
+  const savedTimerRef = useRef<number | null>(null)
 
   function handleQuickSelect(type: QuickAddType) {
     setShowQuickMenu(false)
@@ -22,17 +25,25 @@ export default function App() {
   }
 
   function handleQuickSaved() {
+    const message = quickAddType ? getSavedMessage(quickAddType) : '저장됐어요'
     setQuickAddType(null)
+    setAppRefreshKey((key) => key + 1)
+    setSavedMessage(message)
+
+    if (savedTimerRef.current) {
+      window.clearTimeout(savedTimerRef.current)
+    }
+    savedTimerRef.current = window.setTimeout(() => setSavedMessage(''), 1800)
   }
 
   const renderPage = () => {
     switch (activeTab) {
       case 'home':
-        return <HomePage onQuickAdd={handleQuickSelect} onTabChange={setActiveTab} />
-      case 'calendar': return <CalendarPage />
-      case 'money':    return <MoneyPage />
-      case 'life':     return <LifePage />
-      case 'records':  return <RecordsPage />
+        return <HomePage refreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} onTabChange={setActiveTab} />
+      case 'calendar': return <CalendarPage externalRefreshKey={appRefreshKey} />
+      case 'money':    return <MoneyPage externalRefreshKey={appRefreshKey} />
+      case 'life':     return <LifePage externalRefreshKey={appRefreshKey} />
+      case 'records':  return <RecordsPage externalRefreshKey={appRefreshKey} />
       case 'settings': return <SettingsPage />
     }
   }
@@ -63,6 +74,31 @@ export default function App() {
           onClose={() => setQuickAddType(null)}
         />
       )}
+
+      {savedMessage && (
+        <div className="fixed left-1/2 bottom-24 z-50 -translate-x-1/2 rounded-full bg-[#222222] px-5 py-3 text-sm font-semibold text-white shadow-lg">
+          {savedMessage}
+        </div>
+      )}
     </>
   )
+}
+
+function getSavedMessage(type: QuickAddType): string {
+  switch (type) {
+    case 'schedule':
+      return '일정이 저장됐어요'
+    case 'expense':
+      return '돈 기록이 저장됐어요'
+    case 'fixed_expense':
+      return '매달 돈이 저장됐어요'
+    case 'subscription':
+      return '구독이 저장됐어요'
+    case 'shopping':
+      return '살 것이 저장됐어요'
+    case 'checklist':
+      return '할 일이 저장됐어요'
+    case 'record':
+      return '기록이 저장됐어요'
+  }
 }

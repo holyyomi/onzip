@@ -17,7 +17,11 @@ const RECORD_TYPE_CONFIG: Record<
 
 type FilterType = 'all' | RecordType
 
-export default function RecordsPage() {
+interface Props {
+  externalRefreshKey: number
+}
+
+export default function RecordsPage({ externalRefreshKey }: Props) {
   const [filter, setFilter] = useState<FilterType>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -44,7 +48,7 @@ export default function RecordsPage() {
 
     return list.sort((a, b) => b.record_date.localeCompare(a.record_date))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, searchQuery, refreshKey])
+  }, [filter, searchQuery, refreshKey, externalRefreshKey])
 
   function handleAdd(type: RecordType) {
     setDefaultType(type)

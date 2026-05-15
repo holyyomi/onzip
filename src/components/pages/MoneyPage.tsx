@@ -10,6 +10,10 @@ import TabMemoCard from '../common/TabMemoCard'
 
 type MoneySubTab = 'summary' | 'ledger' | 'fixed' | 'income' | 'subscription' | 'calculator'
 
+interface Props {
+  externalRefreshKey: number
+}
+
 const SUB_TABS: { value: MoneySubTab; label: string }[] = [
   { value: 'summary', label: '한눈에' },
   { value: 'ledger', label: '쓴 돈' },
@@ -19,7 +23,7 @@ const SUB_TABS: { value: MoneySubTab; label: string }[] = [
   { value: 'calculator', label: '계산기' },
 ]
 
-export default function MoneyPage() {
+export default function MoneyPage({ externalRefreshKey }: Props) {
   const [activeTab, setActiveTab] = useState<MoneySubTab>('summary')
   const [year, setYear] = useState(todayYear())
   const [month, setMonth] = useState(todayMonth())
@@ -27,6 +31,7 @@ export default function MoneyPage() {
 
   const onRefresh = () => setRefreshKey((k) => k + 1)
   const showMonthNav = activeTab === 'summary' || activeTab === 'ledger'
+  const pageRefreshKey = refreshKey + externalRefreshKey
 
   function handlePrev() {
     const p = prevMonth(year, month)
@@ -73,19 +78,19 @@ export default function MoneyPage() {
       )}
 
       {activeTab === 'summary' && (
-        <MoneySummaryTab year={year} month={month} refreshKey={refreshKey} />
+        <MoneySummaryTab year={year} month={month} refreshKey={pageRefreshKey} />
       )}
       {activeTab === 'ledger' && (
-        <LedgerTab year={year} month={month} refreshKey={refreshKey} onRefresh={onRefresh} />
+        <LedgerTab year={year} month={month} refreshKey={pageRefreshKey} onRefresh={onRefresh} />
       )}
       {activeTab === 'fixed' && (
-        <FixedExpenseTab refreshKey={refreshKey} onRefresh={onRefresh} />
+        <FixedExpenseTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
       )}
       {activeTab === 'income' && (
-        <IncomeTab refreshKey={refreshKey} onRefresh={onRefresh} />
+        <IncomeTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
       )}
       {activeTab === 'subscription' && (
-        <SubscriptionTab refreshKey={refreshKey} onRefresh={onRefresh} />
+        <SubscriptionTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
       )}
       {activeTab === 'calculator' && <CalculatorTab />}
 

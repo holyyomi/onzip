@@ -55,6 +55,7 @@ npm run build
 - 설정 탭: 집 정보, 구성원, 카테고리, 설정 메모
 - PWA: manifest, service worker, Vercel 설정
 - 디자인: Airbnb + Apple 혼합 톤의 밝은 모바일 앱 UI
+- 빠른 추가: 저장 후 홈/일정/돈/생활/기록 화면 즉시 갱신, 완료 알림 표시
 
 제거 완료:
 - 가족공유
@@ -150,6 +151,7 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
 ```
 
 저장/삭제 후 화면 재계산 트리거로 사용한다.
+`App.tsx`에는 빠른 추가 저장 후 전체 주요 화면을 갱신하는 `appRefreshKey`가 있다.
 
 ### 캘린더 집계
 
@@ -164,7 +166,6 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
 ## 8. 다음 추천 작업
 
 1. 모바일 실사용 흐름 다듬기
-   - 빠른 추가 이후 화면 refresh
    - 입력 단계를 더 줄이기
    - 버튼/문구를 더 쉬운 표현으로 정리
 

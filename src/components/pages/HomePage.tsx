@@ -14,11 +14,12 @@ import { formatAmount, todayMonth, todayStr, todayYear } from '../../utils/date'
 import TabMemoCard from '../common/TabMemoCard'
 
 interface Props {
+  refreshKey: number
   onQuickAdd: (type: QuickAddType) => void
   onTabChange: (tab: TabId) => void
 }
 
-export default function HomePage({ onQuickAdd, onTabChange }: Props) {
+export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props) {
   const data = useMemo(() => {
     const todayEvents = getTodayAggregated()
     const today = todayStr()
@@ -45,7 +46,7 @@ export default function HomePage({ onQuickAdd, onTabChange }: Props) {
       monthlyFixed,
       monthlySubs,
     }
-  }, [])
+  }, [refreshKey])
 
   const todayPayments = data.todayEvents.filter(
     (event) => event.type === 'fixed_expense' || event.type === 'subscription' || event.type === 'utility',
@@ -60,7 +61,7 @@ export default function HomePage({ onQuickAdd, onTabChange }: Props) {
         <div className="relative">
           <p className="text-sm font-semibold text-white/70">우리집 오늘</p>
           <h2 className="text-[28px] font-semibold mt-2 leading-tight">
-          {hasNoTodayWork ? '오늘은 여유로워요' : `${todaySchedules.length + todayPayments.length + data.dueChecklists.length}가지만 확인하면 돼요`}
+            {hasNoTodayWork ? '오늘은 여유로워요' : `${todaySchedules.length + todayPayments.length + data.dueChecklists.length}가지만 확인하면 돼요`}
           </h2>
           <p className="text-sm text-white/75 mt-3 leading-relaxed">
             일정, 돈, 장보기, 할 일을 한 화면에서 쉽게 챙겨요.
