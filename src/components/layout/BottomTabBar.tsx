@@ -20,16 +20,18 @@ interface Props {
 
 export default function BottomTabBar({ activeTab, onTabChange }: Props) {
   return (
-    <nav className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+    /* fixed → absolute (AppShell 기준) + safe-area-bottom for iOS home bar */
+    <nav className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-bottom">
       <div className="flex">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`flex-1 py-3 text-xs font-medium transition-colors ${
+            /* 최소 44px 터치 영역 보장 */
+            className={`flex-1 py-3 min-h-[44px] text-xs font-medium transition-colors border-t-2 ${
               activeTab === tab.id
-                ? 'text-blue-600 border-t-2 border-blue-600'
-                : 'text-gray-400 border-t-2 border-transparent'
+                ? 'text-blue-600 border-blue-600'
+                : 'text-gray-400 border-transparent'
             }`}
           >
             {tab.label}

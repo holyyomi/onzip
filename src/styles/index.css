@@ -1,3 +1,61 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─── 모바일 UX 유틸리티 ─── */
+
+/* 스크롤바 숨김 (서브탭 가로스크롤 등) */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* iOS 모멘텀 스크롤 */
+.scroll-smooth-mobile {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* iOS 하단 Safe Area (홈바 영역) */
+.safe-area-bottom {
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* iOS input zoom 방지 — 폰트 16px 이상 강제 */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* 텍스트 렌더링 최적화 */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 터치 하이라이트 제거 */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* line-clamp 유틸 (Tailwind v3 내장 없는 경우 대비) */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
