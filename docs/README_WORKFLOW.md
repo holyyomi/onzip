@@ -1,0 +1,40 @@
+# 온집 개발 운영 규칙
+
+## 1. 작업 시작 전
+- `docs/HANDOFF.md` 확인
+- `docs/TASK_LIST.md`에서 현재 TASK 확인
+- 관련 화면/데이터 모델 확인
+
+## 2. 작업 중
+- 하나의 TASK만 처리
+- 기능 추가 후 관련 테스트 또는 수동 검증 수행
+- 변경한 파일을 HANDOFF에 기록
+
+## 3. 작업 완료 후
+```bash
+npm run typecheck
+npm run build
+# 주요 화면 수동 확인 (npm run dev)
+# docs/HANDOFF.md 업데이트
+git status
+```
+
+## 4. 커밋 메시지 규칙
+```
+Add calendar monthly view
+Implement fixed expense form
+Wire money summary cards
+Add shopping list feature
+```
+동사로 시작, 영어, 50자 이내.
+
+## 5. 금지사항
+- 한 번에 여러 Phase 건드리기 금지
+- 화면부터 과하게 꾸미기 금지
+- Supabase부터 붙이기 금지 (7일 실사용 테스트 후 결정)
+- 자동 카드/은행 연동 먼저 시작 금지
+- MVP 외 기능 먼저 넣기 금지
+
+## 6. 브랜치 전략 (선택)
+- main: 안정 버전
+- feature/TASK-XXX: 각 TASK 작업 브랜치
