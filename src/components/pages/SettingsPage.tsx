@@ -10,18 +10,21 @@ import {
   isDefault,
   type CategoryType,
 } from '../../utils/categoryStore'
+import { exportLedgerCSV } from '../../utils/csvExport'
+import { ledgerEntryRepo, fixedExpenseRepo, subscriptionRepo } from '../../data/repositories'
 import type { Member, MemberRole } from '../../data/models'
 
-type SettingsSubTab = 'members' | 'categories' | 'backup'
+type SettingsSubTab = 'home' | 'members' | 'categories' | 'backup'
 
 const SUB_TABS: { value: SettingsSubTab; label: string }[] = [
-  { value: 'members', label: '가족 구성원' },
+  { value: 'home', label: '집 정보' },
+  { value: 'members', label: '구성원' },
   { value: 'categories', label: '카테고리' },
   { value: 'backup', label: '백업' },
 ]
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<SettingsSubTab>('members')
+  const [activeTab, setActiveTab] = useState<SettingsSubTab>('home')
   const [refreshKey, setRefreshKey] = useState(0)
   const onRefresh = () => setRefreshKey((k) => k + 1)
 
@@ -30,7 +33,7 @@ export default function SettingsPage() {
       <div className="flex bg-white border-b border-gray-100 px-2">
         {SUB_TABS.map((t) => (
           <button key={t.value} onClick={() => setActiveTab(t.value)}
-            className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex-1 px-2 py-3 text-sm font-medium border-b-2 transition-colors ${
               activeTab === t.value ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent'
             }`}>
             {t.label}
@@ -38,9 +41,83 @@ export default function SettingsPage() {
         ))}
       </div>
 
+      {activeTab === 'home' && <HomeInfoTab onRefresh={onRefresh} />}
       {activeTab === 'members' && <MembersTab refreshKey={refreshKey} onRefresh={onRefresh} />}
       {activeTab === 'categories' && <CategoryTab />}
       {activeTab === 'backup' && <BackupTab />}
+    </div>
+  )
+}
+
+// ─────────────────────────────────
+// 집 정보 (이름 변경)
+// ─────────────────────────────────
+
+function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
+  const household = householdRepo.getDefault()
+  const [name, setName] = useState(household.name)
+  const [saved, setSaved] = useState(false)
+
+  function handleSave() {
+    householdRepo.update(household.id, { name: name.trim() || '우리집' })
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+    onRefresh()
+  }
+
+  const totalEntries = ledgerEntryRepo.getAll().length
+  const members = memberRepo.getAll().filter((m) => m.is_active).length
+
+  return (
+    <div className="p-4 space-y-4">
+      {/* 집 이름 편집 */}
+      <div className="bg-white rounded-xl p-4">
+        <p className="text-xs text-gray-400 font-medium mb-3">집 이름</p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => { setName(e.target.value); setSaved(false) }}
+            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+            className={inputCls}
+            placeholder="우리집"
+            maxLength={20}
+          />
+          <button onClick={handleSave}
+            className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              saved ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'
+            }`}>
+            {saved ? '저장됨' : '저장'}
+          </button>
+        </div>
+        <p className="text-xs text-gray-300 mt-1">헤더에 표시되는 이름입니다</p>
+      </div>
+
+      {/* 앱 현황 */}
+      <div className="bg-white rounded-xl p-4">
+        <p className="text-xs text-gray-400 font-medium mb-3">앱 현황</p>
+        <div className="grid grid-cols-2 gap-3">
+          <StatCard label="가계부 내역" value={`${totalEntries}건`} />
+          <StatCard label="활성 구성원" value={`${members}명`} />
+          <StatCard label="고정지출" value={`${fixedExpenseRepo.getActive().length}개`} />
+          <StatCard label="구독 서비스" value={`${subscriptionRepo.getActive().length}개`} />
+        </div>
+      </div>
+
+      {/* 앱 버전 */}
+      <div className="bg-white rounded-xl px-4 py-3 flex justify-between items-center">
+        <span className="text-sm text-gray-600">앱 버전</span>
+        <span className="text-sm text-gray-400">v1.0.0</span>
+      </div>
+    </div>
+  )
+}
+
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-gray-50 rounded-lg p-3 text-center">
+      <p className="text-xs text-gray-400">{label}</p>
+      <p className="text-lg font-bold text-gray-700 mt-0.5">{value}</p>
     </div>
   )
 }
@@ -288,6 +365,11 @@ function CategorySection({
 function BackupTab() {
   const [imported, setImported] = useState(false)
 
+  function handleExportLedgerCSV() {
+    const entries = ledgerEntryRepo.getAll()
+    exportLedgerCSV(entries)
+  }
+
   function handleExportJSON() {
     const data = exportAllData()
     const blob = new Blob([data], { type: 'application/json' })
@@ -349,6 +431,15 @@ function BackupTab() {
         </div>
         <p className="text-xs text-blue-300 mt-1">집 이름: {household.name}</p>
       </div>
+
+      <button onClick={handleExportLedgerCSV}
+        className="w-full bg-white rounded-xl px-4 py-4 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-800">가계부 CSV 내보내기</p>
+          <p className="text-xs text-gray-400 mt-0.5">Excel에서 열 수 있는 형식으로 저장</p>
+        </div>
+        <span className="text-green-500 text-lg">↓</span>
+      </button>
 
       <button onClick={handleExportJSON}
         className="w-full bg-white rounded-xl px-4 py-4 flex items-center justify-between">

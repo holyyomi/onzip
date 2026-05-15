@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { shoppingItemRepo } from '../../data/repositories'
 import { formatAmount } from '../../utils/date'
+import { newId, now } from '../../data/repositories/base'
 import ShoppingFormModal from './ShoppingFormModal'
 
 interface Props {
@@ -13,6 +14,9 @@ export default function ShoppingTab({ refreshKey, onRefresh }: Props) {
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [localRefresh, setLocalRefresh] = useState(0)
+  // 실제금액 입력 상태
+  const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  const [actualInput, setActualInput] = useState('')
 
   const allItems = useMemo(
     () => shoppingItemRepo.getAll(),
@@ -24,20 +28,35 @@ export default function ShoppingTab({ refreshKey, onRefresh }: Props) {
   const favorites = allItems.filter((i) => i.is_favorite && !i.is_done)
   const doneItems = allItems.filter((i) => i.is_done)
   const expectedTotal = shoppingItemRepo.expectedTotal(pendingItems)
+  const actualTotal = doneItems.reduce((s, i) => s + (i.actual_amount ?? i.expected_amount ?? 0), 0)
 
-  function toggleDone(id: string, current: boolean) {
-    shoppingItemRepo.update(id, { is_done: !current })
+  // 체크 클릭 → 실제금액 입력 모달 표시
+  function handleCheckClick(id: string, expectedAmount: number | null) {
+    setConfirmingId(id)
+    setActualInput(expectedAmount != null ? String(expectedAmount) : '')
+  }
+
+  function confirmDone() {
+    if (!confirmingId) return
+    const actual = actualInput ? Number(actualInput) : null
+    shoppingItemRepo.update(confirmingId, { is_done: true, actual_amount: actual })
+    setConfirmingId(null)
+    setActualInput('')
+    setLocalRefresh((k) => k + 1)
+  }
+
+  function undoDone(id: string) {
+    shoppingItemRepo.update(id, { is_done: false, actual_amount: null })
     setLocalRefresh((k) => k + 1)
   }
 
   function addFromFavorite(favName: string, category: string) {
-    const alreadyPending = pendingItems.some((i) => i.name === favName)
-    if (alreadyPending) return
+    if (pendingItems.some((i) => i.name === favName)) return
     shoppingItemRepo.create({
-      id: crypto.randomUUID(), household_id: 'default',
+      id: newId(), household_id: 'default',
       name: favName, category, expected_amount: null, actual_amount: null,
       store: '', is_done: false, is_favorite: false, memo: '',
-      created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+      created_at: now(), updated_at: now(),
     })
     setLocalRefresh((k) => k + 1)
   }
@@ -46,30 +65,38 @@ export default function ShoppingTab({ refreshKey, onRefresh }: Props) {
 
   return (
     <div>
-      {/* 상단 */}
+      {/* 상단 요약 */}
       <div className="px-4 py-3 bg-white border-b border-gray-100 flex justify-between items-center">
         <div>
-          <p className="text-xs text-gray-400">예상 총액</p>
-          <p className="text-lg font-bold text-gray-800">{formatAmount(expectedTotal)}</p>
+          <div className="flex gap-3">
+            <div>
+              <p className="text-xs text-gray-400">예상</p>
+              <p className="text-sm font-bold text-gray-600">{formatAmount(expectedTotal)}</p>
+            </div>
+            {actualTotal > 0 && (
+              <div>
+                <p className="text-xs text-gray-400">실제</p>
+                <p className="text-sm font-bold text-blue-600">{formatAmount(actualTotal)}</p>
+              </div>
+            )}
+          </div>
         </div>
-        <button
-          onClick={() => { setEditingId(null); setShowModal(true) }}
-          className="text-sm text-blue-500 border border-blue-200 rounded-lg px-3 py-1.5"
-        >
+        <button onClick={() => { setEditingId(null); setShowModal(true) }}
+          className="text-sm text-blue-500 border border-blue-200 rounded-lg px-3 py-1.5">
           + 추가
         </button>
       </div>
 
       {/* 보기 전환 */}
       <div className="flex gap-2 px-4 py-2 bg-white border-b border-gray-100">
-        <button onClick={() => setShowFavorites(false)}
-          className={`px-3 py-1 rounded-full text-xs font-medium ${!showFavorites ? 'bg-gray-800 text-white' : 'text-gray-400 border border-gray-200'}`}>
-          장보기 목록
-        </button>
-        <button onClick={() => setShowFavorites(true)}
-          className={`px-3 py-1 rounded-full text-xs font-medium ${showFavorites ? 'bg-gray-800 text-white' : 'text-gray-400 border border-gray-200'}`}>
-          자주 사는 품목
-        </button>
+        {(['장보기 목록', '자주 사는 품목'] as const).map((label, i) => (
+          <button key={label} onClick={() => setShowFavorites(i === 1)}
+            className={`px-3 py-1 rounded-full text-xs font-medium ${
+              showFavorites === (i === 1) ? 'bg-gray-800 text-white' : 'text-gray-400 border border-gray-200'
+            }`}>
+            {label}
+          </button>
+        ))}
       </div>
 
       <div className="p-4 space-y-2">
@@ -81,37 +108,26 @@ export default function ShoppingTab({ refreshKey, onRefresh }: Props) {
 
         {displayItems.map((item) => (
           <div key={item.id} className="bg-white rounded-xl px-4 py-3 flex items-center gap-3">
-            {/* 체크 버튼 */}
             {!showFavorites && (
               <button
-                onClick={() => toggleDone(item.id, item.is_done)}
-                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                  item.is_done ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'
-                }`}
-              >
-                {item.is_done && <span className="text-xs">✓</span>}
-              </button>
+                onClick={() => handleCheckClick(item.id, item.expected_amount)}
+                className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0 hover:border-blue-400 transition-colors"
+              />
             )}
-
-            <button
-              onClick={() => { setEditingId(item.id); setShowModal(true) }}
-              className="flex-1 text-left min-w-0"
-            >
+            <button onClick={() => { setEditingId(item.id); setShowModal(true) }}
+              className="flex-1 text-left min-w-0">
               <p className="text-sm font-medium text-gray-800 truncate">{item.name}</p>
               <p className="text-xs text-gray-400 mt-0.5">
                 {item.category}{item.store ? ` · ${item.store}` : ''}
               </p>
             </button>
-
             <div className="flex items-center gap-2 flex-shrink-0">
               {item.expected_amount && (
-                <span className="text-xs text-gray-500">{formatAmount(item.expected_amount)}</span>
+                <span className="text-xs text-gray-400">{formatAmount(item.expected_amount)}</span>
               )}
               {showFavorites && (
-                <button
-                  onClick={() => addFromFavorite(item.name, item.category)}
-                  className="text-xs text-blue-500 border border-blue-200 rounded px-2 py-1"
-                >
+                <button onClick={() => addFromFavorite(item.name, item.category)}
+                  className="text-xs text-blue-500 border border-blue-200 rounded px-2 py-1">
                   추가
                 </button>
               )}
@@ -119,31 +135,64 @@ export default function ShoppingTab({ refreshKey, onRefresh }: Props) {
           </div>
         ))}
 
-        {/* 구매 완료 영역 */}
+        {/* 구매 완료 목록 */}
         {!showFavorites && doneItems.length > 0 && (
           <div className="mt-4">
-            <p className="text-xs text-gray-400 mb-2">구매 완료 ({doneItems.length}개)</p>
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-xs text-gray-400">구매 완료 ({doneItems.length}개)</p>
+              {actualTotal > 0 && (
+                <p className="text-xs text-blue-500 font-medium">실제 {formatAmount(actualTotal)}</p>
+              )}
+            </div>
             {doneItems.map((item) => (
-              <div key={item.id} className="bg-white rounded-xl px-4 py-3 flex items-center gap-3 opacity-50">
-                <button
-                  onClick={() => toggleDone(item.id, item.is_done)}
-                  className="w-6 h-6 rounded-full bg-green-500 border-green-500 text-white flex items-center justify-center flex-shrink-0"
-                >
-                  <span className="text-xs">✓</span>
+              <div key={item.id} className="bg-white rounded-xl px-4 py-3 flex items-center gap-3 opacity-60 mb-2">
+                <button onClick={() => undoDone(item.id)}
+                  className="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center flex-shrink-0 text-xs">
+                  ✓
                 </button>
-                <span className="text-sm line-through text-gray-400">{item.name}</span>
+                <span className="flex-1 text-sm line-through text-gray-400 truncate">{item.name}</span>
+                {item.actual_amount != null && (
+                  <span className="text-xs text-blue-500">{formatAmount(item.actual_amount)}</span>
+                )}
               </div>
             ))}
           </div>
         )}
       </div>
 
+      {/* 실제금액 입력 미니 모달 */}
+      {confirmingId && (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/30" onClick={() => setConfirmingId(null)}>
+          <div className="w-full bg-white rounded-t-2xl p-5 max-w-lg mx-auto" onClick={(e) => e.stopPropagation()}>
+            <p className="text-sm font-semibold text-gray-800 mb-3">실제 구매 금액</p>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                placeholder="금액 (선택)"
+                value={actualInput}
+                onChange={(e) => setActualInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && confirmDone()}
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+                inputMode="numeric"
+                autoFocus
+              />
+              <button onClick={confirmDone}
+                className="px-4 py-2.5 bg-blue-500 text-white rounded-lg text-sm font-medium">
+                완료
+              </button>
+            </div>
+            <button onClick={() => { setActualInput(''); confirmDone() }}
+              className="w-full mt-2 text-xs text-gray-400 text-center py-1">
+              금액 없이 완료
+            </button>
+          </div>
+        </div>
+      )}
+
       {showModal && (
-        <ShoppingFormModal
-          itemId={editingId}
+        <ShoppingFormModal itemId={editingId}
           onSaved={() => { setShowModal(false); setLocalRefresh((k) => k + 1); onRefresh() }}
-          onClose={() => setShowModal(false)}
-        />
+          onClose={() => setShowModal(false)} />
       )}
     </div>
   )

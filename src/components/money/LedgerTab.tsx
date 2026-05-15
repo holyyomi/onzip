@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { ledgerEntryRepo, memberRepo } from '../../data/repositories'
 import { formatAmount } from '../../utils/date'
 import { PAYMENT_METHOD_LABEL } from '../../utils/constants'
+import { exportLedgerCSV } from '../../utils/csvExport'
 import type { LedgerEntryType } from '../../data/models'
 import LedgerFormModal from './LedgerFormModal'
 
@@ -116,6 +117,11 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
           ))}
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => exportLedgerCSV(ledgerEntryRepo.getByMonth(year, month), `${year}${String(month).padStart(2,'0')}`)}
+            className="text-xs text-gray-400 border border-gray-200 rounded-lg px-2 py-1">
+            CSV↓
+          </button>
           <button onClick={() => openAdd('expense')} className="text-xs text-red-500 border border-red-200 rounded-lg px-2 py-1">
             + 지출
           </button>

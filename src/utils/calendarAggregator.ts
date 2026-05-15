@@ -116,17 +116,18 @@ export function getAggregatedEvents(year: number, month: number): AggregatedEven
     }
   })
 
-  // 2. 고정지출 → 납부일 자동 생성
+  // 2. 고정지출 → 납부일 자동 생성 (공과금 카테고리는 utility 타입으로 표시)
   fixedExpenseRepo
     .getActive()
     .filter((fe) => fe.calendar_visible && fe.payment_day <= daysInMonth)
     .forEach((fe) => {
       const day = String(fe.payment_day).padStart(2, '0')
+      const isUtility = fe.category === '공과금'
       events.push({
         id: `fe_${fe.id}`,
         title: fe.title,
         date: `${prefix}-${day}`,
-        type: 'fixed_expense',
+        type: isUtility ? 'utility' : 'fixed_expense',
         amount: fe.amount,
         is_done: fe.status === 'done',
         member_id: fe.member_id,
