@@ -12,7 +12,7 @@ interface Props {
 
 export default function AppShell({ children, activeTab, onTabChange, onOpenQuickAdd }: Props) {
   return (
-    <div className="flex flex-col min-h-screen bg-[#f7f7f7] max-w-lg mx-auto relative">
+    <div className="flex h-[100dvh] min-h-screen flex-col bg-[#f7f7f7] max-w-lg mx-auto relative overflow-hidden">
       <Header activeTab={activeTab} onOpenQuickAdd={onOpenQuickAdd} />
       <main className="flex-1 overflow-y-auto pb-24 pb-safe scroll-smooth-mobile">
         {children}

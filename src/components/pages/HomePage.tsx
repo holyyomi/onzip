@@ -57,28 +57,54 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
   const hasNoTodayWork = todaySchedules.length === 0 && todayPayments.length === 0 && data.dueChecklists.length === 0
 
   return (
-    <div className="px-5 py-5 space-y-5">
-      <section className="rounded-[28px] bg-[#222222] p-6 text-white overflow-hidden relative">
+    <div className="px-5 py-4 space-y-4">
+      <section className="rounded-[28px] bg-[#222222] p-5 text-white overflow-hidden relative">
         <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-[#ff385c]" />
         <div className="relative">
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-4">
             <img
               src="/icons/icon-192.png"
               alt=""
-              className="h-16 w-16 rounded-[22px]"
+              className="h-14 w-14 rounded-[20px]"
             />
             <div>
-              <p className="text-[34px] font-semibold leading-none">{APP_NAME}</p>
+              <p className="text-[30px] font-semibold leading-none">{APP_NAME}</p>
               <p className="text-sm text-white/68 leading-tight mt-1">{APP_TAGLINE}</p>
             </div>
           </div>
           <p className="text-sm font-semibold text-white/70">오늘 우리집</p>
-          <h2 className="text-[28px] font-semibold mt-2 leading-tight">
+          <h2 className="text-[25px] font-semibold mt-2 leading-tight">
             {hasNoTodayWork ? '오늘은 여유로워요' : `${todaySchedules.length + todayPayments.length + data.dueChecklists.length}가지만 확인하면 돼요`}
           </h2>
-          <p className="text-sm text-white/75 mt-3 leading-relaxed">
+          <p className="text-sm text-white/75 mt-2 leading-relaxed">
             일정, 돈, 장보기, 할 일을 한 화면에서 쉽게 챙겨요.
           </p>
+        </div>
+      </section>
+
+      <section className="oz-card p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-semibold text-[#222222]">오늘 확인</h3>
+          <button onClick={() => onTabChange('calendar')} className="text-sm text-[#ff385c] font-semibold min-h-[36px] px-2">
+            전체 보기
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {hasNoTodayWork && <EmptyLine text="오늘 일정은 아직 없어요" />}
+          {todaySchedules.slice(0, 2).map((event) => (
+            <HomeLine key={event.id} label="일정" text={event.title} />
+          ))}
+          {todayPayments.slice(0, 2).map((event) => (
+            <HomeLine
+              key={event.id}
+              label="납부"
+              text={`${event.title}${event.amount ? ` · ${formatAmount(event.amount)}` : ''}`}
+            />
+          ))}
+          {data.dueChecklists.slice(0, 2).map((checklist) => (
+            <HomeLine key={checklist.id} label="할 일" text={`${checklist.title} · ${checklist.rate}%`} />
+          ))}
         </div>
       </section>
 
@@ -104,32 +130,6 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           note={data.pendingShopping.slice(0, 2).map((item) => item.name).join(', ') || '목록이 비었어요'}
           onClick={() => onTabChange('life')}
         />
-      </section>
-
-      <section className="oz-card p-5">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-[#222222]">오늘 확인</h3>
-          <button onClick={() => onTabChange('calendar')} className="text-sm text-[#ff385c] font-semibold">
-            전체 보기
-          </button>
-        </div>
-
-        <div className="space-y-2">
-          {hasNoTodayWork && <EmptyLine text="오늘 일정은 아직 없어요" />}
-          {todaySchedules.slice(0, 2).map((event) => (
-            <HomeLine key={event.id} label="일정" text={event.title} />
-          ))}
-          {todayPayments.slice(0, 2).map((event) => (
-            <HomeLine
-              key={event.id}
-              label="납부"
-              text={`${event.title}${event.amount ? ` · ${formatAmount(event.amount)}` : ''}`}
-            />
-          ))}
-          {data.dueChecklists.slice(0, 2).map((checklist) => (
-            <HomeLine key={checklist.id} label="할 일" text={`${checklist.title} · ${checklist.rate}%`} />
-          ))}
-        </div>
       </section>
 
       <section className="grid grid-cols-2 gap-3">
@@ -162,9 +162,9 @@ function QuickButton({ iconSrc, label, onClick }: { iconSrc: string; label: stri
   return (
     <button
       onClick={onClick}
-      className="min-h-[122px] oz-card px-4 py-4 text-left active:scale-[0.98] transition"
+      className="min-h-[112px] oz-card px-4 py-4 text-left active:scale-[0.98] transition"
     >
-      <img src={iconSrc} alt="" className="h-14 w-14 rounded-[20px] mb-3 object-contain" />
+      <img src={iconSrc} alt="" className="h-12 w-12 rounded-[18px] mb-3 object-contain" />
       <span className="text-lg font-semibold text-[#222222] leading-tight">{label}</span>
     </button>
   )
@@ -184,7 +184,7 @@ function InfoCard({
   onClick: () => void
 }) {
   return (
-    <button onClick={onClick} className={`${tint} oz-card p-4 text-left min-h-[126px] active:scale-[0.99] transition`}>
+    <button onClick={onClick} className={`${tint} oz-card p-4 text-left min-h-[112px] active:scale-[0.99] transition`}>
       <p className="text-sm text-[#6a6a6a] font-semibold">{label}</p>
       <p className="text-[22px] font-semibold text-[#222222] mt-2 leading-tight">{value}</p>
       <p className="text-xs text-[#6a6a6a] mt-2 line-clamp-2">{note}</p>
