@@ -143,6 +143,13 @@ src/data/supabase/idMapping.ts
 
 ### TASK-038: 원격 동기화 저장소 계층 구현
 
+완료 기준:
+- `src/data/supabase/sync.ts` 추가
+- localStorage → Supabase push 함수 제공
+- Supabase → localStorage pull 함수 제공
+- 기존 앱 실행 흐름에는 자동 연결하지 않음
+- 실제 검증은 Supabase SQL 적용과 `.env` 설정 후 진행
+
 예상 변경:
 
 ```text
@@ -155,6 +162,11 @@ src/data/repositories/base.ts
 - create/update/delete 이후 Supabase push
 - 앱 시작 시 Supabase pull 후 localStorage hydrate
 - 충돌 정책은 일단 `updated_at` 최신값 우선
+
+현재 구현:
+- `pushLocalDataToSupabase()`는 마이그레이션 payload를 Supabase에 upsert한다.
+- `pullSupabaseDataToLocalStorage()`는 원격 데이터를 localStorage 키에 hydrate한다.
+- 아직 BaseRepository 자동 push나 앱 시작 자동 pull은 연결하지 않았다. Supabase 연결 검증 후 설정 화면에서 수동 동기화 버튼으로 붙이는 것이 다음 안전한 단계다.
 
 ### TASK-039: 인증/Auth 및 RLS 정책 적용
 
@@ -185,4 +197,4 @@ docs/SUPABASE_SCHEMA.sql
 2. `docs/SUPABASE_SCHEMA.sql`을 SQL Editor에서 실행한다.
 3. Supabase 값이 준비되면 `.env.example`을 기준으로 로컬 `.env`를 만든다.
 4. `migrateLocalDataToSupabase()`는 Supabase SQL 적용과 `.env` 설정 후 수동 실행한다.
-5. 다음 구현은 `TASK-038` 원격 동기화 저장소 계층이다.
+5. 다음 구현은 Supabase 프로젝트/env 준비 후 설정 화면에 수동 연결 확인/동기화 UI를 붙이는 작업이다.

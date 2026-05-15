@@ -41,9 +41,9 @@ import {
   type SupabaseIdMap,
 } from './idMapping'
 
-type DbRow = object
+export type DbRow = object
 
-type MigrationTable =
+export type MigrationTable =
   | 'households'
   | 'members'
   | 'calendar_events'
@@ -59,6 +59,24 @@ type MigrationTable =
   | 'records'
   | 'templates'
   | 'app_settings'
+
+export const MIGRATION_TABLE_ORDER: MigrationTable[] = [
+  'households',
+  'members',
+  'calendar_events',
+  'ledger_entries',
+  'fixed_expenses',
+  'incomes',
+  'subscriptions',
+  'checklists',
+  'checklist_items',
+  'shopping_items',
+  'household_supplies',
+  'chores',
+  'records',
+  'templates',
+  'app_settings',
+]
 
 export interface LocalMigrationData {
   households: Household[]
@@ -173,25 +191,7 @@ export async function migrateLocalDataToSupabase(
   const { idMap, payload } = buildMigrationPayload()
   const inserted = {} as Record<MigrationTable, number>
 
-  const order: MigrationTable[] = [
-    'households',
-    'members',
-    'calendar_events',
-    'ledger_entries',
-    'fixed_expenses',
-    'incomes',
-    'subscriptions',
-    'checklists',
-    'checklist_items',
-    'shopping_items',
-    'household_supplies',
-    'chores',
-    'records',
-    'templates',
-    'app_settings',
-  ]
-
-  for (const table of order) {
+  for (const table of MIGRATION_TABLE_ORDER) {
     inserted[table] = await upsertRows(client, table, payload[table])
   }
 
@@ -199,7 +199,7 @@ export async function migrateLocalDataToSupabase(
   return { householdId: firstHousehold, inserted }
 }
 
-async function upsertRows(
+export async function upsertRows(
   client: SupabaseClient,
   table: MigrationTable,
   rows: DbRow[],

@@ -206,7 +206,8 @@ onzip/
     │   ├── supabase/
     │   │   ├── client.ts       # lazy Supabase client + 연결 확인 헬퍼
     │   │   ├── idMapping.ts    # localStorage ID → Supabase uuid 매핑
-    │   │   └── migration.ts    # localStorage 데이터 Supabase row 변환/업서트
+    │   │   ├── migration.ts    # localStorage 데이터 Supabase row 변환/업서트
+    │   │   └── sync.ts         # 수동 push/pull 동기화 헬퍼
     │   └── seed/
     │       └── index.ts        # runSeed() — onzip_seed_done_v1 키로 1회 실행
     └── utils/
@@ -342,6 +343,7 @@ type RecordType = 'life' | 'spending_note' | 'family_meeting' | 'anniversary' | 
 - `SUPABASE_SCHEMA.sql`은 로컬 ID 마이그레이션을 위해 `households.local_alias`, `members.local_alias`, `household_users`를 포함한다.
 - Supabase 클라이언트는 `src/data/supabase/client.ts`에 lazy helper로 준비되어 있으며, env가 없으면 앱 시작 시점에는 실패하지 않는다.
 - 로컬 데이터 마이그레이션 유틸은 `src/data/supabase/migration.ts`에 있으며, 실제 실행은 Supabase SQL 적용과 `.env` 설정 후 수동으로 해야 한다.
+- 원격 동기화 헬퍼는 `src/data/supabase/sync.ts`에 있으며, 아직 앱 화면이나 BaseRepository에 자동 연결하지 않았다.
 - 바로 BaseRepository를 Supabase CRUD로 교체하면 동기식 화면 코드가 깨질 수 있다.
 - 권장 전략은 uuid 유지 + 마이그레이션 매핑 + localStorage 기반 sync 계층을 먼저 붙이는 방식이다.
 
