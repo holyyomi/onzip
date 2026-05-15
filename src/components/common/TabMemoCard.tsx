@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { getTabMemo, setTabMemo, type MemoTab } from '../../utils/tabMemoStore'
+import { MEMO_ICON } from '../../utils/featureIcons'
 
 interface Props {
   tab: MemoTab
@@ -26,9 +27,7 @@ export default function TabMemoCard({
           <p className="text-[13px] font-semibold text-[#ff385c]">바로 적기</p>
           <h2 className="text-lg font-semibold text-[#222222] mt-0.5">{title}</h2>
         </div>
-        <span className="h-9 w-9 rounded-full bg-[#fff0f3] text-[#ff385c] flex items-center justify-center text-sm font-semibold">
-          메
-        </span>
+        <img src={MEMO_ICON} alt="" className="h-11 w-11 rounded-[16px] object-contain" />
       </div>
       <textarea
         value={memo}

@@ -1,3 +1,5 @@
+import { QUICK_ADD_ICON } from '../../utils/featureIcons'
+
 export type QuickAddType =
   | 'schedule'
   | 'expense'
@@ -12,14 +14,14 @@ interface Props {
   onClose: () => void
 }
 
-const OPTIONS: { type: QuickAddType; label: string; sub: string; icon: string }[] = [
-  { type: 'expense',       label: '돈 쓴 것', sub: '금액만 적어도 돼요', icon: '원' },
-  { type: 'shopping',      label: '살 것',    sub: '장보기 목록에 넣어요', icon: '장' },
-  { type: 'schedule',      label: '일정',     sub: '가족 약속을 적어요', icon: '일' },
-  { type: 'checklist',     label: '할 일',    sub: '준비물과 집안일에 좋아요', icon: '할' },
-  { type: 'fixed_expense', label: '매달 돈',  sub: '월세, 관리비 같은 돈', icon: '월' },
-  { type: 'subscription',  label: '구독',     sub: '넷플릭스, 유튜브 같은 것', icon: '구' },
-  { type: 'record',        label: '가족 기록', sub: '회의록과 집 이야기를 남겨요', icon: '기' },
+const OPTIONS: { type: QuickAddType; label: string; sub: string }[] = [
+  { type: 'expense',       label: '돈 쓴 것', sub: '금액만 적어도 돼요' },
+  { type: 'shopping',      label: '살 것',    sub: '장보기 목록에 넣어요' },
+  { type: 'schedule',      label: '일정',     sub: '가족 약속을 적어요' },
+  { type: 'checklist',     label: '할 일',    sub: '준비물과 집안일에 좋아요' },
+  { type: 'fixed_expense', label: '매달 돈',  sub: '월세, 관리비 같은 돈' },
+  { type: 'subscription',  label: '구독',     sub: '넷플릭스, 유튜브 같은 것' },
+  { type: 'record',        label: '가족 기록', sub: '회의록과 집 이야기를 남겨요' },
 ]
 
 export default function QuickAddMenu({ onSelect, onClose }: Props) {
@@ -43,11 +45,9 @@ export default function QuickAddMenu({ onSelect, onClose }: Props) {
           <button
             key={opt.type}
             onClick={() => onSelect(opt.type)}
-            className="w-full min-h-[104px] px-4 py-4 rounded-[22px] border border-[#ebebeb] bg-[#f7f7f7] active:scale-[0.98] transition text-left"
+            className="w-full min-h-[118px] px-4 py-4 rounded-[22px] border border-[#ebebeb] bg-[#f7f7f7] active:scale-[0.98] transition text-left"
           >
-            <span className="h-9 w-9 rounded-full bg-[#ff385c] text-white flex items-center justify-center text-sm font-semibold mb-3">
-              {opt.icon}
-            </span>
+            <img src={QUICK_ADD_ICON[opt.type]} alt="" className="h-12 w-12 rounded-[18px] mb-3 object-contain" />
             <span className="block text-base font-semibold text-[#222222]">{opt.label}</span>
             <span className="block text-xs text-[#6a6a6a] mt-1 leading-snug">{opt.sub}</span>
           </button>

@@ -12,6 +12,7 @@ import {
 import { getTodayAggregated } from '../../utils/calendarAggregator'
 import { formatAmount, todayMonth, todayStr, todayYear } from '../../utils/date'
 import { APP_NAME, APP_TAGLINE } from '../../utils/brand'
+import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import TabMemoCard from '../common/TabMemoCard'
 
 interface Props {
@@ -82,10 +83,10 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       </section>
 
       <section className="grid grid-cols-2 gap-3">
-        <QuickButton icon="원" label="돈 쓴 것" onClick={() => onQuickAdd('expense')} />
-        <QuickButton icon="장" label="살 것" onClick={() => onQuickAdd('shopping')} />
-        <QuickButton icon="일" label="일정" onClick={() => onQuickAdd('schedule')} />
-        <QuickButton icon="메" label="가족 기록" onClick={() => onQuickAdd('record')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="돈 쓴 것" onClick={() => onQuickAdd('expense')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.shopping} label="살 것" onClick={() => onQuickAdd('shopping')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="일정" onClick={() => onQuickAdd('schedule')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="가족 기록" onClick={() => onQuickAdd('record')} />
       </section>
 
       <section className="grid grid-cols-2 gap-3">
@@ -157,15 +158,13 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
   )
 }
 
-function QuickButton({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
+function QuickButton({ iconSrc, label, onClick }: { iconSrc: string; label: string; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="min-h-[92px] oz-card px-4 py-4 text-left active:scale-[0.98] transition"
+      className="min-h-[122px] oz-card px-4 py-4 text-left active:scale-[0.98] transition"
     >
-      <span className="h-10 w-10 rounded-full bg-[#ff385c] text-white flex items-center justify-center text-sm font-semibold mb-3">
-        {icon}
-      </span>
+      <img src={iconSrc} alt="" className="h-14 w-14 rounded-[20px] mb-3 object-contain" />
       <span className="text-lg font-semibold text-[#222222] leading-tight">{label}</span>
     </button>
   )

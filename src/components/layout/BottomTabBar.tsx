@@ -1,17 +1,17 @@
 import type { TabId } from '../../app/App'
+import { TAB_ICON } from '../../utils/featureIcons'
 
 interface Tab {
   id: TabId
   label: string
-  icon: string
 }
 
 const TABS: Tab[] = [
-  { id: 'home', label: '홈', icon: '집' },
-  { id: 'calendar', label: '일정', icon: '일' },
-  { id: 'money', label: '돈', icon: '원' },
-  { id: 'life', label: '생활', icon: '삶' },
-  { id: 'settings', label: '설정', icon: '설' },
+  { id: 'home', label: '홈' },
+  { id: 'calendar', label: '일정' },
+  { id: 'money', label: '돈' },
+  { id: 'life', label: '생활' },
+  { id: 'settings', label: '설정' },
 ]
 
 interface Props {
@@ -27,14 +27,14 @@ export default function BottomTabBar({ activeTab, onTabChange }: Props) {
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className="min-h-[58px] rounded-[18px] text-xs font-semibold transition-colors flex flex-col items-center justify-center gap-1"
+            className="min-h-[62px] rounded-[18px] text-xs font-semibold transition-colors flex flex-col items-center justify-center gap-1"
           >
             <span
-              className={`h-7 w-7 rounded-full flex items-center justify-center text-[11px] ${
-                activeTab === tab.id ? 'bg-[#ff385c] text-white' : 'bg-[#f2f2f2] text-[#6a6a6a]'
+              className={`h-9 w-9 rounded-[14px] flex items-center justify-center overflow-hidden ${
+                activeTab === tab.id ? 'bg-[#fff0f3]' : 'bg-[#f2f2f2]'
               }`}
             >
-              {tab.icon}
+              <img src={TAB_ICON[tab.id]} alt="" className="h-8 w-8 object-contain" />
             </span>
             <span className={activeTab === tab.id ? 'text-[#222222]' : 'text-[#6a6a6a]'}>{tab.label}</span>
           </button>
