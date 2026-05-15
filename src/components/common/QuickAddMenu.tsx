@@ -14,41 +14,45 @@ interface Props {
   onClose: () => void
 }
 
-const OPTIONS: { type: QuickAddType; label: string; sub: string; dot: string }[] = [
-  { type: 'schedule',      label: '일정 추가',     sub: '캘린더',  dot: 'bg-blue-400' },
-  { type: 'expense',       label: '지출 추가',     sub: '가계부',  dot: 'bg-red-400' },
-  { type: 'fixed_expense', label: '고정지출 추가', sub: '돈관리',  dot: 'bg-orange-400' },
-  { type: 'subscription',  label: '구독 추가',     sub: '돈관리',  dot: 'bg-purple-400' },
-  { type: 'shopping',      label: '장보기 추가',   sub: '생활',    dot: 'bg-green-400' },
-  { type: 'checklist',     label: '체크리스트 추가', sub: '생활',  dot: 'bg-teal-400' },
-  { type: 'record',        label: '기록 추가',     sub: '기록',    dot: 'bg-pink-400' },
+const OPTIONS: { type: QuickAddType; label: string; sub: string; tint: string }[] = [
+  { type: 'expense',       label: '돈 쓴 것 적기', sub: '금액만 적어도 돼요', tint: 'bg-[#fff0e6]' },
+  { type: 'shopping',      label: '살 것 적기',    sub: '장보기 목록에 넣어요', tint: 'bg-[#f1f8ee]' },
+  { type: 'schedule',      label: '일정 넣기',     sub: '가족 약속을 적어요', tint: 'bg-[#eef6ff]' },
+  { type: 'checklist',     label: '할 일 만들기',  sub: '준비물과 집안일에 좋아요', tint: 'bg-[#fff8d7]' },
+  { type: 'fixed_expense', label: '매달 나가는 돈', sub: '월세, 관리비 같은 돈', tint: 'bg-[#ffeceb]' },
+  { type: 'subscription',  label: '구독 적기',     sub: '넷플릭스, 유튜브 같은 것', tint: 'bg-[#f4efff]' },
+  { type: 'record',        label: '가족 메모',     sub: '회의록과 집 이야기를 남겨요', tint: 'bg-[#fdf0f6]' },
 ]
 
 export default function QuickAddMenu({ onSelect, onClose }: Props) {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/30" onClick={onClose}>
       <div
-        className="bg-white rounded-t-2xl pb-8"
+        className="bg-[#fbfaf8] rounded-t-2xl pb-8 border-t border-[#e8e1d8]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 핸들 */}
         <div className="flex justify-center pt-3 pb-2">
-          <div className="w-10 h-1 bg-gray-200 rounded-full" />
+          <div className="w-10 h-1 bg-[#ddd4ca] rounded-full" />
         </div>
 
-        <p className="text-xs font-semibold text-gray-400 px-5 pb-2">빠른 추가</p>
+        <div className="px-5 pb-3">
+          <p className="text-lg font-semibold text-[#2f2a25]">무엇을 적을까요?</p>
+          <p className="text-sm text-[#8f857a] mt-1">자주 쓰는 것부터 크게 모아뒀어요.</p>
+        </div>
 
+        <div className="px-5 space-y-2">
         {OPTIONS.map((opt) => (
           <button
             key={opt.type}
             onClick={() => onSelect(opt.type)}
-            className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            className={`w-full px-4 py-4 rounded-xl border border-[#e8e1d8] ${opt.tint} active:scale-[0.99] transition-transform text-left`}
           >
-            <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${opt.dot}`} />
-            <span className="text-sm font-medium text-gray-800 flex-1 text-left">{opt.label}</span>
-            <span className="text-xs text-gray-400">{opt.sub}</span>
+            <span className="block text-base font-semibold text-[#2f2a25]">{opt.label}</span>
+            <span className="block text-sm text-[#6f665d] mt-1">{opt.sub}</span>
           </button>
         ))}
+        </div>
       </div>
     </div>
   )

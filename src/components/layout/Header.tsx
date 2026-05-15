@@ -1,23 +1,36 @@
 import { householdRepo } from '../../data/repositories'
+import type { TabId } from '../../app/App'
 
 interface Props {
+  activeTab: TabId
   onOpenQuickAdd: () => void
 }
 
-export default function Header({ onOpenQuickAdd }: Props) {
+const TAB_TITLE: Record<TabId, string> = {
+  home: '오늘',
+  calendar: '일정',
+  money: '돈',
+  life: '생활',
+  records: '기록',
+  settings: '설정',
+}
+
+export default function Header({ activeTab, onOpenQuickAdd }: Props) {
   const householdName = householdRepo.getDefault().name
 
   return (
-    <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-      <span className="text-lg font-bold text-gray-900">온집</span>
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-gray-400">{householdName}</span>
+    <header className="bg-[#fbfaf8]/95 backdrop-blur border-b border-[#e8e1d8] px-5 py-4 flex items-center justify-between sticky top-0 z-10">
+      <div>
+        <p className="text-xs text-[#8f857a]">{householdName}</p>
+        <h1 className="text-xl font-semibold text-[#2f2a25] leading-tight">{TAB_TITLE[activeTab]}</h1>
+      </div>
+      <div className="flex items-center gap-2">
         <button
           onClick={onOpenQuickAdd}
-          className="w-8 h-8 bg-blue-500 text-white rounded-full text-xl font-light flex items-center justify-center leading-none active:bg-blue-600 transition-colors"
+          className="h-11 px-4 bg-[#7c3aed] text-white rounded-lg text-sm font-medium flex items-center justify-center active:bg-[#6d28d9] transition-colors"
           aria-label="빠른 추가"
         >
-          +
+          추가
         </button>
       </div>
     </header>

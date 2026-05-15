@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import AppShell from '../components/layout/AppShell'
+import HomePage from '../components/pages/HomePage'
 import CalendarPage from '../components/pages/CalendarPage'
 import MoneyPage from '../components/pages/MoneyPage'
 import LifePage from '../components/pages/LifePage'
@@ -8,10 +9,10 @@ import SettingsPage from '../components/pages/SettingsPage'
 import QuickAddMenu, { type QuickAddType } from '../components/common/QuickAddMenu'
 import QuickAddModal from '../components/common/QuickAddModal'
 
-export type TabId = 'calendar' | 'money' | 'life' | 'records' | 'settings'
+export type TabId = 'home' | 'calendar' | 'money' | 'life' | 'records' | 'settings'
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabId>('calendar')
+  const [activeTab, setActiveTab] = useState<TabId>('home')
   const [showQuickMenu, setShowQuickMenu] = useState(false)
   const [quickAddType, setQuickAddType] = useState<QuickAddType | null>(null)
 
@@ -26,6 +27,8 @@ export default function App() {
 
   const renderPage = () => {
     switch (activeTab) {
+      case 'home':
+        return <HomePage onQuickAdd={handleQuickSelect} onTabChange={setActiveTab} />
       case 'calendar': return <CalendarPage />
       case 'money':    return <MoneyPage />
       case 'life':     return <LifePage />

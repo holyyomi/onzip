@@ -117,6 +117,13 @@ npm run dev              # localhost:3000
 - **CSV 내보내기**: 가계부 + 설정 탭 백업
 - **Supabase SQL 스키마**: docs/SUPABASE_SCHEMA.sql 작성 완료
 
+### UX 리디자인 1차 (Codex)
+- **홈 탭 추가**: 앱 시작 화면을 캘린더가 아닌 오늘 요약/빠른 입력 중심으로 변경
+- **하단 탭 단순화**: 홈/일정/돈/생활/설정 5개로 정리, 기록은 빠른 추가에서 접근
+- **Notion 기반 밝은 톤**: 종이색 배경, 12px 카드, 8px 버튼, 파스텔 카드 적용
+- **쉬운 말 우선**: JSON/Supabase 같은 기술 용어를 사용자용 표현으로 완화
+- **큰 터치 영역**: 홈 빠른 입력과 하단 탭을 모바일에서 누르기 쉽게 확대
+
 ---
 
 ## 4. 전체 파일 구조
@@ -163,6 +170,7 @@ onzip/
     │   │   ├── Header.tsx         # 집 이름(householdRepo), + 버튼
     │   │   └── BottomTabBar.tsx   # 5탭, 44px 터치 영역
     │   ├── pages/
+    │   │   ├── HomePage.tsx       # 오늘 요약 + 쉬운 빠른 입력 홈
     │   │   ├── CalendarPage.tsx   # 월간/주간 전환, EventFormModal
     │   │   ├── MoneyPage.tsx      # 6 서브탭, 월 네비게이션
     │   │   ├── LifePage.tsx       # 5 서브탭

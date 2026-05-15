@@ -6,10 +6,10 @@ interface Tab {
 }
 
 const TABS: Tab[] = [
-  { id: 'calendar', label: '캘린더' },
-  { id: 'money', label: '돈관리' },
+  { id: 'home', label: '홈' },
+  { id: 'calendar', label: '일정' },
+  { id: 'money', label: '돈' },
   { id: 'life', label: '생활' },
-  { id: 'records', label: '기록' },
   { id: 'settings', label: '설정' },
 ]
 
@@ -20,18 +20,16 @@ interface Props {
 
 export default function BottomTabBar({ activeTab, onTabChange }: Props) {
   return (
-    /* fixed → absolute (AppShell 기준) + safe-area-bottom for iOS home bar */
-    <nav className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-bottom">
-      <div className="flex">
+    <nav className="absolute bottom-0 left-0 right-0 bg-[#fbfaf8]/95 backdrop-blur border-t border-[#e8e1d8] safe-area-bottom">
+      <div className="grid grid-cols-5 px-2 py-2">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            /* 최소 44px 터치 영역 보장 */
-            className={`flex-1 py-3 min-h-[44px] text-xs font-medium transition-colors border-t-2 ${
+            className={`min-h-[48px] rounded-lg text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? 'text-blue-600 border-blue-600'
-                : 'text-gray-400 border-transparent'
+                ? 'bg-[#2f2a25] text-white'
+                : 'text-[#8f857a]'
             }`}
           >
             {tab.label}

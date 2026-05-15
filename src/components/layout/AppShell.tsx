@@ -12,9 +12,9 @@ interface Props {
 
 export default function AppShell({ children, activeTab, onTabChange, onOpenQuickAdd }: Props) {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 max-w-lg mx-auto relative shadow-xl">
-      <Header onOpenQuickAdd={onOpenQuickAdd} />
-      <main className="flex-1 overflow-y-auto pb-16 pb-safe scroll-smooth-mobile">
+    <div className="flex flex-col min-h-screen bg-[#fbfaf8] max-w-lg mx-auto relative">
+      <Header activeTab={activeTab} onOpenQuickAdd={onOpenQuickAdd} />
+      <main className="flex-1 overflow-y-auto pb-20 pb-safe scroll-smooth-mobile">
         {children}
       </main>
       <BottomTabBar activeTab={activeTab} onTabChange={onTabChange} />

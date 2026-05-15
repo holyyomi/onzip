@@ -429,7 +429,7 @@ function BackupTab() {
   }
 
   async function handlePushSupabase() {
-    if (!confirm('현재 이 기기의 데이터를 Supabase로 업로드할까요? 먼저 JSON 백업을 권장합니다.')) return
+    if (!confirm('현재 이 기기의 데이터를 가족 공유 저장소에 올릴까요? 먼저 "내 데이터 파일로 저장"을 해두면 안전합니다.')) return
     setSyncBusy('push')
     setSyncStatus('Supabase로 업로드하는 중입니다...')
     try {
@@ -444,7 +444,7 @@ function BackupTab() {
   }
 
   async function handlePullSupabase() {
-    if (!confirm('Supabase 데이터를 이 기기로 내려받습니다. 현재 로컬 데이터가 덮어써질 수 있으니 먼저 JSON 백업을 권장합니다.')) return
+    if (!confirm('가족 공유 저장소의 데이터를 이 기기로 가져올까요? 지금 이 기기의 데이터가 바뀔 수 있으니 먼저 "내 데이터 파일로 저장"을 해두면 안전합니다.')) return
     setSyncBusy('pull')
     setSyncStatus('Supabase에서 내려받는 중입니다...')
     try {
@@ -452,7 +452,7 @@ function BackupTab() {
       const total = Object.values(result.pulled).reduce((sum, count) => sum + count, 0)
       setImported(true)
       setSyncStatus(`다운로드 완료: ${total}건 반영. 새로고침하면 화면에 적용됩니다.`)
-      alert('Supabase 다운로드 완료! 앱을 새로고침하세요.')
+      alert('가족 공유 데이터 가져오기 완료! 앱을 새로고침하세요.')
     } catch (error) {
       setSyncStatus(getSyncErrorMessage(error))
     } finally {
@@ -478,7 +478,7 @@ function BackupTab() {
     <div className="p-4 space-y-3">
       {/* 사용량 */}
       <div className="bg-blue-50 rounded-xl p-4">
-        <p className="text-xs text-blue-400 font-medium">현재 데이터 사용량</p>
+          <p className="text-xs text-blue-400 font-medium">내 기기에 저장된 양</p>
         <p className="text-lg font-bold text-blue-700 mt-1">{usedKB} KB / 5,120 KB</p>
         <div className="h-1.5 bg-blue-100 rounded-full mt-2 overflow-hidden">
           <div className="h-full bg-blue-400 rounded-full" style={{ width: `${Math.min(usedKB / 51.2, 100)}%` }} />
@@ -489,8 +489,8 @@ function BackupTab() {
       <button onClick={handleExportLedgerCSV}
         className="w-full bg-white rounded-xl px-4 py-4 flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-800">가계부 CSV 내보내기</p>
-          <p className="text-xs text-gray-400 mt-0.5">Excel에서 열 수 있는 형식으로 저장</p>
+          <p className="text-sm font-medium text-gray-800">돈 기록을 표 파일로 저장</p>
+          <p className="text-xs text-gray-400 mt-0.5">엑셀에서 열 수 있어요</p>
         </div>
         <span className="text-green-500 text-lg">↓</span>
       </button>
@@ -498,8 +498,8 @@ function BackupTab() {
       <button onClick={handleExportJSON}
         className="w-full bg-white rounded-xl px-4 py-4 flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-800">JSON으로 내보내기</p>
-          <p className="text-xs text-gray-400 mt-0.5">전체 데이터를 파일로 저장합니다</p>
+          <p className="text-sm font-medium text-gray-800">내 데이터 파일로 저장</p>
+          <p className="text-xs text-gray-400 mt-0.5">일정, 돈, 장보기를 백업해요</p>
         </div>
         <span className="text-blue-500 text-lg">↓</span>
       </button>
@@ -507,8 +507,8 @@ function BackupTab() {
       <label className="block w-full bg-white rounded-xl px-4 py-4 cursor-pointer">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-800">JSON 가져오기</p>
-            <p className="text-xs text-gray-400 mt-0.5">백업 파일에서 데이터를 복원합니다</p>
+            <p className="text-sm font-medium text-gray-800">파일에서 되돌리기</p>
+            <p className="text-xs text-gray-400 mt-0.5">저장해 둔 백업 파일을 불러와요</p>
           </div>
           <span className="text-blue-500 text-lg">↑</span>
         </div>
@@ -517,23 +517,23 @@ function BackupTab() {
 
       <div className="bg-white rounded-xl p-4 space-y-3">
         <div>
-          <p className="text-sm font-semibold text-gray-800">Supabase 동기화</p>
-          <p className="text-xs text-gray-400 mt-0.5">여러 기기에서 같은 데이터를 쓰기 위한 수동 동기화입니다</p>
+          <p className="text-sm font-semibold text-gray-800">가족 공유</p>
+          <p className="text-xs text-gray-400 mt-0.5">내 휴대폰과 가족 휴대폰에서 같은 내용을 쓰기 위한 기능입니다</p>
         </div>
 
         <button onClick={handleCheckSupabase} disabled={syncBusy !== null}
           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 disabled:opacity-50">
-          {syncBusy === 'check' ? '확인 중...' : '연결 확인'}
+          {syncBusy === 'check' ? '확인 중...' : '공유 연결 확인'}
         </button>
 
         <div className="grid grid-cols-2 gap-2">
           <button onClick={handlePushSupabase} disabled={syncBusy !== null}
             className="py-3 bg-blue-500 text-white rounded-lg text-sm font-medium disabled:opacity-50">
-            {syncBusy === 'push' ? '업로드 중...' : '업로드'}
+            {syncBusy === 'push' ? '올리는 중...' : '이 기기 내용 올리기'}
           </button>
           <button onClick={handlePullSupabase} disabled={syncBusy !== null}
             className="py-3 bg-green-500 text-white rounded-lg text-sm font-medium disabled:opacity-50">
-            {syncBusy === 'pull' ? '다운로드 중...' : '다운로드'}
+            {syncBusy === 'pull' ? '가져오는 중...' : '공유 내용 가져오기'}
           </button>
         </div>
 
@@ -548,7 +548,7 @@ function BackupTab() {
 
       <div className="bg-yellow-50 rounded-xl p-3">
         <p className="text-xs text-yellow-600">
-          주의: 가져오기는 기존 데이터를 덮어씁니다. 먼저 내보내기로 현재 데이터를 백업하세요.
+          주의: 파일에서 되돌리기와 공유 내용 가져오기는 현재 내용을 바꿀 수 있습니다. 먼저 내 데이터 파일로 저장해두세요.
         </p>
       </div>
     </div>
