@@ -97,6 +97,7 @@ npm run dev              # localhost:3000
 - **가족 구성원**: 추가·수정·색상·활성상태, 기본 구성원(나/배우자/공동) 보호
 - **카테고리**: 지출·수입·고정지출 카테고리 추가·삭제 (기본 카테고리 삭제 불가)
 - **백업**: JSON 전체 내보내기/가져오기, 가계부 CSV 내보내기, 사용량 표시
+- **Supabase 수동 동기화**: 설정 > 백업 탭에서 연결 확인, 업로드, 다운로드 실행
 
 ### Phase 7 — PWA + QA
 - vite-plugin-pwa: manifest(한국어), 서비스워커, 아이콘 3종
@@ -343,7 +344,7 @@ type RecordType = 'life' | 'spending_note' | 'family_meeting' | 'anniversary' | 
 - `SUPABASE_SCHEMA.sql`은 로컬 ID 마이그레이션을 위해 `households.local_alias`, `members.local_alias`, `household_users`를 포함한다.
 - Supabase 클라이언트는 `src/data/supabase/client.ts`에 lazy helper로 준비되어 있으며, env가 없으면 앱 시작 시점에는 실패하지 않는다.
 - 로컬 데이터 마이그레이션 유틸은 `src/data/supabase/migration.ts`에 있으며, 실제 실행은 Supabase SQL 적용과 `.env` 설정 후 수동으로 해야 한다.
-- 원격 동기화 헬퍼는 `src/data/supabase/sync.ts`에 있으며, 아직 앱 화면이나 BaseRepository에 자동 연결하지 않았다.
+- 원격 동기화 헬퍼는 `src/data/supabase/sync.ts`에 있으며, 설정 > 백업 탭에서 수동 실행한다.
 - 바로 BaseRepository를 Supabase CRUD로 교체하면 동기식 화면 코드가 깨질 수 있다.
 - 권장 전략은 uuid 유지 + 마이그레이션 매핑 + localStorage 기반 sync 계층을 먼저 붙이는 방식이다.
 

@@ -12,6 +12,11 @@ import {
 } from '../../utils/categoryStore'
 import { exportLedgerCSV } from '../../utils/csvExport'
 import { ledgerEntryRepo, fixedExpenseRepo, subscriptionRepo } from '../../data/repositories'
+import { checkSupabaseConnection } from '../../data/supabase/client'
+import {
+  pullSupabaseDataToLocalStorage,
+  pushLocalDataToSupabase,
+} from '../../data/supabase/sync'
 import type { Member, MemberRole } from '../../data/models'
 
 type SettingsSubTab = 'home' | 'members' | 'categories' | 'backup'
@@ -362,8 +367,12 @@ function CategorySection({
 // 백업 (TASK-028)
 // ─────────────────────────────────
 
+type SyncAction = 'check' | 'push' | 'pull'
+
 function BackupTab() {
   const [imported, setImported] = useState(false)
+  const [syncBusy, setSyncBusy] = useState<SyncAction | null>(null)
+  const [syncStatus, setSyncStatus] = useState('')
 
   function handleExportLedgerCSV() {
     const entries = ledgerEntryRepo.getAll()
@@ -404,6 +413,51 @@ function BackupTab() {
       }
     }
     reader.readAsText(file)
+  }
+
+  async function handleCheckSupabase() {
+    setSyncBusy('check')
+    setSyncStatus('Supabase 연결을 확인하는 중입니다...')
+    try {
+      const ok = await checkSupabaseConnection()
+      setSyncStatus(ok ? 'Supabase 연결 성공' : 'Supabase 연결 실패: .env 또는 SQL 적용 상태를 확인하세요.')
+    } catch (error) {
+      setSyncStatus(getSyncErrorMessage(error))
+    } finally {
+      setSyncBusy(null)
+    }
+  }
+
+  async function handlePushSupabase() {
+    if (!confirm('현재 이 기기의 데이터를 Supabase로 업로드할까요? 먼저 JSON 백업을 권장합니다.')) return
+    setSyncBusy('push')
+    setSyncStatus('Supabase로 업로드하는 중입니다...')
+    try {
+      const result = await pushLocalDataToSupabase()
+      const total = Object.values(result.inserted).reduce((sum, count) => sum + count, 0)
+      setSyncStatus(`업로드 완료: ${total}건 동기화`)
+    } catch (error) {
+      setSyncStatus(getSyncErrorMessage(error))
+    } finally {
+      setSyncBusy(null)
+    }
+  }
+
+  async function handlePullSupabase() {
+    if (!confirm('Supabase 데이터를 이 기기로 내려받습니다. 현재 로컬 데이터가 덮어써질 수 있으니 먼저 JSON 백업을 권장합니다.')) return
+    setSyncBusy('pull')
+    setSyncStatus('Supabase에서 내려받는 중입니다...')
+    try {
+      const result = await pullSupabaseDataToLocalStorage()
+      const total = Object.values(result.pulled).reduce((sum, count) => sum + count, 0)
+      setImported(true)
+      setSyncStatus(`다운로드 완료: ${total}건 반영. 새로고침하면 화면에 적용됩니다.`)
+      alert('Supabase 다운로드 완료! 앱을 새로고침하세요.')
+    } catch (error) {
+      setSyncStatus(getSyncErrorMessage(error))
+    } finally {
+      setSyncBusy(null)
+    }
   }
 
   // 현재 앱 데이터 용량 계산
@@ -461,6 +515,33 @@ function BackupTab() {
         <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
       </label>
 
+      <div className="bg-white rounded-xl p-4 space-y-3">
+        <div>
+          <p className="text-sm font-semibold text-gray-800">Supabase 동기화</p>
+          <p className="text-xs text-gray-400 mt-0.5">여러 기기에서 같은 데이터를 쓰기 위한 수동 동기화입니다</p>
+        </div>
+
+        <button onClick={handleCheckSupabase} disabled={syncBusy !== null}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 disabled:opacity-50">
+          {syncBusy === 'check' ? '확인 중...' : '연결 확인'}
+        </button>
+
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={handlePushSupabase} disabled={syncBusy !== null}
+            className="py-3 bg-blue-500 text-white rounded-lg text-sm font-medium disabled:opacity-50">
+            {syncBusy === 'push' ? '업로드 중...' : '업로드'}
+          </button>
+          <button onClick={handlePullSupabase} disabled={syncBusy !== null}
+            className="py-3 bg-green-500 text-white rounded-lg text-sm font-medium disabled:opacity-50">
+            {syncBusy === 'pull' ? '다운로드 중...' : '다운로드'}
+          </button>
+        </div>
+
+        {syncStatus && (
+          <p className="text-xs text-gray-500 leading-relaxed">{syncStatus}</p>
+        )}
+      </div>
+
       {imported && (
         <p className="text-xs text-green-500 text-center">가져오기 완료! 새로고침(F5)으로 적용하세요.</p>
       )}
@@ -472,4 +553,8 @@ function BackupTab() {
       </div>
     </div>
   )
+}
+
+function getSyncErrorMessage(error: unknown): string {
+  return error instanceof Error ? `Supabase 오류: ${error.message}` : 'Supabase 오류가 발생했습니다'
 }

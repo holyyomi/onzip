@@ -197,4 +197,5 @@ docs/SUPABASE_SCHEMA.sql
 2. `docs/SUPABASE_SCHEMA.sql`을 SQL Editor에서 실행한다.
 3. Supabase 값이 준비되면 `.env.example`을 기준으로 로컬 `.env`를 만든다.
 4. `migrateLocalDataToSupabase()`는 Supabase SQL 적용과 `.env` 설정 후 수동 실행한다.
-5. 다음 구현은 Supabase 프로젝트/env 준비 후 설정 화면에 수동 연결 확인/동기화 UI를 붙이는 작업이다.
+5. 설정 > 백업 탭에서 연결 확인, 업로드, 다운로드를 수동 실행한다.
+6. 다음 구현은 인증/Auth 및 RLS 정책 적용이다.
