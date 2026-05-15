@@ -2,12 +2,8 @@ import { useState } from 'react'
 import FormModal, { Field, inputCls, FormActions } from '../common/FormModal'
 import { ledgerEntryRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
-import {} from '../../utils/date'
-import {
-  EXPENSE_CATEGORIES,
-  INCOME_CATEGORIES,
-  PAYMENT_METHODS,
-} from '../../utils/constants'
+import { PAYMENT_METHODS } from '../../utils/constants'
+import { getCategories } from '../../utils/categoryStore'
 import type { LedgerEntry, LedgerEntryType, PaymentMethod } from '../../data/models'
 
 interface Props {
@@ -43,7 +39,7 @@ export default function LedgerFormModal({
   const [memo, setMemo] = useState(existing?.memo ?? '')
   const [error, setError] = useState('')
 
-  const categories = entryType === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES
+  const categories = entryType === 'expense' ? getCategories('expense') : getCategories('income')
 
   function handleSave() {
     const amt = Number(amount.replace(/,/g, ''))

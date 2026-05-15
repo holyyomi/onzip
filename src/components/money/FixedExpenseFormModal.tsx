@@ -2,11 +2,8 @@ import { useState } from 'react'
 import FormModal, { Field, inputCls, FormActions } from '../common/FormModal'
 import { fixedExpenseRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
-import {
-  FIXED_EXPENSE_CATEGORIES,
-  PAYMENT_METHODS,
-  DAYS_OPTIONS,
-} from '../../utils/constants'
+import { PAYMENT_METHODS, DAYS_OPTIONS } from '../../utils/constants'
+import { getCategories } from '../../utils/categoryStore'
 import type { FixedExpense, PaymentMethod } from '../../data/models'
 
 interface Props {
@@ -94,7 +91,7 @@ export default function FixedExpenseFormModal({ expenseId, onSaved, onClose }: P
 
       <Field label="카테고리">
         <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls}>
-          {FIXED_EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          {getCategories('fixed_expense').map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
       </Field>
 

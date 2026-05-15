@@ -1,8 +1,7 @@
 // 캘린더 이벤트 집계
-// 원본 데이터(고정지출·구독·체크리스트)를 캘린더 표시용으로 변환
-// 원본은 각 repository에만 저장 — 여기서는 읽기만 함
+// 원본 데이터(고정지출·구독·체크리스트·반복 일정)를 캘린더 표시용으로 변환
 
-import type { CalendarEventType } from '../data/models'
+import type { CalendarEvent, CalendarEventType } from '../data/models'
 import {
   calendarEventRepo,
   fixedExpenseRepo,
@@ -20,9 +19,75 @@ export interface AggregatedEvent {
   is_done: boolean
   member_id?: string | null
   memo?: string
-  // source 정보 — null이면 직접 생성한 일정(수정 가능)
+  // null이면 직접 추가 일정 (수정 가능)
   source_type?: string | null
   source_id?: string | null
+  // 반복 이벤트의 원본 ID
+  original_id?: string
+}
+
+// ─────────────────────────────────
+// 반복 이벤트 날짜 계산
+// ─────────────────────────────────
+
+function getRepeatDates(event: CalendarEvent, year: number, month: number): string[] {
+  const [sy, sm, sd] = event.start_date.split('-').map(Number)
+  const prefix = `${year}-${String(month).padStart(2, '0')}`
+  const daysInMonth = getDaysInMonth(year, month)
+
+  switch (event.repeat_rule) {
+    case 'yearly': {
+      // 매년 같은 월·일 (기념일)
+      if (sm !== month) return []
+      const d = String(sd).padStart(2, '0')
+      const date = `${year}-${String(month).padStart(2, '0')}-${d}`
+      return date >= event.start_date ? [date] : []
+    }
+    case 'monthly': {
+      // 매월 같은 일
+      if (sd > daysInMonth) return []
+      const date = `${prefix}-${String(sd).padStart(2, '0')}`
+      return date >= event.start_date ? [date] : []
+    }
+    case 'weekly': {
+      // 매주 같은 요일
+      const startDow = new Date(sy, sm - 1, sd).getDay()
+      const dates: string[] = []
+      for (let d = 1; d <= daysInMonth; d++) {
+        if (new Date(year, month - 1, d).getDay() === startDow) {
+          const dateStr = `${prefix}-${String(d).padStart(2, '0')}`
+          if (dateStr >= event.start_date) dates.push(dateStr)
+        }
+      }
+      return dates
+    }
+    case 'daily': {
+      const dates: string[] = []
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${prefix}-${String(d).padStart(2, '0')}`
+        if (dateStr >= event.start_date) dates.push(dateStr)
+      }
+      return dates
+    }
+    default:
+      return []
+  }
+}
+
+function toAggregated(e: CalendarEvent, date: string, isRepeat = false): AggregatedEvent {
+  return {
+    id: isRepeat ? `${e.id}_${date}` : e.id,
+    title: e.title,
+    date,
+    type: e.event_type,
+    amount: e.amount ?? undefined,
+    is_done: e.is_done,
+    member_id: e.member_id,
+    memo: e.memo,
+    source_type: e.source_type,
+    source_id: e.source_id,
+    original_id: isRepeat ? e.id : undefined,
+  }
 }
 
 // ─────────────────────────────────
@@ -35,25 +100,23 @@ export function getAggregatedEvents(year: number, month: number): AggregatedEven
   const events: AggregatedEvent[] = []
 
   // 1. 직접 생성한 캘린더 이벤트 (일정, 기념일)
-  calendarEventRepo
-    .getAll()
-    .filter((e) => e.start_date.startsWith(prefix))
-    .forEach((e) => {
-      events.push({
-        id: e.id,
-        title: e.title,
-        date: e.start_date,
-        type: e.event_type,
-        amount: e.amount ?? undefined,
-        is_done: e.is_done,
-        member_id: e.member_id,
-        memo: e.memo,
-        source_type: e.source_type,
-        source_id: e.source_id,
+  calendarEventRepo.getAll().forEach((e) => {
+    if (e.repeat_rule === 'none') {
+      // 비반복: 해당 월에만 표시
+      if (e.start_date.startsWith(prefix)) {
+        events.push(toAggregated(e, e.start_date))
+      }
+    } else {
+      // 반복: 이번 달 해당 날짜 모두 생성
+      const dates = getRepeatDates(e, year, month)
+      dates.forEach((date) => {
+        const isRepeat = date !== e.start_date
+        events.push(toAggregated(e, date, isRepeat))
       })
-    })
+    }
+  })
 
-  // 2. 고정지출 → 납부일 기준 자동 생성
+  // 2. 고정지출 → 납부일 자동 생성
   fixedExpenseRepo
     .getActive()
     .filter((fe) => fe.calendar_visible && fe.payment_day <= daysInMonth)
@@ -73,7 +136,7 @@ export function getAggregatedEvents(year: number, month: number): AggregatedEven
       })
     })
 
-  // 3. 구독 → 결제일 기준 자동 생성
+  // 3. 구독 → 결제일 자동 생성
   subscriptionRepo
     .getActive()
     .filter((s) => s.calendar_visible && s.payment_day <= daysInMonth)
