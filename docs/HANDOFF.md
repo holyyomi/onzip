@@ -4,6 +4,7 @@
 > **작성자**: Claude Sonnet 4.6 (Claude Code)  
 > **인수자**: Codex CLI  
 > **목적**: 5시간 한도 소진으로 인한 에이전트 교체 인수인계
+> **Codex 점검**: 2026-05-15 — TASK_LIST 상태 정리 및 Supabase 연동 계획서 추가
 
 ---
 
@@ -142,7 +143,8 @@ onzip/
 │   ├── DATA_MODEL.md       # localStorage 키 규칙
 │   ├── README_WORKFLOW.md  # 개발 운영 규칙
 │   ├── TEST_CHECKLIST.md   # 8개 골든패스 테스트
-│   └── SUPABASE_SCHEMA.sql # ★ 다음 단계: Supabase 연동 SQL
+│   ├── SUPABASE_SCHEMA.sql # ★ 다음 단계: Supabase 연동 SQL
+│   └── SUPABASE_INTEGRATION_PLAN.md # Supabase 전환 설계 기준
 └── src/
     ├── main.tsx            # runSeed() 호출 포함
     ├── styles/index.css    # Tailwind + 모바일 UX 유틸리티
@@ -325,7 +327,14 @@ type RecordType = 'life' | 'spending_note' | 'family_meeting' | 'anniversary' | 
 ### 🔴 HIGH: Supabase 연동 (멀티 디바이스 공유)
 
 **배경**: SQL 스키마 `docs/SUPABASE_SCHEMA.sql` 이미 완성.  
+**사전 계획**: `docs/SUPABASE_INTEGRATION_PLAN.md` 참고.  
 **목표**: 부부가 각자 기기에서 같은 데이터를 공유.
+
+**중요 설계 메모**:
+- 현재 앱은 기본 멤버 ID로 `"me"`, `"spouse"`, `"shared"` 문자열을 사용한다.
+- Supabase SQL은 `members.id`와 `households.id`를 uuid로 정의한다.
+- 바로 BaseRepository를 Supabase CRUD로 교체하면 동기식 화면 코드가 깨질 수 있다.
+- 권장 전략은 uuid 유지 + 마이그레이션 매핑 + localStorage 기반 sync 계층을 먼저 붙이는 방식이다.
 
 **작업 순서**:
 1. Supabase 프로젝트 생성 (사용자가 직접)
