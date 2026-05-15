@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { todayYear, todayMonth, prevMonth, nextMonth, formatMonthLabel } from '../../utils/date'
+import type { QuickAddType } from '../common/QuickAddMenu'
 import MoneySummaryTab from '../money/MoneySummaryTab'
 import LedgerTab from '../money/LedgerTab'
 import FixedExpenseTab from '../money/FixedExpenseTab'
@@ -7,11 +8,13 @@ import IncomeTab from '../money/IncomeTab'
 import SubscriptionTab from '../money/SubscriptionTab'
 import CalculatorTab from '../money/CalculatorTab'
 import TabMemoCard from '../common/TabMemoCard'
+import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 
 type MoneySubTab = 'summary' | 'ledger' | 'fixed' | 'income' | 'subscription' | 'calculator'
 
 interface Props {
   externalRefreshKey: number
+  onQuickAdd: (type: QuickAddType) => void
 }
 
 const SUB_TABS: { value: MoneySubTab; label: string }[] = [
@@ -23,7 +26,7 @@ const SUB_TABS: { value: MoneySubTab; label: string }[] = [
   { value: 'calculator', label: '계산기' },
 ]
 
-export default function MoneyPage({ externalRefreshKey }: Props) {
+export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
   const [activeTab, setActiveTab] = useState<MoneySubTab>('summary')
   const [year, setYear] = useState(todayYear())
   const [month, setMonth] = useState(todayMonth())
@@ -47,6 +50,21 @@ export default function MoneyPage({ externalRefreshKey }: Props) {
 
   return (
     <div>
+      <div className="px-4 pt-3 grid grid-cols-2 gap-3">
+        <MoneyQuickButton
+          iconSrc={QUICK_ADD_ICON.expense}
+          label="돈 쓴 것"
+          sub="금액만 바로 적기"
+          onClick={() => onQuickAdd('expense')}
+        />
+        <MoneyQuickButton
+          iconSrc={QUICK_ADD_ICON.fixed_expense}
+          label="매달 돈"
+          sub="월세, 관리비, 보험"
+          onClick={() => onQuickAdd('fixed_expense')}
+        />
+      </div>
+
       <div className="oz-tab-strip bg-[#f7f7f7]">
         {SUB_TABS.map((t) => (
           <button
@@ -98,5 +116,27 @@ export default function MoneyPage({ externalRefreshKey }: Props) {
         <TabMemoCard tab="money" title="돈 메모" placeholder="이번 달 예산, 카드값, 가족과 나눌 돈 이야기를 적어두세요." />
       </div>
     </div>
+  )
+}
+
+function MoneyQuickButton({
+  iconSrc,
+  label,
+  sub,
+  onClick,
+}: {
+  iconSrc: string
+  label: string
+  sub: string
+  onClick: () => void
+}) {
+  return (
+    <button onClick={onClick} className="oz-card min-h-[86px] p-3 text-left active:scale-[0.98] transition flex items-center gap-3">
+      <img src={iconSrc} alt="" className="h-11 w-11 rounded-[16px] object-contain flex-shrink-0" />
+      <span className="min-w-0">
+        <span className="block text-base font-semibold text-[#222222]">{label}</span>
+        <span className="block text-xs text-[#6a6a6a] mt-1 leading-snug">{sub}</span>
+      </span>
+    </button>
   )
 }

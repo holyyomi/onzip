@@ -8,17 +8,20 @@ import {
   formatDate,
 } from '../../utils/date'
 import { getAggregatedEvents } from '../../utils/calendarAggregator'
+import type { QuickAddType } from '../common/QuickAddMenu'
 import CalendarMonthView from '../calendar/CalendarMonthView'
 import CalendarWeekView from '../calendar/CalendarWeekView'
 import TodaySummaryCard from '../calendar/TodaySummaryCard'
 import DayEventPanel from '../calendar/DayEventPanel'
 import EventFormModal from '../calendar/EventFormModal'
 import TabMemoCard from '../common/TabMemoCard'
+import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 
 type ViewMode = 'month' | 'week'
 
 interface Props {
   externalRefreshKey: number
+  onQuickAdd: (type: QuickAddType) => void
 }
 
 function addDays(dateStr: string, days: number): string {
@@ -27,7 +30,7 @@ function addDays(dateStr: string, days: number): string {
   return formatDate(result)
 }
 
-export default function CalendarPage({ externalRefreshKey }: Props) {
+export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('month')
   const [year, setYear] = useState(todayYear())
   const [month, setMonth] = useState(todayMonth())
@@ -94,6 +97,21 @@ export default function CalendarPage({ externalRefreshKey }: Props) {
     <div>
       <TodaySummaryCard key={`${refreshKey}-${externalRefreshKey}`} />
 
+      <div className="px-4 grid grid-cols-2 gap-3">
+        <CalendarQuickButton
+          iconSrc={QUICK_ADD_ICON.schedule}
+          label="일정 추가"
+          sub="약속, 병원, 학교"
+          onClick={() => onQuickAdd('schedule')}
+        />
+        <CalendarQuickButton
+          iconSrc={QUICK_ADD_ICON.checklist}
+          label="할 일 추가"
+          sub="오늘 챙길 것"
+          onClick={() => onQuickAdd('checklist')}
+        />
+      </div>
+
       <div className="flex px-4 py-3 gap-2 bg-[#f7f7f7]">
         {(['month', 'week'] as const).map((mode) => (
           <button key={mode} onClick={() => setViewMode(mode)}
@@ -143,5 +161,27 @@ export default function CalendarPage({ externalRefreshKey }: Props) {
         />
       )}
     </div>
+  )
+}
+
+function CalendarQuickButton({
+  iconSrc,
+  label,
+  sub,
+  onClick,
+}: {
+  iconSrc: string
+  label: string
+  sub: string
+  onClick: () => void
+}) {
+  return (
+    <button onClick={onClick} className="oz-card min-h-[82px] p-3 text-left active:scale-[0.98] transition flex items-center gap-3">
+      <img src={iconSrc} alt="" className="h-10 w-10 rounded-[15px] object-contain flex-shrink-0" />
+      <span className="min-w-0">
+        <span className="block text-base font-semibold text-[#222222]">{label}</span>
+        <span className="block text-xs text-[#6a6a6a] mt-1 leading-snug">{sub}</span>
+      </span>
+    </button>
   )
 }

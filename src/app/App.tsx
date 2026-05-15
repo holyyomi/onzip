@@ -45,10 +45,10 @@ export default function App() {
     switch (activeTab) {
       case 'home':
         return <HomePage refreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} onTabChange={setActiveTab} />
-      case 'calendar': return <CalendarPage externalRefreshKey={appRefreshKey} />
-      case 'money':    return <MoneyPage externalRefreshKey={appRefreshKey} />
-      case 'life':     return <LifePage externalRefreshKey={appRefreshKey} />
-      case 'records':  return <RecordsPage externalRefreshKey={appRefreshKey} />
+      case 'calendar': return <CalendarPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
+      case 'money':    return <MoneyPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
+      case 'life':     return <LifePage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
+      case 'records':  return <RecordsPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
       case 'settings': return <SettingsPage />
     }
   }

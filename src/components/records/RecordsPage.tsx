@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react'
 import { lifeRecordRepo } from '../../data/repositories'
 import { formatAmount } from '../../utils/date'
+import type { QuickAddType } from '../common/QuickAddMenu'
 import type { RecordType } from '../../data/models'
 import RecordFormModal from './RecordFormModal'
+import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 
 const RECORD_TYPE_CONFIG: Record<
   RecordType,
@@ -19,9 +21,10 @@ type FilterType = 'all' | RecordType
 
 interface Props {
   externalRefreshKey: number
+  onQuickAdd: (type: QuickAddType) => void
 }
 
-export default function RecordsPage({ externalRefreshKey }: Props) {
+export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
   const [filter, setFilter] = useState<FilterType>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -71,6 +74,19 @@ export default function RecordsPage({ externalRefreshKey }: Props) {
 
   return (
     <div>
+      <div className="px-4 pt-3">
+        <button
+          onClick={() => onQuickAdd('record')}
+          className="w-full oz-card min-h-[88px] p-4 text-left active:scale-[0.99] transition flex items-center gap-3"
+        >
+          <img src={QUICK_ADD_ICON.record} alt="" className="h-12 w-12 rounded-[18px] object-contain flex-shrink-0" />
+          <span className="min-w-0">
+            <span className="block text-lg font-semibold text-[#222222]">기록 남기기</span>
+            <span className="block text-sm text-[#6a6a6a] mt-1">오늘 있었던 일, 회의록, 메모를 바로 적어요</span>
+          </span>
+        </button>
+      </div>
+
       {/* 검색 */}
       <div className="px-4 py-3 bg-white border-b border-gray-100">
         <input
