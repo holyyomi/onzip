@@ -4,84 +4,94 @@
 2026-05-15
 
 ## 현재 상태
-Phase 0~3 완료. TASK-001~016 완료.
-다음: Phase 4 TASK-017 (생활 탭 — 체크리스트, 장보기, 생활용품, 집안일, 템플릿).
+**Phase 0~6 완료. TASK-001~028 완료.**
+5개 탭 모두 기능 구현 완료.
+다음: Phase 7 QA — TASK-029 모바일 UX, TASK-030 빈 상태, TASK-031 실사용 테스트, TASK-032 PWA 배포.
 
-## 완료한 TASK
+## 완료 현황
 
-| Phase | TASK | 내용 | 상태 |
-|---|---|---|---|
-| 0 | TASK-001~003 | Vite+React 세팅, 레이아웃 | ✅ |
-| 1 | TASK-004~006 | 데이터 모델, 저장소, Seed | ✅ |
-| 2 | TASK-007~010 | 캘린더 전체 | ✅ |
-| 3 | TASK-011~016 | 돈관리 전체 | ✅ |
+| Phase | 범위 | 상태 |
+|---|---|---|
+| 0 | TASK-001~003 | ✅ Vite + React + 레이아웃 |
+| 1 | TASK-004~006 | ✅ 데이터 모델 + 저장소 + Seed |
+| 2 | TASK-007~010 | ✅ 캘린더 전체 |
+| 3 | TASK-011~016 | ✅ 돈관리 전체 |
+| 4 | TASK-017~021 | ✅ 생활 탭 전체 |
+| 5 | TASK-022~024 | ✅ 기록 탭 |
+| 6 | TASK-025~028 | ✅ 설정 탭 |
+| 7 | TASK-029~032 | ⏳ QA + PWA 배포 |
 
-## 주요 파일 구조 (현재)
+## 전체 파일 구조
 
 ```
 src/
 ├─ app/App.tsx
 ├─ components/
-│  ├─ common/
-│  │  └─ FormModal.tsx       ← 재사용 바텀시트 + Field + FormActions
-│  ├─ layout/                ← AppShell, Header, BottomTabBar
-│  ├─ pages/
-│  │  ├─ CalendarPage.tsx    ✅
-│  │  ├─ MoneyPage.tsx       ✅
-│  │  ├─ LifePage.tsx        ← placeholder (TASK-017~021)
-│  │  ├─ RecordsPage.tsx     ← placeholder (TASK-022~024)
-│  │  └─ SettingsPage.tsx    ← placeholder (TASK-025~028)
-│  ├─ calendar/              ✅ (5개 컴포넌트)
-│  └─ money/                 ✅ (8개 컴포넌트)
+│  ├─ common/FormModal.tsx
+│  ├─ layout/{AppShell, Header, BottomTabBar}.tsx
+│  ├─ pages/{Calendar, Money, Life, Records, Settings}Page.tsx
+│  ├─ calendar/  5개 (MonthView, DayCell, TodaySummary, DayEventPanel, EventFormModal)
+│  ├─ money/     8개 (Summary, Ledger, FixedExpense, Income, Subscription, Calculator + forms)
+│  ├─ life/      7개 (Checklist, Shopping, Supplies, Chore, Template + forms)
+│  └─ records/   2개 (RecordsPage, RecordFormModal)
 ├─ data/
-│  ├─ models/index.ts
-│  ├─ repositories/base.ts, index.ts
+│  ├─ models/index.ts        (15개 타입)
+│  ├─ repositories/base.ts, index.ts (15개 repo + exportAllData)
 │  └─ seed/index.ts
 └─ utils/
    ├─ date.ts
    ├─ calendarAggregator.ts
-   └─ constants.ts           ← 카테고리, 결제수단 등 공통 상수
+   └─ constants.ts
+```
+
+## Git 커밋 이력
+
+```
+c698987 feat: Phase 5-6 Records & Settings (TASK-022~028)
+71274f1 feat: Phase 4 Life tab (TASK-017~021)
+6be31fe feat: Phase 0-3 initialize project
 ```
 
 ## 검증 결과
-- Type check: ✅ 통과
-- Build: ✅ 통과 (197kB JS, 1.23s)
+- Type check: ✅ 통과 (strict 모드)
+- Build: ✅ 통과 (232kB JS gzip 66kB)
+- Dev server: `npm run dev` → localhost:3000
 
-## 핵심 패턴 (Codex 인수인계 시 중요)
+## 핵심 패턴 (Codex 인수인계)
 
-1. **FormModal 재사용 패턴**: 모든 form modal은 `src/components/common/FormModal.tsx`의
-   `FormModal`, `Field`, `inputCls`, `FormActions`를 재사용.
+1. **FormModal 재사용**: `src/components/common/FormModal.tsx` — Field, inputCls, FormActions
+2. **refreshKey 패턴**: 저장 후 `setRefreshKey(k=>k+1)` → useMemo 재계산
+3. **calendarAggregator**: 고정지출·구독 → 캘린더 실시간 변환 (저장 안 함)
+4. **수정 가능 판단**: `source_type === null` 인 CalendarEvent만 수정 가능
+5. **localStorage 키**: `onzip_*` 접두사 (15개)
+6. **Seed 방지**: `onzip_seed_done_v1` 키 확인 후 1회만 실행
+7. **LifeRecord 이름**: TypeScript 내장 `Record<K,V>` 충돌 방지로 LifeRecord 사용
+8. **서브탭 공통**: overflow-x-auto + flex-shrink-0 + border-b-2 패턴
 
-2. **refreshKey 패턴**: 저장/삭제 후 `onRefresh()` → 부모의 `setRefreshKey(k=>k+1)` →
-   useMemo deps에 refreshKey 포함 → 자동 재계산.
+## 다음 작업 — Phase 7 QA (TASK-029~032)
 
-3. **useMemo + eslint-disable**: 각 탭에서 useMemo deps에 refreshKey를 포함하면서
-   eslint-disable-next-line react-hooks/exhaustive-deps 주석 필요.
+**TASK-029**: 모바일 UX 개선
+- 입력 폼 하단 고정 버튼 확인
+- 터치 영역 최소 44px
+- 긴 목록 스크롤 최적화
 
-4. **공통 상수**: `src/utils/constants.ts`에 카테고리, 결제수단, 납부일 옵션 정의.
+**TASK-030**: 빈 상태 화면
+- EmptyState 공통 컴포넌트 생성
+- 각 탭 빈 상태 문구 + 추가 버튼
 
-5. **서브탭 구조**: MoneyPage처럼 overflow-x-auto + flex-shrink-0으로 가로 스크롤 구현.
+**TASK-031**: 7일 실사용 테스트
+- 시나리오: 일정 추가 → 지출 입력 → 장보기 → 기록 → 생활용품 확인
 
-## 남은 위험
-- esbuild 취약점 (moderate) — 개발 전용
-- localStorage 5MB 제한 — 나중에 IndexedDB 전환
-
-## 다음 작업 — Phase 4: 생활 탭 (TASK-017~021)
-
-**TASK-017**: 체크리스트 (`src/components/life/ChecklistTab.tsx`)
-**TASK-018**: 장보기 (`src/components/life/ShoppingTab.tsx`)
-**TASK-019**: 생활용품 (`src/components/life/SuppliesTab.tsx`)
-**TASK-020**: 집안일 (`src/components/life/ChoreTab.tsx`)
-**TASK-021**: 템플릿 센터 (`src/components/life/TemplateTab.tsx`)
-
-생성 위치: `src/components/life/`
-MoneyPage와 동일한 서브탭 구조 사용.
-FormModal 재사용.
+**TASK-032**: PWA + Vercel 배포
+- vite-plugin-pwa 설치
+- manifest.json (앱명, 아이콘)
+- Vercel CLI 배포
 
 ## 재개 명령어
 ```bash
 cd C:\Users\user\Desktop\자동화\onzip
-npm run dev
+npm run dev       # localhost:3000 확인
 npm run typecheck
 npm run build
+git log --oneline
 ```
