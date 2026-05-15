@@ -124,6 +124,7 @@ npm run dev              # localhost:3000
 onzip/
 ├── .gitattributes          # LF line endings
 ├── .gitignore
+├── .env.example            # Supabase 환경변수 예시 (실제 .env는 커밋 금지)
 ├── AGENTS.md               # ★ 운영 규칙 (반드시 읽을 것)
 ├── vercel.json             # SPA 라우팅 + 보안 헤더
 ├── index.html              # PWA meta tags, viewport-fit=cover
@@ -202,6 +203,8 @@ onzip/
     │   ├── repositories/
     │   │   ├── base.ts         # BaseRepository<T>, newId(), now()
     │   │   └── index.ts        # ★ 15개 repo 싱글톤 + exportAllData()
+    │   ├── supabase/
+    │   │   └── client.ts       # lazy Supabase client + 연결 확인 헬퍼
     │   └── seed/
     │       └── index.ts        # runSeed() — onzip_seed_done_v1 키로 1회 실행
     └── utils/
@@ -334,6 +337,7 @@ type RecordType = 'life' | 'spending_note' | 'family_meeting' | 'anniversary' | 
 - 현재 앱은 기본 멤버 ID로 `"me"`, `"spouse"`, `"shared"` 문자열을 사용한다.
 - Supabase SQL은 `members.id`와 `households.id`를 uuid로 정의한다.
 - `SUPABASE_SCHEMA.sql`은 로컬 ID 마이그레이션을 위해 `households.local_alias`, `members.local_alias`, `household_users`를 포함한다.
+- Supabase 클라이언트는 `src/data/supabase/client.ts`에 lazy helper로 준비되어 있으며, env가 없으면 앱 시작 시점에는 실패하지 않는다.
 - 바로 BaseRepository를 Supabase CRUD로 교체하면 동기식 화면 코드가 깨질 수 있다.
 - 권장 전략은 uuid 유지 + 마이그레이션 매핑 + localStorage 기반 sync 계층을 먼저 붙이는 방식이다.
 

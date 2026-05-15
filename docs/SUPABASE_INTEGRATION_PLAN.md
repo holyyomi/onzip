@@ -97,13 +97,19 @@ VITE_SUPABASE_ANON_KEY
 
 ### TASK-036: Supabase 클라이언트/env 설정
 
+완료 기준:
+- `@supabase/supabase-js` 설치
+- `.env.example` 추가
+- `src/data/supabase/client.ts` 추가
+- Supabase env가 없을 때 앱 시작이 깨지지 않는 lazy client 패턴 적용
+
 예상 변경:
 
 ```text
 package.json
 package-lock.json
+.env.example
 src/data/supabase/client.ts
-src/data/supabase/types.ts
 ```
 
 작업:
@@ -168,4 +174,5 @@ docs/SUPABASE_SCHEMA.sql
 
 1. 사용자가 Supabase 프로젝트를 생성한다.
 2. `docs/SUPABASE_SCHEMA.sql`을 SQL Editor에서 실행한다.
-3. `TASK-036`부터 작은 PR/커밋 단위로 진행한다.
+3. Supabase 값이 준비되면 `.env.example`을 기준으로 로컬 `.env`를 만든다.
+4. `TASK-037`부터 작은 PR/커밋 단위로 진행한다.
