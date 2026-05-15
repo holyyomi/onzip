@@ -17,6 +17,9 @@ const STATUS_OPTIONS: { value: SubscriptionStatus; label: string }[] = [
   { value: 'cancelled', label: '해지 완료' },
 ]
 
+const SUBSCRIPTION_TITLE_SUGGESTIONS = ['넷플릭스', '유튜브', '쿠팡', '음악앱']
+const AMOUNT_SUGGESTIONS = [4900, 9900, 14900, 19900]
+
 export default function SubscriptionFormModal({ subId, onSaved, onClose }: Props) {
   const existing = subId ? subscriptionRepo.getById(subId) : undefined
   const members = memberRepo.getAll().filter((m) => m.is_active)
@@ -32,6 +35,7 @@ export default function SubscriptionFormModal({ subId, onSaved, onClose }: Props
   const [calendarVisible, setCalendarVisible] = useState(existing?.calendar_visible ?? true)
   const [memo, setMemo] = useState(existing?.memo ?? '')
   const [error, setError] = useState('')
+  const [showDetails, setShowDetails] = useState(Boolean(subId))
 
   function handleSave() {
     if (!title.trim()) { setError('구독명을 입력해주세요'); return }
@@ -67,58 +71,98 @@ export default function SubscriptionFormModal({ subId, onSaved, onClose }: Props
     <FormModal title={subId ? '구독 수정' : '구독 추가'} onClose={onClose}>
       <Field label="구독명 (필수)">
         <input type="text" placeholder="예) 넷플릭스" value={title}
-          onChange={(e) => { setTitle(e.target.value); setError('') }} className={inputCls} />
+          onChange={(e) => { setTitle(e.target.value); setError('') }}
+          className={inputCls}
+          autoFocus />
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
       </Field>
+
+      {!subId && (
+        <div className="mb-4 flex gap-2 overflow-x-auto hide-scrollbar">
+          {SUBSCRIPTION_TITLE_SUGGESTIONS.map((suggestion) => (
+            <button
+              key={suggestion}
+              onClick={() => { setTitle(suggestion); setError('') }}
+              className="flex-shrink-0 rounded-full border border-[#dddddd] bg-[#f7f7f7] px-3 py-2 text-sm font-semibold text-[#222222]"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      )}
 
       <Field label="월 결제금액 (필수)">
         <input type="number" placeholder="0" value={amount}
           onChange={(e) => { setAmount(e.target.value); setError('') }}
+          onKeyDown={(e) => e.key === 'Enter' && handleSave()}
           className={inputCls} inputMode="numeric" />
       </Field>
 
-      <Field label="결제일">
-        <select value={paymentDay} onChange={(e) => setPaymentDay(Number(e.target.value))} className={inputCls}>
-          {DAYS_OPTIONS.map((d) => <option key={d} value={d}>매월 {d}일</option>)}
-        </select>
-      </Field>
-
-      <Field label="결제수단">
-        <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)} className={inputCls}>
-          {PAYMENT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-        </select>
-      </Field>
-
-      <Field label="상태">
-        <div className="flex gap-2">
-          {STATUS_OPTIONS.map((s) => (
-            <button key={s.value} onClick={() => setStatus(s.value)}
-              className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${
-                status === s.value ? 'bg-blue-500 text-white border-blue-500' : 'text-gray-500 border-gray-200'
-              }`}>
-              {s.label}
-            </button>
-          ))}
-        </div>
-      </Field>
-
-      <Field label="담당자">
-        <select value={memberId} onChange={(e) => setMemberId(e.target.value)} className={inputCls}>
-          {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-        </select>
-      </Field>
-
-      <div className="flex items-center justify-between mb-3 py-2">
-        <span className="text-sm text-gray-700">캘린더에 표시</span>
-        <button onClick={() => setCalendarVisible((v) => !v)}
-          className={`w-10 h-6 rounded-full transition-colors ${calendarVisible ? 'bg-blue-500' : 'bg-gray-200'}`}>
-          <span className={`block w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${calendarVisible ? 'translate-x-4' : 'translate-x-0'}`} />
-        </button>
+      <div className="grid grid-cols-4 gap-2 mb-4">
+        {AMOUNT_SUGGESTIONS.map((value) => (
+          <button
+            key={value}
+            onClick={() => setAmount(String(value))}
+            className="rounded-full border border-[#dddddd] bg-[#f7f7f7] py-2 text-xs font-semibold text-[#222222]"
+          >
+            {value.toLocaleString('ko-KR')}
+          </button>
+        ))}
       </div>
 
-      <Field label="메모 (선택)">
-        <input type="text" placeholder="메모" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
-      </Field>
+      <button
+        onClick={() => setShowDetails((value) => !value)}
+        className="mb-3 min-h-[40px] text-sm font-semibold text-[#ff385c]"
+      >
+        {showDetails ? '자세히 닫기' : '결제일/상태 자세히'}
+      </button>
+
+      {showDetails && (
+        <div className="rounded-[20px] bg-[#f7f7f7] p-4 mb-4">
+          <Field label="결제일">
+            <select value={paymentDay} onChange={(e) => setPaymentDay(Number(e.target.value))} className={inputCls}>
+              {DAYS_OPTIONS.map((d) => <option key={d} value={d}>매월 {d}일</option>)}
+            </select>
+          </Field>
+
+          <Field label="결제수단">
+            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)} className={inputCls}>
+              {PAYMENT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </select>
+          </Field>
+
+          <Field label="상태">
+            <div className="flex gap-2">
+              {STATUS_OPTIONS.map((s) => (
+                <button key={s.value} onClick={() => setStatus(s.value)}
+                  className={`flex-1 min-h-[44px] rounded-full text-xs font-medium border transition-colors ${
+                    status === s.value ? 'bg-[#ff385c] text-white border-[#ff385c]' : 'text-gray-500 border-gray-200 bg-white'
+                  }`}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          <Field label="담당자">
+            <select value={memberId} onChange={(e) => setMemberId(e.target.value)} className={inputCls}>
+              {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
+          </Field>
+
+          <div className="flex items-center justify-between mb-3 py-2">
+            <span className="text-sm text-gray-700">캘린더에 표시</span>
+            <button onClick={() => setCalendarVisible((v) => !v)}
+              className={`w-11 h-7 rounded-full transition-colors ${calendarVisible ? 'bg-[#ff385c]' : 'bg-gray-200'}`}>
+              <span className={`block w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${calendarVisible ? 'translate-x-4' : 'translate-x-0'}`} />
+            </button>
+          </div>
+
+          <Field label="메모">
+            <input type="text" placeholder="메모" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
+          </Field>
+        </div>
+      )}
 
       <FormActions onSave={handleSave} onDelete={subId ? handleDelete : undefined}
         saveLabel={subId ? '수정 완료' : '저장'} />

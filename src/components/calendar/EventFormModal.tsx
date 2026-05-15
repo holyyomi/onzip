@@ -18,6 +18,8 @@ const REPEAT_OPTIONS: { value: RepeatRule; label: string }[] = [
   { value: 'yearly', label: '매년' },
 ]
 
+const SCHEDULE_SUGGESTIONS = ['병원 예약', '학교 일정', '가족 약속', '기념일']
+
 export default function EventFormModal({
   eventId,
   defaultDate,
@@ -142,11 +144,30 @@ export default function EventFormModal({
             placeholder="예) 병원 예약, 결혼기념일"
             value={title}
             onChange={(e) => { setTitle(e.target.value); setError('') }}
+            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
             className="w-full min-h-[52px] border border-[#dddddd] rounded-[18px] px-4 py-3 text-base focus:outline-none focus:border-[#222222]"
             autoFocus
           />
           {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
         </div>
+
+        {!isEdit && (
+          <div className="mb-4 flex gap-2 overflow-x-auto hide-scrollbar">
+            {SCHEDULE_SUGGESTIONS.map((suggestion) => (
+              <button
+                key={suggestion}
+                onClick={() => {
+                  setTitle(suggestion)
+                  setEventType(suggestion === '기념일' ? 'anniversary' : 'schedule')
+                  setError('')
+                }}
+                className="flex-shrink-0 rounded-full border border-[#dddddd] bg-[#f7f7f7] px-3 py-2 text-sm font-semibold text-[#222222]"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="mb-3">
           <label className="text-sm font-semibold text-[#6a6a6a] block mb-1.5">언제인가요?</label>

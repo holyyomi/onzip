@@ -43,6 +43,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
     existing?.related_amount?.toString() ?? '',
   )
   const [error, setError] = useState('')
+  const [showDetails, setShowDetails] = useState(Boolean(recordId))
 
   function handleTypeChange(type: RecordType) {
     setRecordType(type)
@@ -55,19 +56,34 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
     return input.split(',').map((t) => t.trim()).filter(Boolean)
   }
 
+  function getSaveTitle() {
+    const trimmedTitle = title.trim()
+    if (trimmedTitle) return trimmedTitle
+
+    const firstContentLine = content
+      .split('\n')
+      .map((line) => line.replace(/^[-#\s]+/, '').trim())
+      .find(Boolean)
+
+    if (firstContentLine) return firstContentLine.slice(0, 24)
+    if (recordType === 'family_meeting') return '가족 회의록'
+    return ''
+  }
+
   function handleSave() {
-    if (!title.trim()) { setError('제목을 입력해주세요'); return }
+    const saveTitle = getSaveTitle()
+    if (!saveTitle) { setError('제목이나 내용을 입력해주세요'); return }
 
     if (recordId && existing) {
       lifeRecordRepo.update(recordId, {
-        title: title.trim(), content, record_type: recordType,
+        title: saveTitle, content, record_type: recordType,
         record_date: recordDate, member_id: memberId || null,
         tags: parseTags(tagInput),
         related_amount: relatedAmount ? Number(relatedAmount) : null,
       })
     } else {
       const record: LifeRecord = {
-        id: newId(), household_id: 'default', title: title.trim(),
+        id: newId(), household_id: 'default', title: saveTitle,
         content, record_type: recordType, record_date: recordDate,
         member_id: memberId || null, tags: parseTags(tagInput),
         related_amount: relatedAmount ? Number(relatedAmount) : null,
@@ -101,38 +117,52 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
         ))}
       </div>
 
-      <Field label="제목 (필수)">
-        <input type="text" placeholder="제목을 입력하세요" value={title}
-          onChange={(e) => { setTitle(e.target.value); setError('') }} className={inputCls} />
+      <Field label="제목">
+        <input type="text" placeholder="비워두면 내용 첫 줄로 저장돼요" value={title}
+          onChange={(e) => { setTitle(e.target.value); setError('') }}
+          onKeyDown={(e) => e.key === 'Enter' && (title.trim() || content.trim()) && handleSave()}
+          className={inputCls}
+          autoFocus />
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
       </Field>
 
       <Field label="내용">
         <textarea value={content} onChange={(e) => setContent(e.target.value)}
-          placeholder="내용을 입력하세요"
-          rows={6}
+          placeholder="오늘 있었던 일이나 기억할 내용을 적어두세요"
+          rows={5}
           className={`${inputCls} resize-none`} />
       </Field>
 
-      <Field label="날짜">
-        <input type="date" value={recordDate} onChange={(e) => setRecordDate(e.target.value)} className={inputCls} />
-      </Field>
+      <button
+        onClick={() => setShowDetails((value) => !value)}
+        className="mb-3 min-h-[40px] text-sm font-semibold text-[#ff385c]"
+      >
+        {showDetails ? '자세히 닫기' : '날짜/태그/금액 자세히'}
+      </button>
 
-      <Field label="작성자">
-        <select value={memberId} onChange={(e) => setMemberId(e.target.value)} className={inputCls}>
-          {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-        </select>
-      </Field>
+      {showDetails && (
+        <div className="rounded-[20px] bg-[#f7f7f7] p-4 mb-4">
+          <Field label="날짜">
+            <input type="date" value={recordDate} onChange={(e) => setRecordDate(e.target.value)} className={inputCls} />
+          </Field>
 
-      <Field label="태그 (쉼표로 구분)">
-        <input type="text" placeholder="예) 여행, 쇼핑, 결정" value={tagInput}
-          onChange={(e) => setTagInput(e.target.value)} className={inputCls} />
-      </Field>
+          <Field label="작성자">
+            <select value={memberId} onChange={(e) => setMemberId(e.target.value)} className={inputCls}>
+              {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
+          </Field>
 
-      <Field label="관련 금액 (선택)">
-        <input type="number" placeholder="0" value={relatedAmount}
-          onChange={(e) => setRelatedAmount(e.target.value)} className={inputCls} inputMode="numeric" />
-      </Field>
+          <Field label="태그">
+            <input type="text" placeholder="예) 여행, 쇼핑, 결정" value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)} className={inputCls} />
+          </Field>
+
+          <Field label="관련 금액">
+            <input type="number" placeholder="0" value={relatedAmount}
+              onChange={(e) => setRelatedAmount(e.target.value)} className={inputCls} inputMode="numeric" />
+          </Field>
+        </div>
+      )}
 
       <FormActions onSave={handleSave} onDelete={recordId ? handleDelete : undefined}
         saveLabel={recordId ? '수정 완료' : '저장'} />

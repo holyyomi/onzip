@@ -11,6 +11,7 @@ interface Props {
 }
 
 const SHOPPING_CATEGORIES = ['식재료', '냉동식품', '간식', '생활용품', '마트', '쿠팡', '기타']
+const SHOPPING_SUGGESTIONS = ['계란', '우유', '휴지', '물']
 
 export default function ShoppingFormModal({ itemId, onSaved, onClose }: Props) {
   const existing = itemId ? shoppingItemRepo.getById(itemId) : undefined
@@ -58,9 +59,25 @@ export default function ShoppingFormModal({ itemId, onSaved, onClose }: Props) {
     <FormModal title={itemId ? '살 것 수정' : '살 것 추가'} onClose={onClose}>
       <Field label="무엇을 살까요?">
         <input type="text" placeholder="예) 계란, 우유, 휴지" value={name}
-          onChange={(e) => { setName(e.target.value); setError('') }} className={inputCls} autoFocus />
+          onChange={(e) => { setName(e.target.value); setError('') }}
+          onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+          className={inputCls} autoFocus />
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
       </Field>
+
+      {!itemId && (
+        <div className="mb-4 flex gap-2 overflow-x-auto hide-scrollbar">
+          {SHOPPING_SUGGESTIONS.map((suggestion) => (
+            <button
+              key={suggestion}
+              onClick={() => { setName(suggestion); setError('') }}
+              className="flex-shrink-0 rounded-full border border-[#dddddd] bg-[#f7f7f7] px-3 py-2 text-sm font-semibold text-[#222222]"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      )}
 
       <Field label="예상 금액">
         <input type="number" placeholder="0" value={expectedAmount}
