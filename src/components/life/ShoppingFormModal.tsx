@@ -24,6 +24,7 @@ export default function ShoppingFormModal({ itemId, onSaved, onClose }: Props) {
   const [isFavorite, setIsFavorite] = useState(existing?.is_favorite ?? false)
   const [memo, setMemo] = useState(existing?.memo ?? '')
   const [error, setError] = useState('')
+  const [showDetails, setShowDetails] = useState(Boolean(itemId))
 
   function handleSave() {
     if (!name.trim()) { setError('품목명을 입력해주세요'); return }
@@ -54,40 +55,51 @@ export default function ShoppingFormModal({ itemId, onSaved, onClose }: Props) {
   }
 
   return (
-    <FormModal title={itemId ? '장보기 수정' : '장보기 추가'} onClose={onClose}>
-      <Field label="품목명 (필수)">
-        <input type="text" placeholder="예) 계란" value={name}
-          onChange={(e) => { setName(e.target.value); setError('') }} className={inputCls} />
+    <FormModal title={itemId ? '살 것 수정' : '살 것 추가'} onClose={onClose}>
+      <Field label="무엇을 살까요?">
+        <input type="text" placeholder="예) 계란, 우유, 휴지" value={name}
+          onChange={(e) => { setName(e.target.value); setError('') }} className={inputCls} autoFocus />
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
       </Field>
 
-      <Field label="카테고리">
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls}>
-          {SHOPPING_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-      </Field>
-
-      <Field label="예상 금액 (선택)">
+      <Field label="예상 금액">
         <input type="number" placeholder="0" value={expectedAmount}
           onChange={(e) => setExpectedAmount(e.target.value)} className={inputCls} inputMode="numeric" />
       </Field>
 
-      <Field label="구매처 (선택)">
-        <input type="text" placeholder="예) 이마트" value={store}
-          onChange={(e) => setStore(e.target.value)} className={inputCls} />
-      </Field>
-
       <div className="flex items-center justify-between mb-4 py-2">
-        <span className="text-sm text-gray-700">자주 사는 품목으로 등록</span>
+        <span className="text-sm font-semibold text-[#222222]">자주 사는 품목</span>
         <button onClick={() => setIsFavorite((v) => !v)}
-          className={`w-10 h-6 rounded-full transition-colors ${isFavorite ? 'bg-blue-500' : 'bg-gray-200'}`}>
+          className={`w-11 h-7 rounded-full transition-colors ${isFavorite ? 'bg-[#ff385c]' : 'bg-gray-200'}`}>
           <span className={`block w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${isFavorite ? 'translate-x-4' : 'translate-x-0'}`} />
         </button>
       </div>
 
-      <Field label="메모 (선택)">
-        <input type="text" placeholder="메모" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
-      </Field>
+      <button
+        onClick={() => setShowDetails((value) => !value)}
+        className="mb-3 text-sm font-semibold text-[#ff385c]"
+      >
+        {showDetails ? '자세히 닫기' : '분류/구매처 자세히'}
+      </button>
+
+      {showDetails && (
+        <div className="rounded-[20px] bg-[#f7f7f7] p-4 mb-4">
+          <Field label="분류">
+            <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls}>
+              {SHOPPING_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </Field>
+
+          <Field label="구매처">
+            <input type="text" placeholder="예) 이마트" value={store}
+              onChange={(e) => setStore(e.target.value)} className={inputCls} />
+          </Field>
+
+          <Field label="메모">
+            <input type="text" placeholder="예) 세일하면 2개" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
+          </Field>
+        </div>
+      )}
 
       <FormActions onSave={handleSave} onDelete={itemId ? handleDelete : undefined}
         saveLabel={itemId ? '수정 완료' : '저장'} />

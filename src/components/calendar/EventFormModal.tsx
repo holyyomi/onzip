@@ -38,6 +38,7 @@ export default function EventFormModal({
   const [memberId, setMemberId] = useState<string>(existing?.member_id ?? 'shared')
   const [memo, setMemo] = useState(existing?.memo ?? '')
   const [error, setError] = useState('')
+  const [showDetails, setShowDetails] = useState(isEdit)
 
   const members = memberRepo.getAll().filter((m) => m.is_active)
 
@@ -105,27 +106,25 @@ export default function EventFormModal({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/40">
-      <div className="bg-white rounded-t-2xl p-5 max-h-[90vh] overflow-y-auto">
-        {/* 헤더 */}
+      <div className="bg-white rounded-t-[28px] p-5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-[#222222]">
             {isEdit ? '일정 수정' : '일정 추가'}
           </h2>
-          <button onClick={onClose} className="text-gray-400 text-lg">
+          <button onClick={onClose} className="h-9 w-9 rounded-full bg-[#f2f2f2] text-[#6a6a6a] text-lg">
             ✕
           </button>
         </div>
 
-        {/* 유형 선택 */}
         <div className="flex gap-2 mb-4">
           {(['schedule', 'anniversary'] as const).map((t) => (
             <button
               key={t}
               onClick={() => setEventType(t)}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
+              className={`flex-1 py-3 rounded-full text-sm font-semibold border transition-colors ${
                 eventType === t
-                  ? 'bg-blue-500 text-white border-blue-500'
-                  : 'bg-white text-gray-600 border-gray-200'
+                  ? 'bg-[#222222] text-white border-[#222222]'
+                  : 'bg-white text-[#6a6a6a] border-[#dddddd]'
               }`}
             >
               {t === 'schedule' ? '일정' : '기념일'}
@@ -133,99 +132,105 @@ export default function EventFormModal({
           ))}
         </div>
 
-        {/* 제목 */}
         <div className="mb-3">
+          <label className="text-sm font-semibold text-[#6a6a6a] block mb-1.5">무슨 일인가요?</label>
           <input
             type="text"
-            placeholder="제목 (필수)"
+            placeholder="예) 병원 예약, 결혼기념일"
             value={title}
             onChange={(e) => { setTitle(e.target.value); setError('') }}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+            className="w-full border border-[#dddddd] rounded-[18px] px-4 py-3 text-base focus:outline-none focus:border-[#222222]"
+            autoFocus
           />
           {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
         </div>
 
-        {/* 날짜 */}
         <div className="mb-3">
-          <label className="text-xs text-gray-500 block mb-1">날짜</label>
+          <label className="text-sm font-semibold text-[#6a6a6a] block mb-1.5">언제인가요?</label>
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+            className="w-full border border-[#dddddd] rounded-[18px] px-4 py-3 text-base focus:outline-none focus:border-[#222222]"
           />
         </div>
 
-        {/* 시간 (일정만) */}
         {eventType === 'schedule' && (
           <div className="mb-3">
-            <label className="text-xs text-gray-500 block mb-1">시간 (선택)</label>
+            <label className="text-sm font-semibold text-[#6a6a6a] block mb-1.5">시간</label>
             <input
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+              className="w-full border border-[#dddddd] rounded-[18px] px-4 py-3 text-base focus:outline-none focus:border-[#222222]"
             />
           </div>
         )}
 
-        {/* 담당자 */}
-        <div className="mb-3">
-          <label className="text-xs text-gray-500 block mb-1">담당자</label>
-          <select
-            value={memberId}
-            onChange={(e) => setMemberId(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 bg-white"
-          >
-            {members.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <button
+          onClick={() => setShowDetails((value) => !value)}
+          className="mb-3 text-sm font-semibold text-[#ff385c]"
+        >
+          {showDetails ? '자세히 닫기' : '반복/담당자 자세히'}
+        </button>
 
-        {/* 반복 */}
-        <div className="mb-3">
-          <label className="text-xs text-gray-500 block mb-1">반복</label>
-          <select
-            value={repeat}
-            onChange={(e) => setRepeat(e.target.value as RepeatRule)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 bg-white"
-          >
-            {REPEAT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        {showDetails && (
+          <div className="rounded-[20px] bg-[#f7f7f7] p-4 mb-4">
+            <div className="mb-3">
+              <label className="text-sm font-semibold text-[#6a6a6a] block mb-1.5">담당자</label>
+              <select
+                value={memberId}
+                onChange={(e) => setMemberId(e.target.value)}
+                className="w-full border border-[#dddddd] rounded-[18px] px-4 py-3 text-base focus:outline-none focus:border-[#222222] bg-white"
+              >
+                {members.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* 메모 */}
-        <div className="mb-5">
-          <label className="text-xs text-gray-500 block mb-1">메모 (선택)</label>
-          <textarea
-            value={memo}
-            onChange={(e) => setMemo(e.target.value)}
-            placeholder="메모를 입력하세요"
-            rows={2}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 resize-none"
-          />
-        </div>
+            <div className="mb-3">
+              <label className="text-sm font-semibold text-[#6a6a6a] block mb-1.5">반복</label>
+              <select
+                value={repeat}
+                onChange={(e) => setRepeat(e.target.value as RepeatRule)}
+                className="w-full border border-[#dddddd] rounded-[18px] px-4 py-3 text-base focus:outline-none focus:border-[#222222] bg-white"
+              >
+                {REPEAT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* 버튼 */}
+            <div>
+              <label className="text-sm font-semibold text-[#6a6a6a] block mb-1.5">메모</label>
+              <textarea
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
+                placeholder="준비물이나 장소를 적어두세요"
+                rows={2}
+                className="w-full border border-[#dddddd] rounded-[18px] px-4 py-3 text-base focus:outline-none focus:border-[#222222] resize-none bg-white"
+              />
+            </div>
+          </div>
+        )}
+
         <div className="flex gap-2">
           {isEdit && (
             <button
               onClick={handleDelete}
-              className="flex-1 py-3 border border-red-300 text-red-500 rounded-xl text-sm font-medium"
+              className="flex-1 py-3.5 border border-red-200 text-red-500 rounded-full text-sm font-semibold"
             >
               삭제
             </button>
           )}
           <button
             onClick={handleSave}
-            className="flex-1 py-3 bg-blue-500 text-white rounded-xl text-sm font-semibold"
+            className="flex-1 py-3.5 bg-[#ff385c] text-white rounded-full text-sm font-semibold active:bg-[#e00b41]"
           >
             {isEdit ? '수정 완료' : '저장'}
           </button>

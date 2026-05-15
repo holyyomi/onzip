@@ -38,6 +38,7 @@ export default function LedgerFormModal({
   const [memberId, setMemberId] = useState(existing?.member_id ?? 'shared')
   const [memo, setMemo] = useState(existing?.memo ?? '')
   const [error, setError] = useState('')
+  const [showDetails, setShowDetails] = useState(Boolean(entryId))
 
   const categories = entryType === 'expense' ? getCategories('expense') : getCategories('income')
 
@@ -85,8 +86,7 @@ export default function LedgerFormModal({
   }
 
   return (
-    <FormModal title={entryId ? '내역 수정' : '내역 추가'} onClose={onClose}>
-      {/* 수입 / 지출 토글 */}
+    <FormModal title={entryId ? '돈 기록 수정' : defaultType === 'income' ? '돈 들어온 것' : '돈 쓴 것'} onClose={onClose}>
       <div className="flex gap-2 mb-4">
         {(['expense', 'income'] as const).map((t) => (
           <button
@@ -95,64 +95,88 @@ export default function LedgerFormModal({
               setEntryType(t)
               setCategory(t === 'expense' ? '식비' : '월급')
             }}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
+            className={`flex-1 py-3 rounded-full text-sm font-semibold border transition-colors ${
               entryType === t
                 ? t === 'expense'
-                  ? 'bg-red-500 text-white border-red-500'
-                  : 'bg-blue-500 text-white border-blue-500'
-                : 'bg-white text-gray-500 border-gray-200'
+                  ? 'bg-[#ff385c] text-white border-[#ff385c]'
+                  : 'bg-[#222222] text-white border-[#222222]'
+                : 'bg-white text-[#6a6a6a] border-[#dddddd]'
             }`}
           >
-            {t === 'expense' ? '지출' : '수입'}
+            {t === 'expense' ? '쓴 돈' : '들어온 돈'}
           </button>
         ))}
       </div>
 
-      <Field label="금액 (필수)">
+      <Field label="얼마인가요?">
         <input
           type="number"
-          placeholder="0"
+          placeholder="예) 12000"
           value={amount}
           onChange={(e) => { setAmount(e.target.value); setError('') }}
           className={inputCls}
           inputMode="numeric"
+          autoFocus
         />
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
       </Field>
 
-      <Field label="날짜">
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
-      </Field>
+      <div className="grid grid-cols-4 gap-2 mb-3">
+        {[5000, 10000, 20000, 50000].map((value) => (
+          <button
+            key={value}
+            onClick={() => setAmount(String(value))}
+            className="rounded-full border border-[#dddddd] bg-[#f7f7f7] py-2 text-xs font-semibold text-[#222222]"
+          >
+            {value / 10000 >= 1 ? `${value / 10000}만` : `${value / 1000}천`}
+          </button>
+        ))}
+      </div>
 
-      <Field label="카테고리">
+      <Field label="어디에 썼나요?">
         <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls}>
           {categories.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
       </Field>
 
-      {entryType === 'expense' && (
-        <Field label="결제수단">
-          <select
-            value={paymentMethod}
-            onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-            className={inputCls}
-          >
-            {PAYMENT_METHODS.map((m) => (
-              <option key={m.value} value={m.value}>{m.label}</option>
-            ))}
-          </select>
-        </Field>
+      <Field label="간단 메모">
+        <input type="text" placeholder="예) 점심, 마트, 택시" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
+      </Field>
+
+      <button
+        onClick={() => setShowDetails((value) => !value)}
+        className="mb-3 text-sm font-semibold text-[#ff385c]"
+      >
+        {showDetails ? '자세히 닫기' : '날짜/결제수단 자세히'}
+      </button>
+
+      {showDetails && (
+        <div className="rounded-[20px] bg-[#f7f7f7] p-4 mb-4">
+          <Field label="날짜">
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+          </Field>
+
+          {entryType === 'expense' && (
+            <Field label="결제수단">
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+                className={inputCls}
+              >
+                {PAYMENT_METHODS.map((m) => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </select>
+            </Field>
+          )}
+
+          <Field label="담당자">
+            <select value={memberId} onChange={(e) => setMemberId(e.target.value)} className={inputCls}>
+              {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
+          </Field>
+        </div>
       )}
-
-      <Field label="담당자">
-        <select value={memberId} onChange={(e) => setMemberId(e.target.value)} className={inputCls}>
-          {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-        </select>
-      </Field>
-
-      <Field label="메모 (선택)">
-        <input type="text" placeholder="메모" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
-      </Field>
 
       <FormActions
         onSave={handleSave}
