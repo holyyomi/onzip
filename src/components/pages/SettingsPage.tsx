@@ -11,6 +11,7 @@ import {
 } from '../../utils/categoryStore'
 import { ledgerEntryRepo, fixedExpenseRepo, subscriptionRepo } from '../../data/repositories'
 import type { Member, MemberRole } from '../../data/models'
+import { APP_NAME, APP_TAGLINE } from '../../utils/brand'
 import TabMemoCard from '../common/TabMemoCard'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
@@ -71,6 +72,18 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
 
   return (
     <div className="p-4 space-y-4">
+      <div className="rounded-[28px] bg-[#222222] p-5 text-white">
+        <div className="flex items-center gap-3">
+          <div className="h-12 w-12 rounded-[18px] bg-[#ff385c] flex items-center justify-center text-base font-semibold">
+            온
+          </div>
+          <div>
+            <p className="text-xl font-semibold">{APP_NAME}</p>
+            <p className="text-sm text-white/65">{APP_TAGLINE}</p>
+          </div>
+        </div>
+      </div>
+
       {/* 집 이름 편집 */}
       <div className="oz-card p-4">
         <p className="text-xs text-gray-400 font-medium mb-3">집 이름</p>

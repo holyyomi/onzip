@@ -11,6 +11,7 @@ import {
 } from '../../data/repositories'
 import { getTodayAggregated } from '../../utils/calendarAggregator'
 import { formatAmount, todayMonth, todayStr, todayYear } from '../../utils/date'
+import { APP_NAME, APP_TAGLINE } from '../../utils/brand'
 import TabMemoCard from '../common/TabMemoCard'
 
 interface Props {
@@ -59,7 +60,16 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       <section className="rounded-[28px] bg-[#222222] p-6 text-white overflow-hidden relative">
         <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-[#ff385c]" />
         <div className="relative">
-          <p className="text-sm font-semibold text-white/70">우리집 오늘</p>
+          <div className="flex items-center gap-2 mb-5">
+            <span className="h-9 w-9 rounded-[14px] bg-[#ff385c] text-white flex items-center justify-center text-sm font-semibold">
+              온
+            </span>
+            <div>
+              <p className="text-lg font-semibold leading-tight">{APP_NAME}</p>
+              <p className="text-xs text-white/65 leading-tight">{APP_TAGLINE}</p>
+            </div>
+          </div>
+          <p className="text-sm font-semibold text-white/70">오늘 우리집</p>
           <h2 className="text-[28px] font-semibold mt-2 leading-tight">
             {hasNoTodayWork ? '오늘은 여유로워요' : `${todaySchedules.length + todayPayments.length + data.dueChecklists.length}가지만 확인하면 돼요`}
           </h2>

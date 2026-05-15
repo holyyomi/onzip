@@ -26,9 +26,14 @@ export default function App() {
 
   function handleQuickSaved() {
     const message = quickAddType ? getSavedMessage(quickAddType) : '저장됐어요'
+    const savedType = quickAddType
     setQuickAddType(null)
     setAppRefreshKey((key) => key + 1)
     setSavedMessage(message)
+
+    if (savedType === 'record') {
+      setActiveTab('records')
+    }
 
     if (savedTimerRef.current) {
       window.clearTimeout(savedTimerRef.current)
