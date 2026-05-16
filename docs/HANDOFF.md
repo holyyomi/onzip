@@ -58,6 +58,7 @@ npm run build
 - 배포: Vercel 프로덕션 배포 완료 (`https://onzip.vercel.app`)
 - 분석: Vercel Web Analytics 방문 분석 추가. GA4 측정 ID(`VITE_GA_MEASUREMENT_ID=G-3206HZH0BS`)로 익명 이벤트 분석 활성화
 - 설치/저장 안내: 홈에 앱 설치 버튼과 로컬 저장 안내, 설정에 상시 로컬 저장 안내 표시
+- 설치 UX: Android는 Chrome 설치를 권장하고, 삼성 인터넷에서는 자동 설치 팝업 대신 수동 설치 안내를 표시
 - 공유 미리보기: `public/og-image.png`와 Open Graph/Twitter 메타 태그 설정 완료
 - 공유/문의/백업: 설정 탭에서 앱 공유, 문의 메일(`holyyomi@naver.com`), 로컬 JSON 파일 내보내기 가능
 - 온보딩/업데이트: 첫 실행 안내와 홈 최근 업데이트 카드 추가

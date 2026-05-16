@@ -13,6 +13,10 @@ function isIosSafariLike() {
   return /iphone|ipad|ipod/.test(ua)
 }
 
+function isSamsungInternet() {
+  return navigator.userAgent.toLowerCase().includes('samsungbrowser')
+}
+
 export default function InstallPromptCard() {
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null)
   const [showGuide, setShowGuide] = useState(false)
@@ -46,12 +50,14 @@ export default function InstallPromptCard() {
 
   async function handleInstall() {
     trackEvent('install_cta_click', {
-      platform: isIosSafariLike() ? 'ios' : installEvent ? 'prompt' : 'manual',
+      platform: isIosSafariLike() ? 'ios' : isSamsungInternet() ? 'samsung_internet' : installEvent ? 'prompt' : 'manual',
     })
 
-    if (!installEvent) {
+    if (!installEvent || isSamsungInternet()) {
       setShowGuide(true)
-      trackEvent('install_guide_open', { platform: isIosSafariLike() ? 'ios' : 'manual' })
+      trackEvent('install_guide_open', {
+        platform: isIosSafariLike() ? 'ios' : isSamsungInternet() ? 'samsung_internet' : 'manual',
+      })
       return
     }
 
@@ -74,7 +80,7 @@ export default function InstallPromptCard() {
           <div>
             <p className="text-base font-semibold text-[#222222]">앱으로 설치하기</p>
             <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-              홈 화면에 추가하면 주소창 없이 열리고, iPhone에서도 설치한 앱 저장소가 더 안정적으로 유지돼요.
+              홈 화면에 추가하면 주소창 없이 열 수 있어요. Android는 Chrome에서 설치하는 것을 권장합니다.
             </p>
           </div>
           <button
@@ -89,7 +95,7 @@ export default function InstallPromptCard() {
           onClick={handleInstall}
           className="mt-3 min-h-[48px] w-full rounded-full bg-[#ff385c] text-sm font-semibold text-white active:bg-[#e00b41]"
         >
-          앱으로 설치하기
+          설치 방법 보기
         </button>
       </section>
 
@@ -107,9 +113,10 @@ export default function InstallPromptCard() {
               </button>
             </div>
             <ol className="mt-4 space-y-3 text-sm leading-relaxed text-[#444444]">
-              <li>1. 브라우저의 공유 또는 메뉴 버튼을 누르세요.</li>
-              <li>2. <strong>홈 화면에 추가</strong> 또는 <strong>앱 설치</strong>를 선택하세요.</li>
-              <li>3. 생성된 온집 아이콘으로 실행하면 앱처럼 사용할 수 있어요.</li>
+              <li>1. Android는 Chrome, iPhone은 Safari에서 이 페이지를 여세요.</li>
+              <li>2. 브라우저의 공유 또는 메뉴 버튼을 누르세요.</li>
+              <li>3. <strong>홈 화면에 추가</strong> 또는 <strong>앱 설치</strong>를 선택하세요.</li>
+              <li>4. 안전 경고가 뜨면 설치를 무리하게 진행하지 말고 Chrome에서 다시 시도하거나 브라우저에서 그대로 사용하세요.</li>
             </ol>
           </div>
         </div>
