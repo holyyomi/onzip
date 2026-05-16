@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import AppShell from '../components/layout/AppShell'
 import HomePage from '../components/pages/HomePage'
 import CalendarPage from '../components/pages/CalendarPage'
@@ -8,6 +9,7 @@ import RecordsPage from '../components/pages/RecordsPage'
 import SettingsPage from '../components/pages/SettingsPage'
 import QuickAddMenu, { type QuickAddType } from '../components/common/QuickAddMenu'
 import QuickAddModal from '../components/common/QuickAddModal'
+import { getLaunchMode, initGoogleAnalytics, trackEvent } from '../utils/analytics'
 
 export type TabId = 'home' | 'calendar' | 'money' | 'life' | 'records' | 'settings'
 
@@ -19,7 +21,17 @@ export default function App() {
   const [savedMessage, setSavedMessage] = useState('')
   const savedTimerRef = useRef<number | null>(null)
 
+  useEffect(() => {
+    initGoogleAnalytics()
+    trackEvent('app_open', { mode: getLaunchMode() })
+  }, [])
+
+  useEffect(() => {
+    trackEvent('tab_open', { tab: activeTab, mode: getLaunchMode() })
+  }, [activeTab])
+
   function handleQuickSelect(type: QuickAddType) {
+    trackEvent('quick_add_select', { type })
     setShowQuickMenu(false)
     setQuickAddType(type)
   }
@@ -30,6 +42,9 @@ export default function App() {
     setQuickAddType(null)
     setAppRefreshKey((key) => key + 1)
     setSavedMessage(message)
+    if (savedType) {
+      trackEvent('quick_add_saved', { type: savedType })
+    }
 
     if (savedType === 'record') {
       setActiveTab('records')
@@ -58,7 +73,10 @@ export default function App() {
       <AppShell
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        onOpenQuickAdd={() => setShowQuickMenu(true)}
+        onOpenQuickAdd={() => {
+          trackEvent('quick_add_open')
+          setShowQuickMenu(true)
+        }}
       >
         {renderPage()}
       </AppShell>
@@ -85,6 +103,8 @@ export default function App() {
           {savedMessage}
         </div>
       )}
+
+      <Analytics />
     </>
   )
 }

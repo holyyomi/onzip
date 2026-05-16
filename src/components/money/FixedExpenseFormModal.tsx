@@ -5,6 +5,7 @@ import { newId, now } from '../../data/repositories/base'
 import { PAYMENT_METHODS, DAYS_OPTIONS } from '../../utils/constants'
 import { getCategories } from '../../utils/categoryStore'
 import type { FixedExpense, PaymentMethod } from '../../data/models'
+import { trackEvent } from '../../utils/analytics'
 
 interface Props {
   expenseId: string | null
@@ -69,6 +70,7 @@ export default function FixedExpenseFormModal({ expenseId, onSaved, onClose }: P
       }
       fixedExpenseRepo.create(fe)
     }
+    trackEvent('fixed_expense_saved', { mode: expenseId ? 'edit' : 'create' })
     onSaved()
   }
 

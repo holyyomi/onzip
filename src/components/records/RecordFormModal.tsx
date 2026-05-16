@@ -4,6 +4,7 @@ import { lifeRecordRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import { todayStr } from '../../utils/date'
 import type { LifeRecord, RecordType } from '../../data/models'
+import { trackEvent } from '../../utils/analytics'
 
 interface Props {
   recordId: string | null
@@ -92,6 +93,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
       }
       lifeRecordRepo.create(record)
     }
+    trackEvent('record_saved', { type: recordType, mode: recordId ? 'edit' : 'create' })
     onSaved()
   }
 

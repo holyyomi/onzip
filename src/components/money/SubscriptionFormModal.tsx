@@ -4,6 +4,7 @@ import { subscriptionRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import { PAYMENT_METHODS, DAYS_OPTIONS } from '../../utils/constants'
 import type { Subscription, SubscriptionStatus, PaymentMethod } from '../../data/models'
+import { trackEvent } from '../../utils/analytics'
 
 interface Props {
   subId: string | null
@@ -57,6 +58,7 @@ export default function SubscriptionFormModal({ subId, onSaved, onClose }: Props
       }
       subscriptionRepo.create(sub)
     }
+    trackEvent('subscription_saved', { mode: subId ? 'edit' : 'create' })
     onSaved()
   }
 

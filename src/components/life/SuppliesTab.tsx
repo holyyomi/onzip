@@ -3,6 +3,7 @@ import FormModal, { Field, inputCls, FormActions } from '../common/FormModal'
 import { householdSupplyRepo, shoppingItemRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import type { HouseholdSupply, SupplyStatus } from '../../data/models'
+import { trackEvent } from '../../utils/analytics'
 
 interface Props {
   refreshKey: number
@@ -36,6 +37,7 @@ export default function SuppliesTab({ refreshKey, onRefresh }: Props) {
 
   function cycleStatus(id: string, current: SupplyStatus) {
     householdSupplyRepo.update(id, { status: STATUS_CYCLE[current] })
+    trackEvent('supply_status_changed', { status: STATUS_CYCLE[current] })
     setLocalRefresh((k) => k + 1)
   }
 
@@ -50,6 +52,7 @@ export default function SuppliesTab({ refreshKey, onRefresh }: Props) {
       store: '', is_done: false, is_favorite: false, memo: '',
       created_at: now(), updated_at: now(),
     })
+    trackEvent('supply_sent_to_shopping')
     alert(`"${supply.name}"을(를) 장보기에 추가했습니다`)
     onRefresh()
   }
@@ -155,6 +158,7 @@ function SupplyFormModal({
       }
       householdSupplyRepo.create(item)
     }
+    trackEvent('supply_saved', { mode: supplyId ? 'edit' : 'create', status })
     onSaved()
   }
 

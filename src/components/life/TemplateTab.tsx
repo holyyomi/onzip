@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { templateRepo, checklistRepo, checklistItemRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
+import { trackEvent } from '../../utils/analytics'
 
 interface Props {
   onRefresh: () => void
@@ -32,6 +33,7 @@ export default function TemplateTab({ onRefresh }: Props) {
     })
 
     alert(`"${tpl.title}" 체크리스트가 생성되었습니다.\n체크리스트 탭에서 확인하세요.`)
+    trackEvent('template_copied')
     onRefresh()
   }
 

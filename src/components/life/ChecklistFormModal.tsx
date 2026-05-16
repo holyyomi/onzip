@@ -3,6 +3,7 @@ import FormModal, { Field, inputCls, FormActions } from '../common/FormModal'
 import { checklistRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import type { Checklist, RepeatRule } from '../../data/models'
+import { trackEvent } from '../../utils/analytics'
 
 interface Props {
   checklistId: string | null
@@ -49,6 +50,7 @@ export default function ChecklistFormModal({ checklistId, onSaved, onClose }: Pr
       }
       checklistRepo.create(cl)
     }
+    trackEvent('checklist_saved', { mode: checklistId ? 'edit' : 'create' })
     onSaved()
   }
 

@@ -3,6 +3,7 @@ import FormModal, { Field, inputCls, FormActions } from '../common/FormModal'
 import { shoppingItemRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import type { ShoppingItem } from '../../data/models'
+import { trackEvent } from '../../utils/analytics'
 
 interface Props {
   itemId: string | null
@@ -45,6 +46,7 @@ export default function ShoppingFormModal({ itemId, onSaved, onClose }: Props) {
       }
       shoppingItemRepo.create(item)
     }
+    trackEvent('shopping_saved', { mode: itemId ? 'edit' : 'create' })
     onSaved()
   }
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { calendarEventRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import type { CalendarEvent, RepeatRule } from '../../data/models'
+import { trackEvent } from '../../utils/analytics'
 
 interface Props {
   eventId: string | null    // null = 신규 추가
@@ -95,6 +96,7 @@ export default function EventFormModal({
       calendarEventRepo.create(newEvent)
     }
 
+    trackEvent('calendar_event_saved', { type: eventType, mode: isEdit ? 'edit' : 'create' })
     onSaved()
   }
 

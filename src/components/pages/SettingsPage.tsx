@@ -13,6 +13,7 @@ import { ledgerEntryRepo, fixedExpenseRepo, subscriptionRepo } from '../../data/
 import type { Member, MemberRole } from '../../data/models'
 import { APP_NAME, APP_TAGLINE } from '../../utils/brand'
 import TabMemoCard from '../common/TabMemoCard'
+import StorageNoticeCard from '../common/StorageNoticeCard'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
 
@@ -81,6 +82,8 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
           </div>
         </div>
       </div>
+
+      <StorageNoticeCard />
 
       {/* 집 이름 편집 */}
       <div className="oz-card p-4">

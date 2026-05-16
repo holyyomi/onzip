@@ -56,6 +56,8 @@ npm run build
 - 설정 탭: 집 정보, 구성원, 카테고리, 설정 메모
 - PWA: manifest, service worker, Vercel 설정
 - 배포: Vercel 프로덕션 배포 완료 (`https://onzip.vercel.app`)
+- 분석: Vercel Web Analytics 방문 분석 추가. GA4 측정 ID(`VITE_GA_MEASUREMENT_ID`)를 넣으면 익명 이벤트 분석 활성화
+- 설치/저장 안내: 홈에 앱 설치 버튼과 로컬 저장 안내, 설정에 상시 로컬 저장 안내 표시
 - 디자인: Airbnb + Apple 혼합 톤의 밝은 모바일 앱 UI
 - 브랜드: imagegen으로 생성한 `assets/brand/onzip-logo.png` 원본에서 PWA 아이콘을 만들고, `온집` 이름을 헤더/홈/설정에 명확히 표시
 - 기능 아이콘: imagegen으로 생성한 `assets/brand/onzip-feature-sprite.png`에서 12개 기능 PNG를 잘라 `public/icons/features/`에 저장. 홈 빠른버튼, 하단 탭, 빠른추가, 탭 메모에 문자 배지 대신 이미지 아이콘 사용
@@ -107,6 +109,7 @@ src/
     repositories/index.ts
     seed/index.ts
   utils/
+    analytics.ts
     brand.ts
     date.ts
     calendarAggregator.ts
@@ -115,6 +118,8 @@ src/
     tabMemoStore.ts
     featureIcons.ts
     csvExport.ts
+docs/
+  ANALYTICS.md
 assets/
   brand/
     onzip-logo.png
@@ -216,3 +221,4 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
 - 서버 공유/로그인/백업 기능은 다시 넣지 않음
 - 외부 라이브러리 추가는 꼭 필요한 경우만
 - 변경 후 `npm run typecheck`와 `npm run build` 실행
+- 분석 이벤트에는 사용자가 입력한 제목, 금액, 메모, 태그, 구성원 이름을 넣지 않음

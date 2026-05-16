@@ -5,6 +5,7 @@ import { newId, now } from '../../data/repositories/base'
 import { PAYMENT_METHODS } from '../../utils/constants'
 import { getCategories } from '../../utils/categoryStore'
 import type { LedgerEntry, LedgerEntryType, PaymentMethod } from '../../data/models'
+import { trackEvent } from '../../utils/analytics'
 
 interface Props {
   entryId: string | null
@@ -75,6 +76,7 @@ export default function LedgerFormModal({
       }
       ledgerEntryRepo.create(entry)
     }
+    trackEvent('ledger_saved', { type: entryType, mode: entryId ? 'edit' : 'create' })
     onSaved()
   }
 
