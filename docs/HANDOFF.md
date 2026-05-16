@@ -58,6 +58,7 @@ npm run build
 - 배포: Vercel 프로덕션 배포 완료 (`https://onzip.vercel.app`)
 - 분석: Vercel Web Analytics 방문 분석 추가. GA4 측정 ID(`VITE_GA_MEASUREMENT_ID=G-3206HZH0BS`)로 익명 이벤트 분석 활성화
 - 설치/저장 안내: 홈에 앱 설치 버튼과 로컬 저장 안내, 설정에 상시 로컬 저장 안내 표시
+- 공유 미리보기: `public/og-image.png`와 Open Graph/Twitter 메타 태그 설정 완료
 - 디자인: Airbnb + Apple 혼합 톤의 밝은 모바일 앱 UI
 - 브랜드: imagegen으로 생성한 `assets/brand/onzip-logo.png` 원본에서 PWA 아이콘을 만들고, `온집` 이름을 헤더/홈/설정에 명확히 표시
 - 기능 아이콘: imagegen으로 생성한 `assets/brand/onzip-feature-sprite.png`에서 12개 기능 PNG를 잘라 `public/icons/features/`에 저장. 홈 빠른버튼, 하단 탭, 빠른추가, 탭 메모에 문자 배지 대신 이미지 아이콘 사용
@@ -125,6 +126,7 @@ assets/
     onzip-logo.png
     onzip-feature-sprite.png
 public/
+  og-image.png
   icons/
     icon-192.png
     icon-512.png
@@ -136,6 +138,7 @@ public/
       bill.png, subscription.png, supplies.png, chore.png
 scripts/
   generate-icons.mjs
+  generate-og-image.mjs
 ```
 
 ---
