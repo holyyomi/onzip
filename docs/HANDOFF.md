@@ -54,6 +54,7 @@ npm run build
 - 생활 탭: 체크리스트, 장보기, 생활용품, 집안일, 템플릿, 생활 메모
 - 기록 기능: 빠른 추가로 가족 기록 작성 가능, 홈의 가족 기록 카드에서 기록 목록 진입 가능
 - 설정: 헤더 설정 아이콘에서 진입. 집 정보, 구성원, 카테고리, 설정 메모
+- 헤더: 좌측 로고/앱 이름 영역을 누르면 홈 탭으로 이동
 - PWA: manifest, service worker, Vercel 설정
 - 배포: Vercel 프로덕션 배포 완료 (`https://onzip.vercel.app`)
 - 분석: Vercel Web Analytics 방문 분석 추가. GA4 측정 ID(`VITE_GA_MEASUREMENT_ID=G-3206HZH0BS`)로 익명 이벤트 분석 활성화

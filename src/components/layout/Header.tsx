@@ -23,7 +23,11 @@ export default function Header({ activeTab, onOpenQuickAdd, onTabChange }: Props
 
   return (
     <header className="bg-white/88 backdrop-blur-xl border-b border-[#ebebeb] px-5 py-2.5 flex items-center justify-between gap-3 sticky top-0 z-10">
-      <div className="flex min-w-0 flex-1 items-center gap-3">
+      <button
+        onClick={() => onTabChange('home')}
+        className="flex min-w-0 flex-1 items-center gap-3 text-left active:scale-[0.99] transition"
+        aria-label="홈으로 이동"
+      >
         <img
           src="/icons/icon-192.png"
           alt=""
@@ -35,7 +39,7 @@ export default function Header({ activeTab, onOpenQuickAdd, onTabChange }: Props
             {householdName} · {TAB_TITLE[activeTab]}
           </p>
         </div>
-      </div>
+      </button>
       <div className="flex flex-shrink-0 items-center gap-2">
         <button
           onClick={() => onTabChange('settings')}
