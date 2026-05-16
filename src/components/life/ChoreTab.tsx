@@ -3,6 +3,7 @@ import FormModal, { Field, inputCls, FormActions } from '../common/FormModal'
 import { choreRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import type { Chore, RepeatRule } from '../../data/models'
+import EmptyState from '../common/EmptyState'
 
 interface Props {
   refreshKey: number
@@ -47,14 +48,19 @@ export default function ChoreTab({ refreshKey, onRefresh }: Props) {
           집안일 ({pending.length}개 남음)
         </span>
         <button onClick={() => { setEditingId(null); setShowModal(true) }}
-          className="text-sm text-blue-500 border border-blue-200 rounded-lg px-3 py-1.5">
+          className="min-h-[36px] rounded-full border border-[#ffd1da] bg-white px-3 text-sm font-semibold text-[#ff385c]">
           + 추가
         </button>
       </div>
 
       <div className="p-4 space-y-2">
         {chores.length === 0 && (
-          <div className="text-center py-10 text-sm text-gray-300">집안일이 없습니다</div>
+          <EmptyState
+            message="집안일이 비어 있습니다"
+            sub="반복되는 집안일과 담당자를 정리해두세요."
+            actionLabel="집안일 추가"
+            onAction={() => { setEditingId(null); setShowModal(true) }}
+          />
         )}
 
         {pending.map((c) => (
@@ -95,7 +101,7 @@ function ChoreRow({
   onEdit: () => void
 }) {
   return (
-    <div className={`bg-white rounded-xl px-4 py-3 flex items-center gap-3 ${chore.is_done ? 'opacity-50' : ''}`}>
+    <div className={`oz-card px-4 py-3 flex items-center gap-3 ${chore.is_done ? 'opacity-50' : ''}`}>
       <button onClick={onToggle}
         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
           chore.is_done ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'
@@ -197,7 +203,7 @@ function ChoreFormModal({
       <div className="flex items-center justify-between mb-4 py-2">
         <span className="text-sm text-gray-700">캘린더에 표시</span>
         <button onClick={() => setCalendarVisible((v) => !v)}
-          className={`w-10 h-6 rounded-full transition-colors ${calendarVisible ? 'bg-blue-500' : 'bg-gray-200'}`}>
+          className={`w-10 h-6 rounded-full transition-colors ${calendarVisible ? 'bg-[#ff385c]' : 'bg-gray-200'}`}>
           <span className={`block w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${calendarVisible ? 'translate-x-4' : 'translate-x-0'}`} />
         </button>
       </div>

@@ -112,7 +112,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
           <button key={t.value} onClick={() => handleTypeChange(t.value)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
               recordType === t.value
-                ? 'bg-blue-500 text-white border-blue-500'
+                ? 'bg-[#ff385c] text-white border-[#ff385c]'
                 : 'text-gray-500 border-gray-200'
             }`}>
             {t.label}

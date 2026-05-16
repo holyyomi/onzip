@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { fixedExpenseRepo } from '../../data/repositories'
 import { formatAmount } from '../../utils/date'
 import { PAYMENT_METHOD_LABEL } from '../../utils/constants'
+import EmptyState from '../common/EmptyState'
 import FixedExpenseFormModal from './FixedExpenseFormModal'
 
 interface Props {
@@ -48,7 +49,7 @@ export default function FixedExpenseTab({ refreshKey, onRefresh }: Props) {
         </div>
         <button
           onClick={() => { setEditingId(null); setShowModal(true) }}
-          className="text-sm text-blue-500 border border-blue-200 rounded-lg px-3 py-1.5"
+          className="min-h-[36px] rounded-full border border-[#ffd1da] bg-white px-3 text-sm font-semibold text-[#ff385c]"
         >
           + 추가
         </button>
@@ -56,12 +57,15 @@ export default function FixedExpenseTab({ refreshKey, onRefresh }: Props) {
 
       <div className="p-4 space-y-2">
         {expenses.length === 0 && (
-          <div className="text-center py-10 text-sm text-gray-300">
-            고정지출 항목이 없습니다
-          </div>
+          <EmptyState
+            message="고정 지출이 비어 있습니다"
+            sub="매달 나가는 관리비, 보험료, 대출 상환일을 등록해두세요."
+            actionLabel="고정 지출 추가"
+            onAction={() => { setEditingId(null); setShowModal(true) }}
+          />
         )}
         {expenses.map((fe) => (
-          <div key={fe.id} className="bg-white rounded-xl px-4 py-3 flex items-center gap-3">
+          <div key={fe.id} className="oz-card px-4 py-3 flex items-center gap-3">
             {/* 납부완료 체크 */}
             <button
               onClick={() => toggleStatus(fe.id, fe.status)}

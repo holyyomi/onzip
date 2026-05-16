@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { incomeRepo } from '../../data/repositories'
 import { formatAmount } from '../../utils/date'
+import EmptyState from '../common/EmptyState'
 import IncomeFormModal from './IncomeFormModal'
 
 interface Props {
@@ -38,7 +39,7 @@ export default function IncomeTab({ refreshKey, onRefresh }: Props) {
         </div>
         <button
           onClick={() => { setEditingId(null); setShowModal(true) }}
-          className="text-sm text-blue-500 border border-blue-200 rounded-lg px-3 py-1.5"
+          className="min-h-[36px] rounded-full border border-[#ffd1da] bg-white px-3 text-sm font-semibold text-[#ff385c]"
         >
           + 추가
         </button>
@@ -46,13 +47,18 @@ export default function IncomeTab({ refreshKey, onRefresh }: Props) {
 
       <div className="p-4 space-y-2">
         {incomes.length === 0 && (
-          <div className="text-center py-10 text-sm text-gray-300">수입 항목이 없습니다</div>
+          <EmptyState
+            message="수입 항목이 비어 있습니다"
+            sub="월급, 부수입, 일회성 수입을 정리해보세요."
+            actionLabel="수입 추가"
+            onAction={() => { setEditingId(null); setShowModal(true) }}
+          />
         )}
         {incomes.map((i) => (
           <button
             key={i.id}
             onClick={() => { setEditingId(i.id); setShowModal(true) }}
-            className="w-full bg-white rounded-xl px-4 py-3 flex items-center gap-3 text-left"
+            className="w-full oz-card px-4 py-3 flex items-center gap-3 text-left"
           >
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800 truncate">{i.title}</p>

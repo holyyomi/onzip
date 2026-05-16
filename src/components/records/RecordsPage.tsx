@@ -5,6 +5,7 @@ import type { QuickAddType } from '../common/QuickAddMenu'
 import type { RecordType } from '../../data/models'
 import RecordFormModal from './RecordFormModal'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
+import EmptyState from '../common/EmptyState'
 
 const RECORD_TYPE_CONFIG: Record<
   RecordType,
@@ -94,7 +95,7 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
           placeholder="제목, 내용, 태그 검색..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#ff385c]"
         />
       </div>
 
@@ -125,9 +126,12 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       {/* 기록 목록 */}
       <div className="px-4 pb-6 space-y-4">
         {grouped.length === 0 && (
-          <div className="text-center py-12 text-sm text-gray-300">
-            기록이 없습니다
-          </div>
+          <EmptyState
+            message="생활 기록이 비어 있습니다"
+            sub="메모, 회의록, 집 관련 기록을 남겨두면 나중에 찾기 쉽습니다."
+            actionLabel="생활 기록 작성"
+            onAction={() => onQuickAdd('record')}
+          />
         )}
 
         {grouped.map(({ date, items }) => (
@@ -140,7 +144,7 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
                   <button
                     key={r.id}
                     onClick={() => { setEditingId(r.id); setShowModal(true) }}
-                    className="w-full bg-white rounded-xl px-4 py-3 text-left"
+                    className="w-full oz-card px-4 py-3 text-left"
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}`} />

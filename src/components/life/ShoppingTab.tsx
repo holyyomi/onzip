@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { shoppingItemRepo } from '../../data/repositories'
 import { formatAmount } from '../../utils/date'
 import { newId, now } from '../../data/repositories/base'
+import EmptyState from '../common/EmptyState'
 import ShoppingFormModal from './ShoppingFormModal'
 
 interface Props {
@@ -82,7 +83,7 @@ export default function ShoppingTab({ refreshKey, onRefresh }: Props) {
           </div>
         </div>
         <button onClick={() => { setEditingId(null); setShowModal(true) }}
-          className="text-sm text-blue-500 border border-blue-200 rounded-lg px-3 py-1.5">
+          className="min-h-[36px] rounded-full border border-[#ffd1da] bg-white px-3 text-sm font-semibold text-[#ff385c]">
           + 추가
         </button>
       </div>
@@ -101,17 +102,20 @@ export default function ShoppingTab({ refreshKey, onRefresh }: Props) {
 
       <div className="p-4 space-y-2">
         {displayItems.length === 0 && (
-          <div className="text-center py-10 text-sm text-gray-300">
-            {showFavorites ? '자주 사는 품목이 없습니다' : '장보기 목록이 비어있습니다'}
-          </div>
+          <EmptyState
+            message={showFavorites ? '자주 사는 품목이 없습니다' : '구매 항목이 비어 있습니다'}
+            sub={showFavorites ? '반복해서 사는 물건은 즐겨찾기로 보관할 수 있습니다.' : '필요한 물건을 바로 추가해보세요.'}
+            actionLabel="구매 항목 추가"
+            onAction={() => { setEditingId(null); setShowModal(true) }}
+          />
         )}
 
         {displayItems.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl px-4 py-3 flex items-center gap-3">
+          <div key={item.id} className="oz-card px-4 py-3 flex items-center gap-3">
             {!showFavorites && (
               <button
                 onClick={() => handleCheckClick(item.id, item.expected_amount)}
-                className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0 hover:border-blue-400 transition-colors"
+                className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0 hover:border-[#ff385c] transition-colors"
               />
             )}
             <button onClick={() => { setEditingId(item.id); setShowModal(true) }}
@@ -127,7 +131,7 @@ export default function ShoppingTab({ refreshKey, onRefresh }: Props) {
               )}
               {showFavorites && (
                 <button onClick={() => addFromFavorite(item.name, item.category)}
-                  className="text-xs text-blue-500 border border-blue-200 rounded px-2 py-1">
+                  className="rounded-full border border-[#ffd1da] px-2.5 py-1 text-xs font-semibold text-[#ff385c]">
                   추가
                 </button>
               )}
@@ -145,7 +149,7 @@ export default function ShoppingTab({ refreshKey, onRefresh }: Props) {
               )}
             </div>
             {doneItems.map((item) => (
-              <div key={item.id} className="bg-white rounded-xl px-4 py-3 flex items-center gap-3 opacity-60 mb-2">
+              <div key={item.id} className="oz-card px-4 py-3 flex items-center gap-3 opacity-60 mb-2">
                 <button onClick={() => undoDone(item.id)}
                   className="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center flex-shrink-0 text-xs">
                   ✓
@@ -172,12 +176,12 @@ export default function ShoppingTab({ refreshKey, onRefresh }: Props) {
                 value={actualInput}
                 onChange={(e) => setActualInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && confirmDone()}
-                className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#ff385c]"
                 inputMode="numeric"
                 autoFocus
               />
               <button onClick={confirmDone}
-                className="px-4 py-2.5 bg-blue-500 text-white rounded-lg text-sm font-medium">
+                className="rounded-full bg-[#ff385c] px-4 py-2.5 text-sm font-semibold text-white">
                 완료
               </button>
             </div>

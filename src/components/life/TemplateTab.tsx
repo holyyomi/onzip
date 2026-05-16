@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { templateRepo, checklistRepo, checklistItemRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import { trackEvent } from '../../utils/analytics'
+import EmptyState from '../common/EmptyState'
 
 interface Props {
   onRefresh: () => void
@@ -44,15 +45,16 @@ export default function TemplateTab({ onRefresh }: Props) {
       </p>
 
       {templates.length === 0 && (
-        <div className="text-center py-10 text-sm text-gray-300">
-          템플릿이 없습니다
-        </div>
+        <EmptyState
+          message="템플릿이 비어 있습니다"
+          sub="기본 체크리스트 템플릿이 준비되면 이곳에서 복사할 수 있습니다."
+        />
       )}
 
       {templates.map((tpl) => {
         const isExpanded = expandedId === tpl.id
         return (
-          <div key={tpl.id} className="bg-white rounded-xl overflow-hidden">
+          <div key={tpl.id} className="oz-card overflow-hidden">
             <div className="px-4 py-3">
               <div className="flex items-center justify-between">
                 <button
@@ -66,7 +68,7 @@ export default function TemplateTab({ onRefresh }: Props) {
                 </button>
                 <button
                   onClick={() => applyTemplate(tpl.id)}
-                  className="text-xs text-blue-500 border border-blue-200 rounded-lg px-3 py-1.5 flex-shrink-0 ml-2"
+                  className="ml-2 flex-shrink-0 rounded-full border border-[#ffd1da] px-3 py-1.5 text-xs font-semibold text-[#ff385c]"
                 >
                   복사하기
                 </button>

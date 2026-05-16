@@ -1,5 +1,6 @@
+import { useRef, type ChangeEvent } from 'react'
 import { trackEvent } from '../../utils/analytics'
-import { exportLocalData } from '../../utils/dataExport'
+import { exportLocalData, importLocalDataFromFile } from '../../utils/dataExport'
 
 const APP_URL = 'https://onzip.vercel.app'
 const CONTACT_EMAIL = 'holyyomi@naver.com'
@@ -15,6 +16,8 @@ const SHARE_TEXT = `온집
 참고: 입력한 데이터는 서버가 아니라 본인 기기에 저장됩니다.`
 
 export default function ShareAndSupportCard() {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   async function handleShare() {
     trackEvent('share_app_click')
 
@@ -47,6 +50,25 @@ export default function ShareAndSupportCard() {
     exportLocalData()
   }
 
+  function handleImportClick() {
+    fileInputRef.current?.click()
+  }
+
+  async function handleImportFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    if (!confirm('현재 이 기기의 온집 데이터를 백업 파일 내용으로 교체합니다. 계속할까요?')) return
+
+    try {
+      await importLocalDataFromFile(file)
+      alert('백업 파일을 불러왔습니다. 앱을 새로고침합니다.')
+      window.location.reload()
+    } catch {
+      alert('백업 파일을 확인할 수 없습니다.')
+    }
+  }
+
   return (
     <>
       <section className="oz-card p-4">
@@ -65,13 +87,26 @@ export default function ShareAndSupportCard() {
       <section className="oz-card p-4">
         <p className="text-base font-semibold text-[#222222]">내 데이터 백업</p>
         <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-          이 기기에 저장된 온집 데이터를 파일로 내려받습니다.
+          이 기기에 저장된 온집 데이터를 파일로 보관하거나, 이전에 받은 백업 파일로 복원합니다.
         </p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json,.json"
+          className="hidden"
+          onChange={handleImportFile}
+        />
         <button
           onClick={handleExport}
           className="mt-4 min-h-[48px] w-full rounded-full border border-[#dddddd] bg-white px-4 text-sm font-semibold text-[#222222]"
         >
           백업 파일 내려받기
+        </button>
+        <button
+          onClick={handleImportClick}
+          className="mt-2 min-h-[48px] w-full rounded-full bg-[#222222] px-4 text-sm font-semibold text-white"
+        >
+          백업 파일 불러오기
         </button>
       </section>
 

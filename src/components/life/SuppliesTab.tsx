@@ -4,6 +4,7 @@ import { householdSupplyRepo, shoppingItemRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import type { HouseholdSupply, SupplyStatus } from '../../data/models'
 import { trackEvent } from '../../utils/analytics'
+import EmptyState from '../common/EmptyState'
 
 interface Props {
   refreshKey: number
@@ -69,22 +70,26 @@ export default function SuppliesTab({ refreshKey, onRefresh }: Props) {
           ))}
         </div>
         <button onClick={() => { setEditingId(null); setShowModal(true) }}
-          className="text-sm text-blue-500 border border-blue-200 rounded-lg px-3 py-1.5">
+          className="min-h-[36px] rounded-full border border-[#ffd1da] bg-white px-3 text-sm font-semibold text-[#ff385c]">
           + 추가
         </button>
       </div>
 
       <div className="p-4 grid grid-cols-2 gap-3">
         {displayed.length === 0 && (
-          <div className="col-span-2 text-center py-10 text-sm text-gray-300">
-            생활용품이 없습니다
-          </div>
+          <EmptyState
+            className="col-span-2"
+            message={filter === 'need_buy' ? '구매가 필요한 용품이 없습니다' : '생활용품이 비어 있습니다'}
+            sub="자주 떨어지는 용품을 등록해두면 장보기로 바로 보낼 수 있습니다."
+            actionLabel="생활용품 추가"
+            onAction={() => { setEditingId(null); setShowModal(true) }}
+          />
         )}
 
         {displayed.map((s) => {
           const cfg = STATUS_CONFIG[s.status]
           return (
-            <div key={s.id} className="bg-white rounded-xl p-3">
+            <div key={s.id} className="oz-card p-3">
               <p className="text-sm font-medium text-gray-800 truncate mb-2">{s.name}</p>
 
               {/* 상태 탭 → 클릭으로 순환 */}
@@ -100,7 +105,7 @@ export default function SuppliesTab({ refreshKey, onRefresh }: Props) {
                 </button>
                 {s.status === 'need_buy' && (
                   <button onClick={() => sendToShopping(s)}
-                    className="flex-1 text-xs text-blue-500 border border-blue-200 rounded py-1">
+                    className="flex-1 rounded-full border border-[#ffd1da] py-1 text-xs font-semibold text-[#ff385c]">
                     장보기↗
                   </button>
                 )}
@@ -186,7 +191,7 @@ function SupplyFormModal({
           {(Object.entries(STATUS_CONFIG) as [SupplyStatus, { label: string; cls: string }][]).map(
             ([value, cfg]) => (
               <button key={value} onClick={() => setStatus(value)}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium border ${status === value ? 'bg-blue-500 text-white border-blue-500' : 'text-gray-500 border-gray-200'}`}>
+                className={`flex-1 py-2 rounded-full text-xs font-semibold border ${status === value ? 'bg-[#ff385c] text-white border-[#ff385c]' : 'text-gray-500 border-gray-200'}`}>
                 {cfg.label}
               </button>
             ),

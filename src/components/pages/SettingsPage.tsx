@@ -15,6 +15,7 @@ import { APP_NAME, APP_TAGLINE } from '../../utils/brand'
 import TabMemoCard from '../common/TabMemoCard'
 import StorageNoticeCard from '../common/StorageNoticeCard'
 import ShareAndSupportCard from '../common/ShareAndSupportCard'
+import UpdateNoticeCard from '../common/UpdateNoticeCard'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
 
@@ -85,6 +86,8 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
       </div>
 
       <StorageNoticeCard />
+
+      <UpdateNoticeCard />
 
       <ShareAndSupportCard />
 

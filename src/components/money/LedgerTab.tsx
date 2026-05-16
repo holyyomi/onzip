@@ -4,6 +4,7 @@ import { formatAmount } from '../../utils/date'
 import { PAYMENT_METHOD_LABEL } from '../../utils/constants'
 import { exportLedgerCSV } from '../../utils/csvExport'
 import type { LedgerEntryType } from '../../data/models'
+import EmptyState from '../common/EmptyState'
 import LedgerFormModal from './LedgerFormModal'
 
 interface Props {
@@ -125,7 +126,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
           <button onClick={() => openAdd('expense')} className="text-xs text-red-500 border border-red-200 rounded-lg px-2 py-1">
             + 지출
           </button>
-          <button onClick={() => openAdd('income')} className="text-xs text-blue-500 border border-blue-200 rounded-lg px-2 py-1">
+          <button onClick={() => openAdd('income')} className="text-xs text-[#ff385c] border border-[#ffd1da] rounded-lg px-2 py-1">
             + 수입
           </button>
         </div>
@@ -134,9 +135,12 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
       {/* 항목 목록 */}
       <div className="p-4 space-y-4">
         {grouped.length === 0 && (
-          <div className="text-center py-10 text-sm text-gray-300">
-            이번 달 내역이 없습니다
-          </div>
+          <EmptyState
+            message="이번 달 가계 내역이 비어 있습니다"
+            sub="지출이나 수입을 기록하면 월간 흐름을 바로 확인할 수 있습니다."
+            actionLabel="지출 기록 추가"
+            onAction={() => openAdd('expense')}
+          />
         )}
 
         {grouped.map(({ date, items }) => (
@@ -149,7 +153,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
                 <button
                   key={e.id}
                   onClick={() => { setEditingId(e.id); setShowModal(true) }}
-                  className="w-full bg-white rounded-xl px-4 py-3 flex items-center gap-3 text-left"
+                  className="w-full oz-card px-4 py-3 flex items-center gap-3 text-left"
                 >
                   <span
                     className={`text-xs font-medium px-2 py-0.5 rounded-full ${

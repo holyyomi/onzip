@@ -1,6 +1,7 @@
 import type { AggregatedEvent } from '../../utils/calendarAggregator'
 import { EVENT_TYPE_DOT, EVENT_TYPE_LABEL } from '../../utils/calendarAggregator'
 import { formatAmount, formatDateLabel } from '../../utils/date'
+import EmptyState from '../common/EmptyState'
 
 interface Props {
   date: string
@@ -24,7 +25,7 @@ export default function DayEventPanel({
         </span>
         <button
           onClick={onAddEvent}
-          className="text-sm text-blue-500 font-medium"
+          className="text-sm font-semibold text-[#ff385c]"
         >
           + 일정 추가
         </button>
@@ -32,9 +33,12 @@ export default function DayEventPanel({
 
       {/* 이벤트 목록 */}
       {events.length === 0 ? (
-        <div className="bg-white rounded-xl py-6 text-center">
-          <p className="text-sm text-gray-300">이 날 예정된 항목이 없습니다</p>
-        </div>
+        <EmptyState
+          message="이 날 예정된 항목이 없습니다"
+          sub="일정, 기념일, 납부일을 등록하면 캘린더에서 함께 볼 수 있습니다."
+          actionLabel="일정 등록"
+          onAction={onAddEvent}
+        />
       ) : (
         <div className="flex flex-col gap-2">
           {events.map((e) => (
@@ -60,7 +64,7 @@ function EventCard({
   const isEditable = !event.source_type // 직접 생성한 일정만 수정 가능
 
   return (
-    <div className="bg-white rounded-xl px-4 py-3 flex items-center gap-3">
+    <div className="oz-card px-4 py-3 flex items-center gap-3">
       {/* type dot */}
       <span
         className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${EVENT_TYPE_DOT[event.type]}`}

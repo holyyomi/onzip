@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { checklistRepo, checklistItemRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
+import EmptyState from '../common/EmptyState'
 import ChecklistFormModal from './ChecklistFormModal'
 
 interface Props {
@@ -52,7 +53,7 @@ export default function ChecklistTab({ refreshKey, onRefresh }: Props) {
         <span className="text-sm font-semibold text-gray-700">체크리스트</span>
         <button
           onClick={() => { setEditingId(null); setShowModal(true) }}
-          className="text-sm text-blue-500 border border-blue-200 rounded-lg px-3 py-1.5"
+          className="min-h-[36px] rounded-full border border-[#ffd1da] bg-white px-3 text-sm font-semibold text-[#ff385c]"
         >
           + 새 목록
         </button>
@@ -60,9 +61,12 @@ export default function ChecklistTab({ refreshKey, onRefresh }: Props) {
 
       <div className="p-4 space-y-3">
         {checklists.length === 0 && (
-          <div className="text-center py-10 text-sm text-gray-300">
-            체크리스트가 없습니다
-          </div>
+          <EmptyState
+            message="체크리스트가 비어 있습니다"
+            sub="여행 준비, 이사 준비, 가족 할 일을 목록으로 정리해보세요."
+            actionLabel="체크리스트 만들기"
+            onAction={() => { setEditingId(null); setShowModal(true) }}
+          />
         )}
 
         {checklists.map((cl) => {
@@ -72,7 +76,7 @@ export default function ChecklistTab({ refreshKey, onRefresh }: Props) {
           const isExpanded = expandedId === cl.id
 
           return (
-            <div key={cl.id} className="bg-white rounded-xl overflow-hidden">
+            <div key={cl.id} className="oz-card overflow-hidden">
               {/* 헤더 */}
               <div className="px-4 py-3">
                 <div className="flex items-center justify-between mb-2">
@@ -97,7 +101,7 @@ export default function ChecklistTab({ refreshKey, onRefresh }: Props) {
                 {/* 진행률 바 */}
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-blue-400 rounded-full transition-all"
+                    className="h-full bg-[#ff385c] rounded-full transition-all"
                     style={{ width: `${rate}%` }}
                   />
                 </div>
@@ -115,7 +119,7 @@ export default function ChecklistTab({ refreshKey, onRefresh }: Props) {
                         onClick={() => toggleItem(item.id, item.is_done)}
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                           item.is_done
-                            ? 'bg-blue-500 border-blue-500 text-white'
+                            ? 'bg-[#ff385c] border-[#ff385c] text-white'
                             : 'border-gray-300'
                         }`}
                       >
@@ -151,7 +155,7 @@ export default function ChecklistTab({ refreshKey, onRefresh }: Props) {
                     />
                     <button
                       onClick={() => addItem(cl.id)}
-                      className="text-xs text-blue-500 font-medium"
+                      className="text-xs font-semibold text-[#ff385c]"
                     >
                       추가
                     </button>
