@@ -143,9 +143,9 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         <InfoCard
           tint="bg-white"
           label="가족 기록"
-          value="메모하기"
+          value="모아보기"
           note="회의록, 집 이야기"
-          onClick={() => onQuickAdd('record')}
+          onClick={() => onTabChange('records')}
         />
       </section>
 
