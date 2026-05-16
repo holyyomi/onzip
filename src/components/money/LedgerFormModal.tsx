@@ -88,7 +88,7 @@ export default function LedgerFormModal({
   }
 
   return (
-    <FormModal title={entryId ? '돈 기록 수정' : defaultType === 'income' ? '돈 들어온 것' : '돈 쓴 것'} onClose={onClose}>
+    <FormModal title={entryId ? '가계부 수정' : defaultType === 'income' ? '수입 기록' : '지출 기록'} onClose={onClose}>
       <div className="flex gap-2 mb-4">
         {(['expense', 'income'] as const).map((t) => (
           <button
@@ -105,12 +105,12 @@ export default function LedgerFormModal({
                 : 'bg-white text-[#6a6a6a] border-[#dddddd]'
             }`}
           >
-            {t === 'expense' ? '쓴 돈' : '들어온 돈'}
+            {t === 'expense' ? '지출' : '수입'}
           </button>
         ))}
       </div>
 
-      <Field label="얼마인가요?">
+      <Field label="금액">
         <input
           type="number"
           placeholder="예) 12000"
@@ -135,13 +135,13 @@ export default function LedgerFormModal({
         ))}
       </div>
 
-      <Field label="어디에 썼나요?">
+      <Field label={entryType === 'expense' ? '지출 분류' : '수입 분류'}>
         <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls}>
           {categories.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
       </Field>
 
-      <Field label="간단 메모">
+      <Field label="메모">
         <input type="text" placeholder="예) 점심, 마트, 택시" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
       </Field>
 

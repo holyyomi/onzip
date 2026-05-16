@@ -19,8 +19,8 @@ interface Props {
 
 const SUB_TABS: { value: MoneySubTab; label: string }[] = [
   { value: 'summary', label: '한눈에' },
-  { value: 'ledger', label: '쓴 돈' },
-  { value: 'fixed', label: '매달 돈' },
+  { value: 'ledger', label: '지출·수입' },
+  { value: 'fixed', label: '고정 지출' },
   { value: 'income', label: '수입' },
   { value: 'subscription', label: '구독' },
   { value: 'calculator', label: '계산기' },
@@ -53,14 +53,14 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 pt-3 grid grid-cols-2 gap-3">
         <MoneyQuickButton
           iconSrc={QUICK_ADD_ICON.expense}
-          label="돈 쓴 것"
-          sub="금액만 바로 적기"
+          label="지출 기록"
+          sub="금액과 분류 입력"
           onClick={() => onQuickAdd('expense')}
         />
         <MoneyQuickButton
           iconSrc={QUICK_ADD_ICON.fixed_expense}
-          label="매달 돈"
-          sub="월세, 관리비, 보험"
+          label="고정 지출"
+          sub="월세, 관리비, 보험료"
           onClick={() => onQuickAdd('fixed_expense')}
         />
       </div>
@@ -113,7 +113,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       {activeTab === 'calculator' && <CalculatorTab />}
 
       <div className="px-5 py-5">
-        <TabMemoCard tab="money" title="돈 메모" placeholder="이번 달 예산, 카드값, 가족과 나눌 돈 이야기를 적어두세요." />
+        <TabMemoCard tab="money" title="가계 메모" placeholder="예산, 카드값, 정산할 내용을 기록하세요." />
       </div>
     </div>
   )

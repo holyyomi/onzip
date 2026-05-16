@@ -140,7 +140,7 @@ export default function EventFormModal({
         </div>
 
         <div className="mb-3">
-          <label className="text-sm font-semibold text-[#6a6a6a] block mb-1.5">무슨 일인가요?</label>
+          <label className="text-sm font-semibold text-[#6a6a6a] block mb-1.5">일정명</label>
           <input
             type="text"
             placeholder="예) 병원 예약, 결혼기념일"
@@ -237,7 +237,7 @@ export default function EventFormModal({
               <textarea
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
-                placeholder="준비물이나 장소를 적어두세요"
+                placeholder="장소, 준비물, 참고 사항을 기록하세요"
                 rows={2}
                 className="w-full border border-[#dddddd] rounded-[18px] px-4 py-3 text-base focus:outline-none focus:border-[#222222] resize-none bg-white"
               />

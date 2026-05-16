@@ -24,10 +24,10 @@ export default function StorageNoticeCard({ dismissible = false }: Props) {
     <section className="oz-card border-[#ffd1da] bg-[#fff7f8] p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-base font-semibold text-[#222222]">데이터는 이 폰에만 저장돼요</p>
+          <p className="text-base font-semibold text-[#222222]">데이터는 이 기기에만 저장됩니다</p>
           <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
             온집은 아직 로그인/동기화 없이 사용합니다. 휴대폰 변경, 브라우저 데이터 삭제,
-            앱 데이터 삭제 시 기록이 사라질 수 있어요.
+            앱 데이터 삭제 시 기록이 사라질 수 있습니다.
           </p>
         </div>
         {dismissible && (

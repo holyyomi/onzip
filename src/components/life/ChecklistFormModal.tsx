@@ -18,7 +18,7 @@ const REPEAT_OPTIONS: { value: RepeatRule; label: string }[] = [
   { value: 'monthly', label: '매월' },
 ]
 
-const TITLE_SUGGESTIONS = ['오늘 할 일', '이번 주 할 일', '여행 준비', '집안일']
+const TITLE_SUGGESTIONS = ['오늘 체크리스트', '주간 체크리스트', '여행 준비', '집안일']
 
 export default function ChecklistFormModal({ checklistId, onSaved, onClose }: Props) {
   const existing = checklistId ? checklistRepo.getById(checklistId) : undefined
@@ -64,7 +64,7 @@ export default function ChecklistFormModal({ checklistId, onSaved, onClose }: Pr
   return (
     <FormModal title={checklistId ? '체크리스트 수정' : '새 체크리스트'} onClose={onClose}>
       <Field label="제목 (필수)">
-        <input type="text" placeholder="예) 이번 주 할 일" value={title}
+        <input type="text" placeholder="예) 주간 체크리스트" value={title}
           onChange={(e) => { setTitle(e.target.value); setError('') }}
           onKeyDown={(e) => e.key === 'Enter' && handleSave()}
           className={inputCls}

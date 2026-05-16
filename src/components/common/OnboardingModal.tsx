@@ -20,14 +20,14 @@ export default function OnboardingModal() {
         <div className="flex justify-center pb-3">
           <img src="/icons/icon-192.png" alt="" className="h-14 w-14 rounded-[20px]" />
         </div>
-        <h2 className="text-center text-2xl font-semibold text-[#222222]">빈 집으로 시작해요</h2>
+        <h2 className="text-center text-2xl font-semibold text-[#222222]">처음부터 정리합니다</h2>
         <p className="mt-2 text-center text-sm leading-relaxed text-[#6a6a6a]">
-          예시 기록 없이, 필요한 것만 직접 채워 넣는 방식입니다.
+          예시 데이터 없이 필요한 항목만 등록합니다.
         </p>
         <div className="mt-4 space-y-2">
-          <Step number="1" title="하단 + 버튼으로 바로 적기" text="돈, 장보기, 일정, 기록을 빠르게 남길 수 있어요." />
-          <Step number="2" title="홈에서 오늘과 이번 달 확인" text="기록한 내용이 홈에 자연스럽게 모입니다." />
-          <Step number="3" title="내 기기에 저장" text="로그인 없이 가볍게 쓰고, 필요할 때 설정에서 백업하세요." />
+          <Step number="1" title="+ 버튼으로 빠른 등록" text="지출, 구매 항목, 일정, 생활 기록을 바로 추가합니다." />
+          <Step number="2" title="홈에서 핵심 요약 확인" text="오늘 일정과 월간 요약을 한 화면에서 확인합니다." />
+          <Step number="3" title="기기 내 저장" text="로그인 없이 사용하고, 필요할 때 설정에서 백업합니다." />
         </div>
         <button
           onClick={handleClose}

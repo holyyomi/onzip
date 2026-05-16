@@ -4,15 +4,15 @@ import { exportLocalData } from '../../utils/dataExport'
 const APP_URL = 'https://onzip.vercel.app'
 const CONTACT_EMAIL = 'holyyomi@naver.com'
 
-const SHARE_TEXT = `온집 써봐!
-우리집 일정, 돈관리, 장보기, 체크리스트, 기록을 폰에 설치해서 가볍게 관리하는 앱이야.
+const SHARE_TEXT = `온집
+우리 집 일정, 가계 관리, 장보기, 체크리스트, 생활 기록을 한곳에서 관리하는 앱입니다.
 
 설치 방법:
 1. ${APP_URL} 접속
 2. 홈 화면에 추가
 3. 온집 아이콘으로 실행
 
-주의: 데이터는 서버가 아니라 본인 폰에만 저장돼.`
+참고: 입력한 데이터는 서버가 아니라 본인 기기에 저장됩니다.`
 
 export default function ShareAndSupportCard() {
   async function handleShare() {
@@ -33,7 +33,7 @@ export default function ShareAndSupportCard() {
     }
 
     await navigator.clipboard.writeText(`${SHARE_TEXT}\n${APP_URL}`)
-    alert('공유 문구와 링크를 복사했어요.')
+    alert('공유 문구와 링크를 복사했습니다.')
     trackEvent('share_app_copy')
   }
 
@@ -43,7 +43,7 @@ export default function ShareAndSupportCard() {
   }
 
   function handleExport() {
-    if (!confirm('이 기기에 저장된 온집 데이터를 JSON 파일로 내려받을까요?')) return
+    if (!confirm('이 기기에 저장된 온집 데이터를 JSON 파일로 내려받겠습니까?')) return
     exportLocalData()
   }
 
@@ -52,7 +52,7 @@ export default function ShareAndSupportCard() {
       <section className="oz-card p-4">
         <p className="text-base font-semibold text-[#222222]">앱 링크 공유</p>
         <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-          온집 설치 링크만 전달합니다. 내 일정, 지출, 메모 데이터는 함께 보내지지 않아요.
+          온집 설치 링크만 전달합니다. 내 일정, 지출, 메모 데이터는 함께 전송되지 않습니다.
         </p>
         <button
           onClick={handleShare}

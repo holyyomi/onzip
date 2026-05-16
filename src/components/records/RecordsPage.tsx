@@ -81,8 +81,8 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
         >
           <img src={QUICK_ADD_ICON.record} alt="" className="h-12 w-12 rounded-[18px] object-contain flex-shrink-0" />
           <span className="min-w-0">
-            <span className="block text-lg font-semibold text-[#222222]">기록 남기기</span>
-            <span className="block text-sm text-[#6a6a6a] mt-1">오늘 있었던 일, 회의록, 메모를 바로 적어요</span>
+            <span className="block text-lg font-semibold text-[#222222]">생활 기록 작성</span>
+            <span className="block text-sm text-[#6a6a6a] mt-1">메모, 회의록, 집 관련 기록을 남깁니다</span>
           </span>
         </button>
       </div>

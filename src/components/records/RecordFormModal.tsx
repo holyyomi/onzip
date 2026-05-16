@@ -121,7 +121,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
       </div>
 
       <Field label="제목">
-        <input type="text" placeholder="비워두면 내용 첫 줄로 저장돼요" value={title}
+        <input type="text" placeholder="비워두면 내용 첫 줄을 제목으로 사용합니다" value={title}
           onChange={(e) => { setTitle(e.target.value); setError('') }}
           onKeyDown={(e) => e.key === 'Enter' && (title.trim() || content.trim()) && handleSave()}
           className={inputCls}
@@ -131,7 +131,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
 
       <Field label="내용">
         <textarea value={content} onChange={(e) => setContent(e.target.value)}
-          placeholder="오늘 있었던 일이나 기억할 내용을 적어두세요"
+          placeholder="기억해둘 내용이나 결정 사항을 기록하세요"
           rows={5}
           className={`${inputCls} resize-none`} />
       </Field>

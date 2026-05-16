@@ -58,8 +58,8 @@ export default function ShoppingFormModal({ itemId, onSaved, onClose }: Props) {
   }
 
   return (
-    <FormModal title={itemId ? '살 것 수정' : '살 것 추가'} onClose={onClose}>
-      <Field label="무엇을 살까요?">
+    <FormModal title={itemId ? '구매 항목 수정' : '구매 항목 추가'} onClose={onClose}>
+      <Field label="품목명">
         <input type="text" placeholder="예) 계란, 우유, 휴지" value={name}
           onChange={(e) => { setName(e.target.value); setError('') }}
           onKeyDown={(e) => e.key === 'Enter' && handleSave()}

@@ -106,8 +106,8 @@ export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) 
         />
         <CalendarQuickButton
           iconSrc={QUICK_ADD_ICON.checklist}
-          label="할 일 추가"
-          sub="오늘 챙길 것"
+          label="체크리스트"
+          sub="준비물과 진행 항목"
           onClick={() => onQuickAdd('checklist')}
         />
       </div>
@@ -151,7 +151,7 @@ export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) 
       />
 
       <div className="px-5 py-5">
-        <TabMemoCard tab="calendar" title="일정 메모" placeholder="가족 약속, 병원 예약, 준비물을 간단히 적어두세요." />
+        <TabMemoCard tab="calendar" title="일정 메모" placeholder="가족 일정, 예약, 준비물을 기록하세요." />
       </div>
 
       {showModal && (

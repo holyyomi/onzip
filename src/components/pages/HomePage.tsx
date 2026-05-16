@@ -69,7 +69,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           <div>
             <p className="text-xs font-semibold text-[#8a8a8a]">{todayStr().replace(/-/g, '.')}</p>
             <h2 className="mt-0.5 text-xl font-semibold text-[#222222]">
-              {hasNoTodayWork ? '오늘은 비어 있어요' : `${todayCount}가지만 확인해요`}
+              {hasNoTodayWork ? '오늘 예정된 항목이 없습니다' : `오늘 ${todayCount}건 확인 필요`}
             </h2>
           </div>
           <button
@@ -81,7 +81,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         </div>
 
         <div className="space-y-2">
-          {hasNoTodayWork && <EmptyLine text="오늘 일정은 아직 없어요" />}
+          {hasNoTodayWork && <EmptyLine text="등록된 일정, 납부, 체크리스트가 없습니다" />}
           {todaySchedules.slice(0, 2).map((event) => (
             <HomeLine key={event.id} label="일정" text={event.title} />
           ))}
@@ -93,41 +93,41 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
             />
           ))}
           {data.dueChecklists.slice(0, 2).map((checklist) => (
-            <HomeLine key={checklist.id} label="할 일" text={`${checklist.title} · ${checklist.rate}%`} />
+            <HomeLine key={checklist.id} label="체크" text={`${checklist.title} · ${checklist.rate}%`} />
           ))}
         </div>
       </section>
 
       <section className="grid grid-cols-2 gap-2">
-        <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="돈 쓴 것" onClick={() => onQuickAdd('expense')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.shopping} label="살 것" onClick={() => onQuickAdd('shopping')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="일정" onClick={() => onQuickAdd('schedule')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="기록" onClick={() => onQuickAdd('record')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="지출 기록" onClick={() => onQuickAdd('expense')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.shopping} label="구매 항목" onClick={() => onQuickAdd('shopping')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="일정 등록" onClick={() => onQuickAdd('schedule')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="생활 기록" onClick={() => onQuickAdd('record')} />
       </section>
 
       <section className="oz-card p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-[#222222]">이번 달 상태</h3>
+          <h3 className="text-lg font-semibold text-[#222222]">월간 요약</h3>
           <button onClick={() => onTabChange('money')} className="min-h-[34px] px-2 text-sm font-semibold text-[#ff385c]">
-            돈 보기
+            가계부 보기
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <MiniStat label="쓴 돈" value={formatAmount(data.monthExpense)} />
-          <MiniStat label="들어온 돈" value={formatAmount(data.monthIncome)} />
-          <MiniStat label="매달 고정" value={formatAmount(data.monthlyFixed + data.monthlySubs)} />
+          <MiniStat label="지출" value={formatAmount(data.monthExpense)} />
+          <MiniStat label="수입" value={formatAmount(data.monthIncome)} />
+          <MiniStat label="고정비" value={formatAmount(data.monthlyFixed + data.monthlySubs)} />
         </div>
         <div className="mt-3 divide-y divide-[#f0f0f0]">
           <StatusRow
             label="장보기"
             value={`${data.pendingShopping.length}개 남음`}
-            detail={data.pendingShopping.slice(0, 2).map((item) => item.name).join(', ') || '비어 있어요'}
+            detail={data.pendingShopping.slice(0, 2).map((item) => item.name).join(', ') || '등록된 구매 항목이 없습니다'}
             onClick={() => onTabChange('life')}
           />
           <StatusRow
             label="기록"
             value={`${data.records.length}개`}
-            detail="회의록, 집 이야기 모아보기"
+            detail="생활 기록과 회의록 모아보기"
             onClick={() => onTabChange('records')}
           />
         </div>
@@ -136,7 +136,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       <TabMemoCard
         tab="home"
         title="우리집 메모"
-        placeholder="오늘 가족에게 알려줄 말, 잊으면 안 되는 일을 적어두세요."
+        placeholder="공유할 내용이나 기억할 일을 기록하세요."
       />
 
       <InstallPromptCard />

@@ -47,7 +47,7 @@ export default function SettingsPage() {
       {activeTab === 'categories' && <CategoryTab />}
 
       <div className="px-5 py-5">
-        <TabMemoCard tab="settings" title="설정 메모" placeholder="나중에 바꿀 설정, 배포 전에 확인할 내용을 적어두세요." />
+        <TabMemoCard tab="settings" title="설정 메모" placeholder="변경할 설정이나 확인할 내용을 기록하세요." />
       </div>
     </div>
   )

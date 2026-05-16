@@ -11,7 +11,7 @@ interface Props {
 export default function TabMemoCard({
   tab,
   title = '메모장',
-  placeholder = '여기에 적으면 자동으로 저장돼요.',
+  placeholder = '필요한 내용을 기록하세요.',
 }: Props) {
   const [memo, setMemo] = useState(() => getTabMemo(tab))
 
@@ -24,7 +24,7 @@ export default function TabMemoCard({
     <section className="oz-card p-4">
       <div className="flex items-center justify-between mb-2.5">
         <div>
-          <p className="text-[13px] font-semibold text-[#ff385c]">바로 적기</p>
+          <p className="text-[13px] font-semibold text-[#ff385c]">빠른 메모</p>
           <h2 className="text-lg font-semibold text-[#222222] mt-0.5">{title}</h2>
         </div>
         <img src={MEMO_ICON} alt="" className="h-9 w-9 rounded-[14px] object-contain" />

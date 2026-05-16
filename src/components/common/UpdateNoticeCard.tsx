@@ -17,7 +17,7 @@ export default function UpdateNoticeCard() {
         <div>
           <p className="text-base font-semibold text-[#222222]">최근 업데이트</p>
           <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-            앱 설치 버튼, 로컬 저장 안내, 사용 분석, 공유 미리보기, 데이터 파일 백업을 추가했어요.
+            홈 구조, 하단 탭, 문구 체계, 로컬 저장 안내를 정리했습니다.
           </p>
         </div>
         <button

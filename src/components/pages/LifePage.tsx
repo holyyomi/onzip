@@ -16,7 +16,7 @@ interface Props {
 }
 
 const SUB_TABS: { value: LifeSubTab; label: string }[] = [
-  { value: 'checklist', label: '할 일' },
+  { value: 'checklist', label: '체크리스트' },
   { value: 'shopping', label: '장보기' },
   { value: 'supplies', label: '용품' },
   { value: 'chore', label: '집안일' },
@@ -35,14 +35,14 @@ export default function LifePage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 pt-3 grid grid-cols-2 gap-3">
         <LifeQuickButton
           iconSrc={QUICK_ADD_ICON.shopping}
-          label="살 것"
-          sub="장보기 목록에 추가"
+          label="구매 항목"
+          sub="장보기 목록 관리"
           onClick={() => onQuickAdd('shopping')}
         />
         <LifeQuickButton
           iconSrc={QUICK_ADD_ICON.checklist}
-          label="할 일"
-          sub="준비물, 집안일 체크"
+          label="체크리스트"
+          sub="준비물과 진행 항목"
           onClick={() => onQuickAdd('checklist')}
         />
       </div>
@@ -78,7 +78,7 @@ export default function LifePage({ externalRefreshKey, onQuickAdd }: Props) {
       {activeTab === 'template' && <TemplateTab onRefresh={onRefresh} />}
 
       <div className="px-5 py-5">
-        <TabMemoCard tab="life" title="생활 메모" placeholder="살 것, 챙길 것, 집안일 메모를 편하게 적어두세요." />
+        <TabMemoCard tab="life" title="생활 메모" placeholder="구매 항목, 준비물, 집안일 관련 내용을 기록하세요." />
       </div>
     </div>
   )

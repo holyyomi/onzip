@@ -38,7 +38,7 @@ export default function App() {
   }
 
   function handleQuickSaved() {
-    const message = quickAddType ? getSavedMessage(quickAddType) : '저장됐어요'
+    const message = quickAddType ? getSavedMessage(quickAddType) : '저장되었습니다'
     const savedType = quickAddType
     setQuickAddType(null)
     setAppRefreshKey((key) => key + 1)
@@ -115,18 +115,18 @@ export default function App() {
 function getSavedMessage(type: QuickAddType): string {
   switch (type) {
     case 'schedule':
-      return '일정이 저장됐어요'
+      return '일정이 저장되었습니다'
     case 'expense':
-      return '돈 기록이 저장됐어요'
+      return '지출 기록이 저장되었습니다'
     case 'fixed_expense':
-      return '매달 돈이 저장됐어요'
+      return '고정 지출이 저장되었습니다'
     case 'subscription':
-      return '구독이 저장됐어요'
+      return '구독 정보가 저장되었습니다'
     case 'shopping':
-      return '살 것이 저장됐어요'
+      return '구매 항목이 저장되었습니다'
     case 'checklist':
-      return '할 일이 저장됐어요'
+      return '체크리스트가 저장되었습니다'
     case 'record':
-      return '기록이 저장됐어요'
+      return '생활 기록이 저장되었습니다'
   }
 }
