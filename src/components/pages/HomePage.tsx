@@ -6,12 +6,12 @@ import {
   checklistRepo,
   fixedExpenseRepo,
   ledgerEntryRepo,
+  lifeRecordRepo,
   shoppingItemRepo,
   subscriptionRepo,
 } from '../../data/repositories'
 import { getTodayAggregated } from '../../utils/calendarAggregator'
 import { formatAmount, todayMonth, todayStr, todayYear } from '../../utils/date'
-import { APP_NAME, APP_TAGLINE } from '../../utils/brand'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import TabMemoCard from '../common/TabMemoCard'
 import InstallPromptCard from '../common/InstallPromptCard'
@@ -41,6 +41,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       }))
     const monthlyFixed = fixedExpenseRepo.monthlyTotal()
     const monthlySubs = subscriptionRepo.monthlyTotal()
+    const records = lifeRecordRepo.getAll()
 
     return {
       todayEvents,
@@ -50,6 +51,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       dueChecklists,
       monthlyFixed,
       monthlySubs,
+      records,
     }
   }, [refreshKey])
 
@@ -62,36 +64,19 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
 
   return (
     <div className="px-5 py-3 space-y-3">
-      <section className="oz-card p-4">
-        <div className="flex items-center gap-3">
-          <img
-            src="/icons/icon-192.png"
-            alt=""
-            className="h-11 w-11 rounded-[16px]"
-          />
-          <div className="min-w-0 flex-1">
-            <p className="text-xl font-semibold leading-none text-[#222222]">{APP_NAME}</p>
-            <p className="mt-1 truncate text-xs text-[#6a6a6a]">{APP_TAGLINE}</p>
+      <section className="oz-card p-4 bg-white">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <p className="text-xs font-semibold text-[#8a8a8a]">{todayStr().replace(/-/g, '.')}</p>
+            <h2 className="mt-0.5 text-xl font-semibold text-[#222222]">
+              {hasNoTodayWork ? '오늘은 비어 있어요' : `${todayCount}가지만 확인해요`}
+            </h2>
           </div>
           <button
             onClick={() => onTabChange('calendar')}
-            className="min-h-[36px] rounded-full bg-[#222222] px-3 text-sm font-semibold text-white"
+            className="min-h-[36px] rounded-full bg-[#fff0f3] px-3 text-sm font-semibold text-[#ff385c]"
           >
-            오늘 {todayCount}
-          </button>
-        </div>
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          <MiniStat label="쓴 돈" value={formatAmount(data.monthExpense)} />
-          <MiniStat label="장보기" value={`${data.pendingShopping.length}개`} />
-          <MiniStat label="매달" value={formatAmount(data.monthlyFixed + data.monthlySubs)} />
-        </div>
-      </section>
-
-      <section className="oz-card p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-[#222222]">오늘 확인</h3>
-          <button onClick={() => onTabChange('calendar')} className="text-sm text-[#ff385c] font-semibold min-h-[36px] px-2">
-            전체 보기
+            일정 보기
           </button>
         </div>
 
@@ -113,45 +98,39 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-3">
+      <section className="grid grid-cols-2 gap-2">
         <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="돈 쓴 것" onClick={() => onQuickAdd('expense')} />
         <QuickButton iconSrc={QUICK_ADD_ICON.shopping} label="살 것" onClick={() => onQuickAdd('shopping')} />
         <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="일정" onClick={() => onQuickAdd('schedule')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="가족 기록" onClick={() => onQuickAdd('record')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="기록" onClick={() => onQuickAdd('record')} />
       </section>
 
-      <section className="grid grid-cols-2 gap-3">
-        <InfoCard
-          tint="bg-white"
-          label="이번 달 쓴 돈"
-          value={formatAmount(data.monthExpense)}
-          note={`들어온 돈 ${formatAmount(data.monthIncome)}`}
-          onClick={() => onTabChange('money')}
-        />
-        <InfoCard
-          tint="bg-white"
-          label="장보기 남은 것"
-          value={`${data.pendingShopping.length}개`}
-          note={data.pendingShopping.slice(0, 2).map((item) => item.name).join(', ') || '목록이 비었어요'}
-          onClick={() => onTabChange('life')}
-        />
-      </section>
-
-      <section className="grid grid-cols-2 gap-3">
-        <InfoCard
-          tint="bg-white"
-          label="매달 나가는 돈"
-          value={formatAmount(data.monthlyFixed + data.monthlySubs)}
-          note="고정지출과 구독"
-          onClick={() => onTabChange('money')}
-        />
-        <InfoCard
-          tint="bg-white"
-          label="가족 기록"
-          value="모아보기"
-          note="회의록, 집 이야기"
-          onClick={() => onTabChange('records')}
-        />
+      <section className="oz-card p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-[#222222]">이번 달 상태</h3>
+          <button onClick={() => onTabChange('money')} className="min-h-[34px] px-2 text-sm font-semibold text-[#ff385c]">
+            돈 보기
+          </button>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <MiniStat label="쓴 돈" value={formatAmount(data.monthExpense)} />
+          <MiniStat label="들어온 돈" value={formatAmount(data.monthIncome)} />
+          <MiniStat label="매달 고정" value={formatAmount(data.monthlyFixed + data.monthlySubs)} />
+        </div>
+        <div className="mt-3 divide-y divide-[#f0f0f0]">
+          <StatusRow
+            label="장보기"
+            value={`${data.pendingShopping.length}개 남음`}
+            detail={data.pendingShopping.slice(0, 2).map((item) => item.name).join(', ') || '비어 있어요'}
+            onClick={() => onTabChange('life')}
+          />
+          <StatusRow
+            label="기록"
+            value={`${data.records.length}개`}
+            detail="회의록, 집 이야기 모아보기"
+            onClick={() => onTabChange('records')}
+          />
+        </div>
       </section>
 
       <TabMemoCard
@@ -173,32 +152,10 @@ function QuickButton({ iconSrc, label, onClick }: { iconSrc: string; label: stri
   return (
     <button
       onClick={onClick}
-      className="min-h-[88px] oz-card px-3 py-3 text-left active:scale-[0.98] transition"
+      className="min-h-[64px] rounded-[20px] border border-[#ebebeb] bg-white px-3 py-2.5 text-left active:scale-[0.98] transition flex items-center gap-3"
     >
-      <img src={iconSrc} alt="" className="h-9 w-9 rounded-[14px] mb-2 object-contain" />
-      <span className="text-base font-semibold text-[#222222] leading-tight">{label}</span>
-    </button>
-  )
-}
-
-function InfoCard({
-  tint,
-  label,
-  value,
-  note,
-  onClick,
-}: {
-  tint: string
-  label: string
-  value: string
-  note: string
-  onClick: () => void
-}) {
-  return (
-    <button onClick={onClick} className={`${tint} oz-card p-3 text-left min-h-[92px] active:scale-[0.99] transition`}>
-      <p className="text-sm text-[#6a6a6a] font-semibold">{label}</p>
-      <p className="text-lg font-semibold text-[#222222] mt-1.5 leading-tight">{value}</p>
-      <p className="text-xs text-[#6a6a6a] mt-1.5 line-clamp-2">{note}</p>
+      <img src={iconSrc} alt="" className="h-9 w-9 flex-shrink-0 rounded-[13px] object-contain" />
+      <span className="block text-xs font-semibold text-[#222222] leading-tight">{label}</span>
     </button>
   )
 }
@@ -209,6 +166,28 @@ function MiniStat({ label, value }: { label: string; value: string }) {
       <p className="text-[11px] font-semibold text-[#8a8a8a]">{label}</p>
       <p className="mt-0.5 truncate text-sm font-semibold text-[#222222]">{value}</p>
     </div>
+  )
+}
+
+function StatusRow({
+  label,
+  value,
+  detail,
+  onClick,
+}: {
+  label: string
+  value: string
+  detail: string
+  onClick: () => void
+}) {
+  return (
+    <button onClick={onClick} className="flex w-full items-center justify-between gap-3 py-3 text-left">
+      <span className="min-w-0">
+        <span className="block text-sm font-semibold text-[#222222]">{label}</span>
+        <span className="mt-0.5 block truncate text-xs text-[#8a8a8a]">{detail}</span>
+      </span>
+      <span className="flex-shrink-0 text-sm font-semibold text-[#222222]">{value}</span>
+    </button>
   )
 }
 

@@ -11,7 +11,7 @@ const TABS: Tab[] = [
   { id: 'calendar', label: '일정' },
   { id: 'money', label: '돈' },
   { id: 'life', label: '생활' },
-  { id: 'settings', label: '설정' },
+  { id: 'records', label: '기록' },
 ]
 
 interface Props {

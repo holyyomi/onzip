@@ -8,6 +8,7 @@ export const TAB_ICON: Partial<Record<TabId, string>> = {
   calendar: `${ICON_BASE}/calendar.png`,
   money: `${ICON_BASE}/money.png`,
   life: `${ICON_BASE}/life.png`,
+  records: `${ICON_BASE}/record.png`,
   settings: `${ICON_BASE}/settings.png`,
 }
 

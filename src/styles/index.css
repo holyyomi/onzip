@@ -5,12 +5,19 @@
 html {
   background: #f7f7f7;
   overscroll-behavior: none;
+  overflow-x: hidden;
 }
 
 body {
   background: #f7f7f7;
   color: #222222;
   overscroll-behavior: none;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* ─── 모바일 UX 유틸리티 ─── */
@@ -75,11 +82,11 @@ a {
 
 @layer components {
   .oz-card {
-    @apply rounded-[24px] border border-[#ebebeb] bg-white;
+    @apply rounded-[20px] border border-[#ebebeb] bg-white;
     box-shadow:
       rgba(0, 0, 0, 0.02) 0 0 0 1px,
-      rgba(0, 0, 0, 0.04) 0 2px 6px 0,
-      rgba(0, 0, 0, 0.08) 0 8px 20px 0;
+      rgba(0, 0, 0, 0.035) 0 2px 5px 0,
+      rgba(0, 0, 0, 0.055) 0 6px 16px 0;
   }
 
   .oz-pill-primary {

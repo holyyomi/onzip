@@ -16,15 +16,18 @@ export default function OnboardingModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-black/35">
-      <div className="w-full max-w-lg rounded-t-[28px] bg-white p-5">
-        <div className="flex justify-center pb-4">
-          <img src="/icons/icon-192.png" alt="" className="h-16 w-16 rounded-[22px]" />
+      <div className="w-full max-w-lg rounded-t-[24px] bg-white p-5">
+        <div className="flex justify-center pb-3">
+          <img src="/icons/icon-192.png" alt="" className="h-14 w-14 rounded-[20px]" />
         </div>
-        <h2 className="text-center text-2xl font-semibold text-[#222222]">온집 시작하기</h2>
-        <div className="mt-5 space-y-3">
-          <Step number="1" title="앱으로 설치하기" text="홈 화면에 추가하면 일반 앱처럼 열 수 있어요." />
-          <Step number="2" title="빠른 추가로 기록하기" text="돈, 장보기, 일정, 기록은 하단 + 버튼에서 바로 적어요." />
-          <Step number="3" title="내 폰에만 저장돼요" text="로그인 없이 쓰는 대신, 데이터는 이 기기에만 보관됩니다." />
+        <h2 className="text-center text-2xl font-semibold text-[#222222]">빈 집으로 시작해요</h2>
+        <p className="mt-2 text-center text-sm leading-relaxed text-[#6a6a6a]">
+          예시 기록 없이, 필요한 것만 직접 채워 넣는 방식입니다.
+        </p>
+        <div className="mt-4 space-y-2">
+          <Step number="1" title="하단 + 버튼으로 바로 적기" text="돈, 장보기, 일정, 기록을 빠르게 남길 수 있어요." />
+          <Step number="2" title="홈에서 오늘과 이번 달 확인" text="기록한 내용이 홈에 자연스럽게 모입니다." />
+          <Step number="3" title="내 기기에 저장" text="로그인 없이 가볍게 쓰고, 필요할 때 설정에서 백업하세요." />
         </div>
         <button
           onClick={handleClose}

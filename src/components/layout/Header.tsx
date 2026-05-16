@@ -1,10 +1,12 @@
 import { householdRepo } from '../../data/repositories'
 import type { TabId } from '../../app/App'
 import { APP_NAME } from '../../utils/brand'
+import { TAB_ICON } from '../../utils/featureIcons'
 
 interface Props {
   activeTab: TabId
   onOpenQuickAdd: () => void
+  onTabChange: (tab: TabId) => void
 }
 
 const TAB_TITLE: Record<TabId, string> = {
@@ -16,28 +18,37 @@ const TAB_TITLE: Record<TabId, string> = {
   settings: '설정',
 }
 
-export default function Header({ activeTab, onOpenQuickAdd }: Props) {
+export default function Header({ activeTab, onOpenQuickAdd, onTabChange }: Props) {
   const householdName = householdRepo.getDefault().name
 
   return (
-    <header className="bg-white/88 backdrop-blur-xl border-b border-[#ebebeb] px-5 py-3 flex items-center justify-between sticky top-0 z-10">
-      <div className="flex items-center gap-3 min-w-0">
+    <header className="bg-white/88 backdrop-blur-xl border-b border-[#ebebeb] px-5 py-2.5 flex items-center justify-between gap-3 sticky top-0 z-10">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <img
           src="/icons/icon-192.png"
           alt=""
-          className="h-11 w-11 rounded-[15px] flex-shrink-0"
+          className="h-10 w-10 rounded-[14px] flex-shrink-0"
         />
         <div className="min-w-0">
-          <p className="text-[24px] font-semibold text-[#222222] leading-none">{APP_NAME}</p>
+          <p className="text-[22px] font-semibold text-[#222222] leading-none">{APP_NAME}</p>
           <p className="text-xs font-medium text-[#6a6a6a] truncate mt-1">
             {householdName} · {TAB_TITLE[activeTab]}
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-shrink-0 items-center gap-2">
+        <button
+          onClick={() => onTabChange('settings')}
+          className={`h-11 w-11 rounded-full flex items-center justify-center transition-colors ${
+            activeTab === 'settings' ? 'bg-[#fff0f3]' : 'bg-[#f2f2f2]'
+          }`}
+          aria-label="설정"
+        >
+          <img src={TAB_ICON.settings} alt="" className="h-8 w-8 object-contain" />
+        </button>
         <button
           onClick={onOpenQuickAdd}
-          className="h-12 w-12 oz-pill-primary text-2xl leading-none flex items-center justify-center"
+          className="h-11 w-11 oz-pill-primary text-2xl leading-none flex items-center justify-center"
           aria-label="빠른 추가"
         >
           +
