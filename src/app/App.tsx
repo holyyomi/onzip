@@ -9,6 +9,7 @@ import RecordsPage from '../components/pages/RecordsPage'
 import SettingsPage from '../components/pages/SettingsPage'
 import QuickAddMenu, { type QuickAddType } from '../components/common/QuickAddMenu'
 import QuickAddModal from '../components/common/QuickAddModal'
+import OnboardingModal from '../components/common/OnboardingModal'
 import { getLaunchMode, initGoogleAnalytics, trackEvent } from '../utils/analytics'
 
 export type TabId = 'home' | 'calendar' | 'money' | 'life' | 'records' | 'settings'
@@ -103,6 +104,8 @@ export default function App() {
           {savedMessage}
         </div>
       )}
+
+      <OnboardingModal />
 
       <Analytics />
     </>

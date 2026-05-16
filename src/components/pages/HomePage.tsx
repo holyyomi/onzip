@@ -16,6 +16,7 @@ import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import TabMemoCard from '../common/TabMemoCard'
 import InstallPromptCard from '../common/InstallPromptCard'
 import StorageNoticeCard from '../common/StorageNoticeCard'
+import UpdateNoticeCard from '../common/UpdateNoticeCard'
 
 interface Props {
   refreshKey: number
@@ -87,6 +88,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       <InstallPromptCard />
 
       <StorageNoticeCard dismissible />
+
+      <UpdateNoticeCard />
 
       <section className="oz-card p-4">
         <div className="flex items-center justify-between mb-3">

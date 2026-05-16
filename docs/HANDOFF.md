@@ -1,7 +1,7 @@
 # HANDOFF.md — 온집 (onzip) 인수인계서
 
 > 최종 업데이트: 2026-05-15
-> 현재 방향: 로컬 전용 PWA. 가족공유, 서버 동기화, JSON 백업은 제거함.
+> 현재 방향: 로컬 전용 PWA. 가족공유, 서버 동기화, 서버 백업/복원은 제거함.
 > 프로덕션 배포: https://onzip.vercel.app
 
 ---
@@ -59,6 +59,9 @@ npm run build
 - 분석: Vercel Web Analytics 방문 분석 추가. GA4 측정 ID(`VITE_GA_MEASUREMENT_ID=G-3206HZH0BS`)로 익명 이벤트 분석 활성화
 - 설치/저장 안내: 홈에 앱 설치 버튼과 로컬 저장 안내, 설정에 상시 로컬 저장 안내 표시
 - 공유 미리보기: `public/og-image.png`와 Open Graph/Twitter 메타 태그 설정 완료
+- 공유/문의/백업: 설정 탭에서 앱 공유, 문의 메일(`holyyomi@naver.com`), 로컬 JSON 파일 내보내기 가능
+- 온보딩/업데이트: 첫 실행 안내와 홈 최근 업데이트 카드 추가
+- SEO 기본 파일: `public/robots.txt`, `public/sitemap.xml`
 - 디자인: Airbnb + Apple 혼합 톤의 밝은 모바일 앱 UI
 - 브랜드: imagegen으로 생성한 `assets/brand/onzip-logo.png` 원본에서 PWA 아이콘을 만들고, `온집` 이름을 헤더/홈/설정에 명확히 표시
 - 기능 아이콘: imagegen으로 생성한 `assets/brand/onzip-feature-sprite.png`에서 12개 기능 PNG를 잘라 `public/icons/features/`에 저장. 홈 빠른버튼, 하단 탭, 빠른추가, 탭 메모에 문자 배지 대신 이미지 아이콘 사용
@@ -72,7 +75,7 @@ npm run build
 제거 완료:
 - 가족공유
 - 서버 동기화
-- JSON 백업/복원
+- 서버 JSON 백업/복원
 - 관련 환경변수 예시 및 서버 연동 문서
 
 ---
@@ -116,6 +119,7 @@ src/
     calendarAggregator.ts
     constants.ts
     categoryStore.ts
+    dataExport.ts
     tabMemoStore.ts
     featureIcons.ts
     csvExport.ts
@@ -127,6 +131,8 @@ assets/
     onzip-feature-sprite.png
 public/
   og-image.png
+  robots.txt
+  sitemap.xml
   icons/
     icon-192.png
     icon-512.png
