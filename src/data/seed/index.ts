@@ -12,6 +12,22 @@ import {
 import { newId, now } from '../repositories/base'
 
 const SEED_KEY = 'onzip_seed_done_v1'
+const FULL_RESET_KEY = 'onzip_full_reset_done_20260516_v1'
+
+export function resetLocalDataForFreshStart(): void {
+  if (localStorage.getItem(FULL_RESET_KEY) === 'true') return
+
+  const keysToRemove: string[] = []
+  for (let i = 0; i < localStorage.length; i += 1) {
+    const key = localStorage.key(i)
+    if (key?.startsWith('onzip_')) {
+      keysToRemove.push(key)
+    }
+  }
+
+  keysToRemove.forEach((key) => localStorage.removeItem(key))
+  localStorage.setItem(FULL_RESET_KEY, 'true')
+}
 
 export function isSeedDone(): boolean {
   return localStorage.getItem(SEED_KEY) === 'true'
