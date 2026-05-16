@@ -14,6 +14,7 @@ import type { Member, MemberRole } from '../../data/models'
 import { APP_NAME, APP_TAGLINE } from '../../utils/brand'
 import TabMemoCard from '../common/TabMemoCard'
 import StorageNoticeCard from '../common/StorageNoticeCard'
+import AnalyticsNoticeCard from '../common/AnalyticsNoticeCard'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
 
@@ -84,6 +85,8 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
       </div>
 
       <StorageNoticeCard />
+
+      <AnalyticsNoticeCard />
 
       {/* 집 이름 편집 */}
       <div className="oz-card p-4">

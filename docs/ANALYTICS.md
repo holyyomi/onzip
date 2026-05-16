@@ -44,6 +44,13 @@ VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 - Vercel: Project Settings → Environment Variables
 
 환경변수를 추가하거나 바꾸면 다시 배포해야 한다.
+측정 ID는 코드에 직접 쓰지 않고 Vercel 환경변수에서만 관리한다.
+
+현재 Production/Preview 환경변수:
+
+```text
+VITE_GA_MEASUREMENT_ID=G-3206HZH0BS
+```
 
 ## 이벤트 목록
 

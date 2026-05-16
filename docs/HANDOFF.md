@@ -56,7 +56,7 @@ npm run build
 - 설정 탭: 집 정보, 구성원, 카테고리, 설정 메모
 - PWA: manifest, service worker, Vercel 설정
 - 배포: Vercel 프로덕션 배포 완료 (`https://onzip.vercel.app`)
-- 분석: Vercel Web Analytics 방문 분석 추가. GA4 측정 ID(`VITE_GA_MEASUREMENT_ID`)를 넣으면 익명 이벤트 분석 활성화
+- 분석: Vercel Web Analytics 방문 분석 추가. GA4 측정 ID(`VITE_GA_MEASUREMENT_ID=G-3206HZH0BS`)로 익명 이벤트 분석 활성화
 - 설치/저장 안내: 홈에 앱 설치 버튼과 로컬 저장 안내, 설정에 상시 로컬 저장 안내 표시
 - 디자인: Airbnb + Apple 혼합 톤의 밝은 모바일 앱 UI
 - 브랜드: imagegen으로 생성한 `assets/brand/onzip-logo.png` 원본에서 PWA 아이콘을 만들고, `온집` 이름을 헤더/홈/설정에 명확히 표시
