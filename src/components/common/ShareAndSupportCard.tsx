@@ -48,36 +48,49 @@ export default function ShareAndSupportCard() {
   }
 
   return (
-    <section className="oz-card p-4">
-      <p className="text-base font-semibold text-[#222222]">공유와 보관</p>
-      <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-        주변에 온집을 공유하거나, 이 기기에 저장된 데이터를 파일로 내려받을 수 있어요.
-      </p>
-
-      <div className="mt-4 grid grid-cols-1 gap-2">
+    <>
+      <section className="oz-card p-4">
+        <p className="text-base font-semibold text-[#222222]">앱 링크 공유</p>
+        <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
+          온집 설치 링크만 전달합니다. 내 일정, 지출, 메모 데이터는 함께 보내지지 않아요.
+        </p>
         <button
           onClick={handleShare}
-          className="min-h-[48px] rounded-full bg-[#ff385c] px-4 text-sm font-semibold text-white active:bg-[#e00b41]"
+          className="mt-4 min-h-[48px] w-full rounded-full bg-[#ff385c] px-4 text-sm font-semibold text-white active:bg-[#e00b41]"
         >
-          친구에게 공유하기
+          앱 링크 공유하기
         </button>
+      </section>
+
+      <section className="oz-card p-4">
+        <p className="text-base font-semibold text-[#222222]">내 데이터 백업</p>
+        <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
+          이 기기에 저장된 온집 데이터를 파일로 내려받습니다.
+        </p>
         <button
           onClick={handleExport}
-          className="min-h-[48px] rounded-full border border-[#dddddd] bg-white px-4 text-sm font-semibold text-[#222222]"
+          className="mt-4 min-h-[48px] w-full rounded-full border border-[#dddddd] bg-white px-4 text-sm font-semibold text-[#222222]"
         >
-          내 데이터 파일로 백업
+          백업 파일 내려받기
         </button>
+      </section>
+
+      <section className="oz-card p-4">
+        <p className="text-base font-semibold text-[#222222]">문의</p>
+        <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
+          오류나 개선 의견은 메일로 보내주세요.
+        </p>
         <button
           onClick={handleContact}
-          className="min-h-[48px] rounded-full border border-[#dddddd] bg-white px-4 text-sm font-semibold text-[#222222]"
+          className="mt-4 min-h-[48px] w-full rounded-full border border-[#dddddd] bg-white px-4 text-sm font-semibold text-[#222222]"
         >
           문의하기
         </button>
-      </div>
 
-      <p className="mt-3 text-xs leading-relaxed text-[#8a8a8a]">
-        문의 메일: {CONTACT_EMAIL}
-      </p>
-    </section>
+        <p className="mt-3 text-xs leading-relaxed text-[#8a8a8a]">
+          {CONTACT_EMAIL}
+        </p>
+      </section>
+    </>
   )
 }

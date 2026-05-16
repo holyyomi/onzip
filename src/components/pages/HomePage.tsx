@@ -58,38 +58,34 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
   )
   const todaySchedules = data.todayEvents.filter((event) => event.type === 'schedule')
   const hasNoTodayWork = todaySchedules.length === 0 && todayPayments.length === 0 && data.dueChecklists.length === 0
+  const todayCount = todaySchedules.length + todayPayments.length + data.dueChecklists.length
 
   return (
-    <div className="px-5 py-4 space-y-4">
-      <section className="rounded-[28px] bg-[#222222] p-5 text-white overflow-hidden relative">
-        <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-[#ff385c]" />
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-4">
-            <img
-              src="/icons/icon-192.png"
-              alt=""
-              className="h-14 w-14 rounded-[20px]"
-            />
-            <div>
-              <p className="text-[30px] font-semibold leading-none">{APP_NAME}</p>
-              <p className="text-sm text-white/68 leading-tight mt-1">{APP_TAGLINE}</p>
-            </div>
+    <div className="px-5 py-3 space-y-3">
+      <section className="oz-card p-4">
+        <div className="flex items-center gap-3">
+          <img
+            src="/icons/icon-192.png"
+            alt=""
+            className="h-11 w-11 rounded-[16px]"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="text-xl font-semibold leading-none text-[#222222]">{APP_NAME}</p>
+            <p className="mt-1 truncate text-xs text-[#6a6a6a]">{APP_TAGLINE}</p>
           </div>
-          <p className="text-sm font-semibold text-white/70">오늘 우리집</p>
-          <h2 className="text-[25px] font-semibold mt-2 leading-tight">
-            {hasNoTodayWork ? '오늘은 여유로워요' : `${todaySchedules.length + todayPayments.length + data.dueChecklists.length}가지만 확인하면 돼요`}
-          </h2>
-          <p className="text-sm text-white/75 mt-2 leading-relaxed">
-            일정, 돈, 장보기, 할 일을 한 화면에서 쉽게 챙겨요.
-          </p>
+          <button
+            onClick={() => onTabChange('calendar')}
+            className="min-h-[36px] rounded-full bg-[#222222] px-3 text-sm font-semibold text-white"
+          >
+            오늘 {todayCount}
+          </button>
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <MiniStat label="쓴 돈" value={formatAmount(data.monthExpense)} />
+          <MiniStat label="장보기" value={`${data.pendingShopping.length}개`} />
+          <MiniStat label="매달" value={formatAmount(data.monthlyFixed + data.monthlySubs)} />
         </div>
       </section>
-
-      <InstallPromptCard />
-
-      <StorageNoticeCard dismissible />
-
-      <UpdateNoticeCard />
 
       <section className="oz-card p-4">
         <div className="flex items-center justify-between mb-3">
@@ -163,6 +159,12 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         title="우리집 메모"
         placeholder="오늘 가족에게 알려줄 말, 잊으면 안 되는 일을 적어두세요."
       />
+
+      <InstallPromptCard />
+
+      <StorageNoticeCard dismissible />
+
+      <UpdateNoticeCard />
     </div>
   )
 }
@@ -171,10 +173,10 @@ function QuickButton({ iconSrc, label, onClick }: { iconSrc: string; label: stri
   return (
     <button
       onClick={onClick}
-      className="min-h-[112px] oz-card px-4 py-4 text-left active:scale-[0.98] transition"
+      className="min-h-[88px] oz-card px-3 py-3 text-left active:scale-[0.98] transition"
     >
-      <img src={iconSrc} alt="" className="h-12 w-12 rounded-[18px] mb-3 object-contain" />
-      <span className="text-lg font-semibold text-[#222222] leading-tight">{label}</span>
+      <img src={iconSrc} alt="" className="h-9 w-9 rounded-[14px] mb-2 object-contain" />
+      <span className="text-base font-semibold text-[#222222] leading-tight">{label}</span>
     </button>
   )
 }
@@ -193,11 +195,20 @@ function InfoCard({
   onClick: () => void
 }) {
   return (
-    <button onClick={onClick} className={`${tint} oz-card p-4 text-left min-h-[112px] active:scale-[0.99] transition`}>
+    <button onClick={onClick} className={`${tint} oz-card p-3 text-left min-h-[92px] active:scale-[0.99] transition`}>
       <p className="text-sm text-[#6a6a6a] font-semibold">{label}</p>
-      <p className="text-[22px] font-semibold text-[#222222] mt-2 leading-tight">{value}</p>
-      <p className="text-xs text-[#6a6a6a] mt-2 line-clamp-2">{note}</p>
+      <p className="text-lg font-semibold text-[#222222] mt-1.5 leading-tight">{value}</p>
+      <p className="text-xs text-[#6a6a6a] mt-1.5 line-clamp-2">{note}</p>
     </button>
+  )
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[16px] bg-[#f7f7f7] px-3 py-2">
+      <p className="text-[11px] font-semibold text-[#8a8a8a]">{label}</p>
+      <p className="mt-0.5 truncate text-sm font-semibold text-[#222222]">{value}</p>
+    </div>
   )
 }
 

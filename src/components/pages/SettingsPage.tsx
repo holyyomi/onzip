@@ -14,9 +14,7 @@ import type { Member, MemberRole } from '../../data/models'
 import { APP_NAME, APP_TAGLINE } from '../../utils/brand'
 import TabMemoCard from '../common/TabMemoCard'
 import StorageNoticeCard from '../common/StorageNoticeCard'
-import AnalyticsNoticeCard from '../common/AnalyticsNoticeCard'
 import ShareAndSupportCard from '../common/ShareAndSupportCard'
-import PrivacyInfoCard from '../common/PrivacyInfoCard'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
 
@@ -76,23 +74,19 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
 
   return (
     <div className="p-4 space-y-4">
-      <div className="rounded-[28px] bg-[#222222] p-5 text-white">
+      <div className="oz-card p-4">
         <div className="flex items-center gap-3">
-          <img src="/icons/icon-192.png" alt="" className="h-14 w-14 rounded-[20px]" />
+          <img src="/icons/icon-192.png" alt="" className="h-12 w-12 rounded-[18px]" />
           <div>
-            <p className="text-[28px] font-semibold leading-none">{APP_NAME}</p>
-            <p className="text-sm text-white/65">{APP_TAGLINE}</p>
+            <p className="text-xl font-semibold leading-none text-[#222222]">{APP_NAME}</p>
+            <p className="mt-1 text-sm text-[#6a6a6a]">{APP_TAGLINE}</p>
           </div>
         </div>
       </div>
 
       <StorageNoticeCard />
 
-      <AnalyticsNoticeCard />
-
       <ShareAndSupportCard />
-
-      <PrivacyInfoCard />
 
       {/* 집 이름 편집 */}
       <div className="oz-card p-4">

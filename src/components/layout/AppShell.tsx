@@ -14,7 +14,7 @@ export default function AppShell({ children, activeTab, onTabChange, onOpenQuick
   return (
     <div className="flex h-[100dvh] min-h-screen flex-col bg-[#f7f7f7] max-w-lg mx-auto relative overflow-hidden">
       <Header activeTab={activeTab} onOpenQuickAdd={onOpenQuickAdd} />
-      <main className="flex-1 overflow-y-auto pb-24 pb-safe scroll-smooth-mobile">
+      <main className="flex-1 overflow-y-auto pb-[calc(9rem+env(safe-area-inset-bottom))] scroll-smooth-mobile">
         {children}
       </main>
       <BottomTabBar activeTab={activeTab} onTabChange={onTabChange} />
