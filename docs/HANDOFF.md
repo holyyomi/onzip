@@ -2,6 +2,7 @@
 
 > 최종 업데이트: 2026-05-15
 > 현재 방향: 로컬 전용 PWA. 가족공유, 서버 동기화, JSON 백업은 제거함.
+> 프로덕션 배포: https://onzip.vercel.app
 
 ---
 
@@ -54,6 +55,7 @@ npm run build
 - 기록 기능: 빠른 추가로 가족 기록 작성 가능, 홈의 가족 기록 카드에서 기록 목록 진입 가능
 - 설정 탭: 집 정보, 구성원, 카테고리, 설정 메모
 - PWA: manifest, service worker, Vercel 설정
+- 배포: Vercel 프로덕션 배포 완료 (`https://onzip.vercel.app`)
 - 디자인: Airbnb + Apple 혼합 톤의 밝은 모바일 앱 UI
 - 브랜드: imagegen으로 생성한 `assets/brand/onzip-logo.png` 원본에서 PWA 아이콘을 만들고, `온집` 이름을 헤더/홈/설정에 명확히 표시
 - 기능 아이콘: imagegen으로 생성한 `assets/brand/onzip-feature-sprite.png`에서 12개 기능 PNG를 잘라 `public/icons/features/`에 저장. 홈 빠른버튼, 하단 탭, 빠른추가, 탭 메모에 문자 배지 대신 이미지 아이콘 사용
@@ -198,9 +200,9 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
    - 홈의 가족 기록 카드에서 기록 목록으로 진입 가능
    - 하단 탭에는 계속 숨겨져 있으므로 실사용 중 찾기 어려우면 생활 탭 안으로 흡수 검토
 
-3. Vercel 배포
-   - `npm run build` 통과 후 배포
-   - 설치형 PWA 동작 확인
+3. 휴대폰 PWA 설치 확인
+   - `https://onzip.vercel.app` 접속 후 홈 화면 추가
+   - 설치 후 앱 아이콘, 첫 로딩, localStorage 데이터 유지 확인
 
 4. 사용성 QA
    - 7일 실사용 체크리스트 기준으로 입력 귀찮음, 화면 복잡도 점검
