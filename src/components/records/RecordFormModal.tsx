@@ -32,9 +32,10 @@ const FAMILY_MEETING_TEMPLATE = `## 오늘 회의 주제
 export default function RecordFormModal({ recordId, defaultType, onSaved, onClose }: Props) {
   const existing = recordId ? lifeRecordRepo.getById(recordId) : undefined
   const members = memberRepo.getAll().filter((m) => m.is_active)
+  const startsAsFamilyMeeting = !existing && defaultType === 'family_meeting'
 
-  const [title, setTitle] = useState(existing?.title ?? '')
-  const [content, setContent] = useState(existing?.content ?? '')
+  const [title, setTitle] = useState(existing?.title ?? (startsAsFamilyMeeting ? '가족 회의록' : ''))
+  const [content, setContent] = useState(existing?.content ?? (startsAsFamilyMeeting ? FAMILY_MEETING_TEMPLATE : ''))
   const [recordType, setRecordType] = useState<RecordType>(existing?.record_type ?? defaultType)
   const [recordDate, setRecordDate] = useState(existing?.record_date ?? todayStr())
   const [memberId, setMemberId] = useState(existing?.member_id ?? 'shared')
