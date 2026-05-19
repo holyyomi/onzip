@@ -18,6 +18,7 @@ import ShareAndSupportCard from '../common/ShareAndSupportCard'
 import UpdateNoticeCard from '../common/UpdateNoticeCard'
 import PwaUpdateCard from '../common/PwaUpdateCard'
 import { useAmountPrivacy } from '../../utils/amountPrivacy'
+import { clearAppPin, hasAppPin, requestAppLock, setAppPin, verifyAppPin } from '../../utils/appLock'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
 
@@ -90,6 +91,8 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
 
       <StorageNoticeCard />
 
+      <PinLockCard />
+
       <div className="oz-card p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -154,6 +157,140 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
         <span className="text-sm text-gray-400">v1.0.0</span>
       </div>
     </div>
+  )
+}
+
+function PinLockCard() {
+  const [enabled, setEnabled] = useState(hasAppPin)
+  const [pin, setPin] = useState('')
+  const [pinConfirm, setPinConfirm] = useState('')
+  const [currentPin, setCurrentPin] = useState('')
+  const [message, setMessage] = useState('')
+
+  function cleanPin(value: string) {
+    return value.replace(/\D/g, '').slice(0, 6)
+  }
+
+  async function handleSetPin() {
+    if (pin !== pinConfirm) {
+      setMessage('PIN 확인이 다릅니다.')
+      return
+    }
+
+    const result = await setAppPin(pin)
+    setMessage(result.message)
+    if (result.ok) {
+      setEnabled(true)
+      setPin('')
+      setPinConfirm('')
+    }
+  }
+
+  async function handleChangePin() {
+    const ok = await verifyAppPin(currentPin)
+    if (!ok) {
+      setMessage('현재 PIN이 맞지 않습니다.')
+      setCurrentPin('')
+      return
+    }
+
+    if (pin !== pinConfirm) {
+      setMessage('새 PIN 확인이 다릅니다.')
+      return
+    }
+
+    const result = await setAppPin(pin)
+    setMessage(result.message)
+    if (result.ok) {
+      setCurrentPin('')
+      setPin('')
+      setPinConfirm('')
+    }
+  }
+
+  async function handleDisablePin() {
+    const ok = await verifyAppPin(currentPin)
+    if (!ok) {
+      setMessage('현재 PIN이 맞지 않습니다.')
+      setCurrentPin('')
+      return
+    }
+
+    clearAppPin()
+    setEnabled(false)
+    setCurrentPin('')
+    setPin('')
+    setPinConfirm('')
+    setMessage('앱 잠금을 해제했습니다.')
+  }
+
+  return (
+    <section className="oz-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-base font-semibold text-[#222222]">앱 잠금</p>
+          <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
+            앱을 열 때 PIN을 입력해야 돈 흐름과 금고를 볼 수 있습니다.
+          </p>
+        </div>
+        {enabled && (
+          <button
+            onClick={requestAppLock}
+            className="min-h-[38px] flex-shrink-0 rounded-full bg-[#222222] px-3 text-xs font-semibold text-white"
+          >
+            지금 잠그기
+          </button>
+        )}
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {enabled && (
+          <input
+            type="password"
+            inputMode="numeric"
+            placeholder="현재 PIN"
+            value={currentPin}
+            onChange={(e) => { setCurrentPin(cleanPin(e.target.value)); setMessage('') }}
+            className={inputCls}
+          />
+        )}
+        <input
+          type="password"
+          inputMode="numeric"
+          placeholder={enabled ? '새 PIN (숫자 4~6자리)' : 'PIN 설정 (숫자 4~6자리)'}
+          value={pin}
+          onChange={(e) => { setPin(cleanPin(e.target.value)); setMessage('') }}
+          className={inputCls}
+        />
+        <input
+          type="password"
+          inputMode="numeric"
+          placeholder="PIN 확인"
+          value={pinConfirm}
+          onChange={(e) => { setPinConfirm(cleanPin(e.target.value)); setMessage('') }}
+          className={inputCls}
+        />
+      </div>
+
+      {message && <p className="mt-2 text-xs font-semibold text-[#ff385c]">{message}</p>}
+
+      <div className="mt-4 flex gap-2">
+        <button
+          onClick={() => void (enabled ? handleChangePin() : handleSetPin())}
+          className="min-h-[46px] flex-1 rounded-full bg-[#ff385c] text-sm font-semibold text-white"
+        >
+          {enabled ? 'PIN 변경' : '잠금 설정'}
+        </button>
+        {enabled && (
+          <button
+            onClick={() => void handleDisablePin()}
+            className="min-h-[46px] flex-1 rounded-full border border-[#dddddd] bg-white text-sm font-semibold text-[#222222]"
+          >
+            잠금 해제
+          </button>
+        )}
+      </div>
+    </section>
   )
 }
 
