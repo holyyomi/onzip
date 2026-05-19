@@ -50,7 +50,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
   const [refreshKey, setRefreshKey] = useState(0)
 
   const onRefresh = () => setRefreshKey((k) => k + 1)
-  const showMonthNav = activeTab === 'summary' || activeTab === 'ledger'
+  const showMonthNav = activeTab === 'summary' || activeTab === 'ledger' || activeTab === 'manage'
   const pageRefreshKey = refreshKey + externalRefreshKey
 
   function handlePrev() {
