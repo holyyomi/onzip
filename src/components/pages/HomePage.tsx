@@ -14,6 +14,9 @@ import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import { displayRecordTitle, useVaultPrivacy } from '../../utils/vaultPrivacy'
 import { getVaultRecordBadge, isDatedVaultRecord, isImportantVaultRecord } from '../../utils/vaultRecords'
+import { getFixedExpenseMonthStatus } from '../../utils/fixedExpenseMonthStatus'
+import { getIncomeMonthStatus } from '../../utils/incomeMonthStatus'
+import { getSubscriptionMonthStatus } from '../../utils/subscriptionMonthStatus'
 
 interface Props {
   refreshKey: number
@@ -46,17 +49,32 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
     const monthIncome = ledgerEntryRepo.sumByType(monthEntries, 'income')
     const monthExpense = ledgerEntryRepo.sumByType(monthEntries, 'expense')
     const recurringIncome = incomeRepo.getAll().filter((income) => income.repeat_rule === 'monthly')
+    const incomesWithStatus = recurringIncome.map((income) => ({
+      ...income,
+      monthStatus: getIncomeMonthStatus(income, year, month),
+    }))
     const fixedExpenses = fixedExpenseRepo.getActive()
+    const fixedExpensesWithStatus = fixedExpenses.map((expense) => ({
+      ...expense,
+      monthStatus: getFixedExpenseMonthStatus(expense, year, month),
+    }))
     const subscriptions = subscriptionRepo.getActive()
+    const subscriptionsWithStatus = subscriptions.map((sub) => ({
+      ...sub,
+      monthStatus: getSubscriptionMonthStatus(sub, year, month),
+    }))
     const expectedIn = recurringIncome.reduce((sum, income) => sum + income.amount, 0) + monthIncome
     const expectedOut =
       fixedExpenses.reduce((sum, expense) => sum + expense.amount, 0) +
       subscriptions.reduce((sum, sub) => sum + sub.amount, 0) +
       monthExpense
 
-    const todayIncome = recurringIncome.filter((income) => income.income_day === todayDay)
-    const todayFixed = fixedExpenses.filter((expense) => expense.payment_day === todayDay)
-    const todaySubs = subscriptions.filter((sub) => sub.payment_day === todayDay)
+    const overdueIncome = incomesWithStatus.filter((income) => income.monthStatus !== 'received' && income.income_day < todayDay)
+    const overdueFixed = fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && expense.payment_day < todayDay)
+    const overdueSubs = subscriptionsWithStatus.filter((sub) => sub.monthStatus !== 'paid' && sub.payment_day < todayDay)
+    const todayIncome = incomesWithStatus.filter((income) => income.monthStatus !== 'received' && income.income_day === todayDay)
+    const todayFixed = fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && expense.payment_day === todayDay)
+    const todaySubs = subscriptionsWithStatus.filter((sub) => sub.monthStatus !== 'paid' && sub.payment_day === todayDay)
     const todayEvents = getAggregatedEvents(year, month).filter((event) => event.date === today && event.type === 'schedule')
     const weekEnd = addDays(today, 7)
     const vaultDueEnd = addDays(today, 30)
@@ -79,6 +97,9 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       monthExpense,
       expectedIn,
       expectedOut,
+      overdueIncome,
+      overdueFixed,
+      overdueSubs,
       todayIncome,
       todayFixed,
       todaySubs,
@@ -90,6 +111,27 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
   }, [refreshKey])
 
   const todayItems: ImportantItem[] = [
+    ...data.overdueIncome.map((income) => ({
+      id: `overdue_income_${income.id}`,
+      label: '미수령',
+      title: income.title,
+      detail: `${income.income_day}일 · ${displayAmount(income.amount, hideAmounts)}`,
+      tab: 'money' as TabId,
+    })),
+    ...data.overdueFixed.map((expense) => ({
+      id: `overdue_fixed_${expense.id}`,
+      label: '미납',
+      title: expense.title,
+      detail: `${expense.payment_day}일 · ${displayAmount(expense.amount, hideAmounts)}`,
+      tab: 'money' as TabId,
+    })),
+    ...data.overdueSubs.map((sub) => ({
+      id: `overdue_sub_${sub.id}`,
+      label: '확인필요',
+      title: sub.title,
+      detail: `${sub.payment_day}일 · ${displayAmount(sub.amount, hideAmounts)}`,
+      tab: 'money' as TabId,
+    })),
     ...data.todayIncome.map((income) => ({
       id: `income_${income.id}`,
       label: '들어올 돈',
@@ -138,7 +180,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
 
         <div className="space-y-2">
           {todayItems.length === 0 && (
-            <EmptyLine title="오늘 예정된 돈과 일정이 없습니다" text="나갈 돈, 들어올 돈, 중요한 날짜를 추가해두면 여기서 바로 확인합니다." />
+            <EmptyLine title="오늘 챙길 돈과 일정이 없습니다" text="미수령, 미납, 자동결제 확인이 필요하면 여기서 먼저 보입니다." />
           )}
           {todayItems.slice(0, 5).map((item) => (
             <ImportantLine
