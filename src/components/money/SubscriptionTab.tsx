@@ -54,6 +54,11 @@ export default function SubscriptionTab({ year, month, refreshKey, onRefresh }: 
   const visible = showAll ? subscriptions : subscriptions.filter((s) => s.status !== 'cancelled')
   const monthlyTotal = subscriptionRepo.monthlyTotal()
   const annualTotal = subscriptionRepo.annualTotal()
+  const activeSubscriptions = subscriptions.filter((s) => s.status !== 'cancelled')
+  const remainingTotal = activeSubscriptions
+    .filter((s) => s.monthStatus !== 'paid')
+    .reduce((sum, sub) => sum + sub.amount, 0)
+  const paidCount = activeSubscriptions.filter((s) => s.monthStatus === 'paid').length
 
   function togglePaymentStatus(id: string, current: string) {
     setSubscriptionMonthStatus(id, year, month, current === 'paid' ? 'pending' : 'paid')
@@ -66,8 +71,8 @@ export default function SubscriptionTab({ year, month, refreshKey, onRefresh }: 
       <div className="px-4 py-3 bg-white border-b border-gray-100">
         <div className="flex justify-between items-start mb-1">
           <div>
-            <p className="text-xs text-gray-400">월 구독료 합계</p>
-            <p className="text-lg font-bold text-purple-600">{displayAmount(monthlyTotal, hideAmounts)}</p>
+            <p className="text-xs text-gray-400">이번 달 남은 자동결제</p>
+            <p className="text-lg font-bold text-purple-600">{displayAmount(remainingTotal, hideAmounts)}</p>
           </div>
           <button
             onClick={() => { setEditingId(null); setShowModal(true) }}
@@ -77,7 +82,7 @@ export default function SubscriptionTab({ year, month, refreshKey, onRefresh }: 
           </button>
         </div>
         <p className="text-xs text-gray-400">
-          연간 {displayAmount(annualTotal, hideAmounts)} · 해지 시 절약 가능
+          전체 {displayAmount(monthlyTotal, hideAmounts)} · 결제됨 {paidCount}/{activeSubscriptions.length}건 · 연간 {displayAmount(annualTotal, hideAmounts)}
         </p>
       </div>
 

@@ -45,6 +45,10 @@ export default function FixedExpenseTab({ year, month, refreshKey, onRefresh }: 
   )
 
   const total = expenses.reduce((s, e) => s + e.amount, 0)
+  const remainingTotal = expenses
+    .filter((e) => e.monthStatus !== 'done')
+    .reduce((s, e) => s + e.amount, 0)
+  const doneCount = expenses.filter((e) => e.monthStatus === 'done').length
 
   function toggleStatus(id: string, current: string) {
     const next = current === 'done' ? 'pending' : 'done'
@@ -60,8 +64,11 @@ export default function FixedExpenseTab({ year, month, refreshKey, onRefresh }: 
       {/* 상단 요약 */}
       <div className="px-4 py-3 bg-white border-b border-gray-100 flex justify-between items-center">
         <div>
-          <p className="text-xs text-gray-400">이번 달 고정지출 총액</p>
-          <p className="text-lg font-bold text-gray-800">{displayAmount(total, hideAmounts)}</p>
+          <p className="text-xs text-gray-400">이번 달 남은 나갈 돈</p>
+          <p className="text-lg font-bold text-gray-800">{displayAmount(remainingTotal, hideAmounts)}</p>
+          <p className="mt-0.5 text-xs text-gray-400">
+            전체 {displayAmount(total, hideAmounts)} · 완료 {doneCount}/{expenses.length}건
+          </p>
         </div>
         <button
           onClick={() => { setEditingId(null); setShowModal(true) }}
