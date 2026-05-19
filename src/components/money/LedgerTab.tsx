@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react'
 import { ledgerEntryRepo, memberRepo } from '../../data/repositories'
-import { formatAmount } from '../../utils/date'
 import { PAYMENT_METHOD_LABEL } from '../../utils/constants'
 import { exportLedgerCSV } from '../../utils/csvExport'
 import type { LedgerEntryType } from '../../data/models'
 import EmptyState from '../common/EmptyState'
 import LedgerFormModal from './LedgerFormModal'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 interface Props {
   year: number
@@ -15,6 +15,7 @@ interface Props {
 }
 
 export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props) {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const [filter, setFilter] = useState<'all' | LedgerEntryType>('all')
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -80,12 +81,12 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
       <div className="flex px-4 py-3 gap-3 bg-white border-b border-gray-100">
         <div className="flex-1 text-center">
           <p className="text-xs text-gray-400">수입</p>
-          <p className="text-sm font-semibold text-blue-600">{formatAmount(totalIncome)}</p>
+          <p className="text-sm font-semibold text-blue-600">{displayAmount(totalIncome, hideAmounts)}</p>
         </div>
         <div className="w-px bg-gray-100" />
         <div className="flex-1 text-center">
           <p className="text-xs text-gray-400">지출</p>
-          <p className="text-sm font-semibold text-red-500">{formatAmount(totalExpense)}</p>
+          <p className="text-sm font-semibold text-red-500">{displayAmount(totalExpense, hideAmounts)}</p>
         </div>
         <div className="w-px bg-gray-100" />
         <div className="flex-1 text-center">
@@ -95,7 +96,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
               totalIncome - totalExpense >= 0 ? 'text-gray-800' : 'text-red-500'
             }`}
           >
-            {formatAmount(Math.abs(totalIncome - totalExpense))}
+            {displayAmount(Math.abs(totalIncome - totalExpense), hideAmounts)}
           </p>
         </div>
       </div>
@@ -180,7 +181,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
                     }`}
                   >
                     {e.entry_type === 'income' ? '+' : '-'}
-                    {formatAmount(e.amount)}
+                    {displayAmount(e.amount, hideAmounts)}
                   </span>
                 </button>
               ))}

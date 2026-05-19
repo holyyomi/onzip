@@ -1,7 +1,8 @@
 import type { AggregatedEvent } from '../../utils/calendarAggregator'
 import { EVENT_TYPE_DOT, EVENT_TYPE_LABEL } from '../../utils/calendarAggregator'
-import { formatAmount, formatDateLabel } from '../../utils/date'
+import { formatDateLabel } from '../../utils/date'
 import EmptyState from '../common/EmptyState'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 interface Props {
   date: string
@@ -61,6 +62,7 @@ function EventCard({
   event: AggregatedEvent
   onEdit: () => void
 }) {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const isEditable = !event.source_type // 직접 생성한 일정만 수정 가능
 
   return (
@@ -82,7 +84,7 @@ function EventCard({
         <p className="text-sm font-medium text-gray-800 truncate">{event.title}</p>
         {event.amount !== undefined && (
           <p className="text-xs text-gray-500 mt-0.5">
-            {formatAmount(event.amount)}
+            {displayAmount(event.amount, hideAmounts)}
           </p>
         )}
       </div>

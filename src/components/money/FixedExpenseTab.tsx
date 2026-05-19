@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react'
 import { fixedExpenseRepo } from '../../data/repositories'
-import { formatAmount } from '../../utils/date'
 import { PAYMENT_METHOD_LABEL } from '../../utils/constants'
 import EmptyState from '../common/EmptyState'
 import FixedExpenseFormModal from './FixedExpenseFormModal'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 interface Props {
   refreshKey: number
@@ -22,6 +22,7 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 export default function FixedExpenseTab({ refreshKey, onRefresh }: Props) {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
@@ -45,7 +46,7 @@ export default function FixedExpenseTab({ refreshKey, onRefresh }: Props) {
       <div className="px-4 py-3 bg-white border-b border-gray-100 flex justify-between items-center">
         <div>
           <p className="text-xs text-gray-400">이번 달 고정지출 총액</p>
-          <p className="text-lg font-bold text-gray-800">{formatAmount(total)}</p>
+          <p className="text-lg font-bold text-gray-800">{displayAmount(total, hideAmounts)}</p>
         </div>
         <button
           onClick={() => { setEditingId(null); setShowModal(true) }}
@@ -94,7 +95,7 @@ export default function FixedExpenseTab({ refreshKey, onRefresh }: Props) {
             </button>
 
             <span className="text-sm font-semibold text-gray-800 flex-shrink-0">
-              {formatAmount(fe.amount)}
+              {displayAmount(fe.amount, hideAmounts)}
             </span>
           </div>
         ))}

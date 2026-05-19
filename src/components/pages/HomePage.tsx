@@ -9,8 +9,9 @@ import {
   subscriptionRepo,
 } from '../../data/repositories'
 import { getAggregatedEvents } from '../../utils/calendarAggregator'
-import { formatAmount, formatDate, todayMonth, todayStr, todayYear } from '../../utils/date'
+import { formatDate, todayMonth, todayStr, todayYear } from '../../utils/date'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 interface Props {
   refreshKey: number
@@ -32,6 +33,7 @@ function addDays(dateStr: string, days: number): string {
 }
 
 export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props) {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const data = useMemo(() => {
     const today = todayStr()
     const year = todayYear()
@@ -82,21 +84,21 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       id: `income_${income.id}`,
       label: '들어올 돈',
       title: income.title,
-      detail: formatAmount(income.amount),
+      detail: displayAmount(income.amount, hideAmounts),
       tab: 'money' as TabId,
     })),
     ...data.todayFixed.map((expense) => ({
       id: `fixed_${expense.id}`,
       label: '나갈 돈',
       title: expense.title,
-      detail: formatAmount(expense.amount),
+      detail: displayAmount(expense.amount, hideAmounts),
       tab: 'money' as TabId,
     })),
     ...data.todaySubs.map((sub) => ({
       id: `sub_${sub.id}`,
       label: '자동결제',
       title: sub.title,
-      detail: formatAmount(sub.amount),
+      detail: displayAmount(sub.amount, hideAmounts),
       tab: 'money' as TabId,
     })),
     ...data.todayEvents.map((event) => ({
@@ -155,9 +157,9 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <MiniStat label="들어올 돈" value={formatAmount(data.expectedIn)} />
-          <MiniStat label="나갈 돈" value={formatAmount(data.expectedOut)} />
-          <MiniStat label="예상 차이" value={formatAmount(data.expectedIn - data.expectedOut)} />
+          <MiniStat label="들어올 돈" value={displayAmount(data.expectedIn, hideAmounts)} />
+          <MiniStat label="나갈 돈" value={displayAmount(data.expectedOut, hideAmounts)} />
+          <MiniStat label="예상 차이" value={displayAmount(data.expectedIn - data.expectedOut, hideAmounts)} />
         </div>
       </section>
 

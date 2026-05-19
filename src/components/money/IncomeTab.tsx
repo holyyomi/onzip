@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
 import { incomeRepo } from '../../data/repositories'
-import { formatAmount } from '../../utils/date'
 import EmptyState from '../common/EmptyState'
 import IncomeFormModal from './IncomeFormModal'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 interface Props {
   refreshKey: number
@@ -17,6 +17,7 @@ const INCOME_TYPE_LABEL: Record<string, string> = {
 }
 
 export default function IncomeTab({ refreshKey, onRefresh }: Props) {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
@@ -35,7 +36,7 @@ export default function IncomeTab({ refreshKey, onRefresh }: Props) {
       <div className="px-4 py-3 bg-white border-b border-gray-100 flex justify-between items-center">
         <div>
           <p className="text-xs text-gray-400">월 고정수입 합계</p>
-          <p className="text-lg font-bold text-blue-600">{formatAmount(monthlyTotal)}</p>
+          <p className="text-lg font-bold text-blue-600">{displayAmount(monthlyTotal, hideAmounts)}</p>
         </div>
         <button
           onClick={() => { setEditingId(null); setShowModal(true) }}
@@ -67,7 +68,7 @@ export default function IncomeTab({ refreshKey, onRefresh }: Props) {
               </p>
             </div>
             <span className="text-sm font-semibold text-blue-600 flex-shrink-0">
-              {formatAmount(i.amount)}
+              {displayAmount(i.amount, hideAmounts)}
             </span>
           </button>
         ))}

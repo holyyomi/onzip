@@ -1,8 +1,9 @@
 // 이번 달 고정지출 납부 현황 카드 — MoneySummaryTab에서 사용
 import { fixedExpenseRepo } from '../../data/repositories'
-import { formatAmount } from '../../utils/date'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 export default function PaymentProgressCard() {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const all = fixedExpenseRepo.getActive()
   const done = all.filter((fe) => fe.status === 'done')
   const pending = all.filter((fe) => fe.status === 'pending')
@@ -37,8 +38,8 @@ export default function PaymentProgressCard() {
 
       {/* 금액 요약 */}
       <div className="flex justify-between text-xs text-gray-500">
-        <span>납부 완료 <span className="font-semibold text-green-600">{formatAmount(doneAmount)}</span></span>
-        <span>남은 납부 <span className="font-semibold text-red-500">{formatAmount(totalAmount - doneAmount)}</span></span>
+        <span>납부 완료 <span className="font-semibold text-green-600">{displayAmount(doneAmount, hideAmounts)}</span></span>
+        <span>남은 납부 <span className="font-semibold text-red-500">{displayAmount(totalAmount - doneAmount, hideAmounts)}</span></span>
       </div>
 
       {/* 미납 경고 */}
@@ -56,7 +57,7 @@ export default function PaymentProgressCard() {
           {pending.slice(0, 3).map((fe) => (
             <div key={fe.id} className="flex justify-between text-xs">
               <span className="text-gray-600">{fe.title}</span>
-              <span className="text-gray-500">{fe.payment_day}일 · {formatAmount(fe.amount)}</span>
+              <span className="text-gray-500">{fe.payment_day}일 · {displayAmount(fe.amount, hideAmounts)}</span>
             </div>
           ))}
           {pending.length > 3 && (

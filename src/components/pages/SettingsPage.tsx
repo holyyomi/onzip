@@ -17,6 +17,7 @@ import StorageNoticeCard from '../common/StorageNoticeCard'
 import ShareAndSupportCard from '../common/ShareAndSupportCard'
 import UpdateNoticeCard from '../common/UpdateNoticeCard'
 import PwaUpdateCard from '../common/PwaUpdateCard'
+import { useAmountPrivacy } from '../../utils/amountPrivacy'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
 
@@ -63,6 +64,7 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
   const household = householdRepo.getDefault()
   const [name, setName] = useState(household.name)
   const [saved, setSaved] = useState(false)
+  const { hidden: hideAmounts, setHidden: setHideAmounts } = useAmountPrivacy()
 
   function handleSave() {
     householdRepo.update(household.id, { name: name.trim() || '우리집' })
@@ -87,6 +89,24 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
       </div>
 
       <StorageNoticeCard />
+
+      <div className="oz-card p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-base font-semibold text-[#222222]">금액 가리기</p>
+            <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
+              홈, 흐름, 일정, 금고에서 금액을 ***원으로 표시합니다.
+            </p>
+          </div>
+          <button
+            onClick={() => setHideAmounts(!hideAmounts)}
+            className={`h-8 w-14 flex-shrink-0 rounded-full p-1 transition-colors ${hideAmounts ? 'bg-[#ff385c]' : 'bg-gray-200'}`}
+            aria-label="금액 가리기"
+          >
+            <span className={`block h-6 w-6 rounded-full bg-white shadow transition-transform ${hideAmounts ? 'translate-x-6' : 'translate-x-0'}`} />
+          </button>
+        </div>
+      </div>
 
       <PwaUpdateCard />
 

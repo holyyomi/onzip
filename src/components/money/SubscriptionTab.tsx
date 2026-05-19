@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react'
 import { subscriptionRepo } from '../../data/repositories'
-import { formatAmount } from '../../utils/date'
 import { PAYMENT_METHOD_LABEL } from '../../utils/constants'
 import EmptyState from '../common/EmptyState'
 import SubscriptionFormModal from './SubscriptionFormModal'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 interface Props {
   refreshKey: number
@@ -22,6 +22,7 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 export default function SubscriptionTab({ refreshKey, onRefresh }: Props) {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
@@ -43,7 +44,7 @@ export default function SubscriptionTab({ refreshKey, onRefresh }: Props) {
         <div className="flex justify-between items-start mb-1">
           <div>
             <p className="text-xs text-gray-400">월 구독료 합계</p>
-            <p className="text-lg font-bold text-purple-600">{formatAmount(monthlyTotal)}</p>
+            <p className="text-lg font-bold text-purple-600">{displayAmount(monthlyTotal, hideAmounts)}</p>
           </div>
           <button
             onClick={() => { setEditingId(null); setShowModal(true) }}
@@ -53,7 +54,7 @@ export default function SubscriptionTab({ refreshKey, onRefresh }: Props) {
           </button>
         </div>
         <p className="text-xs text-gray-400">
-          연간 {formatAmount(annualTotal)} · 해지 시 절약 가능
+          연간 {displayAmount(annualTotal, hideAmounts)} · 해지 시 절약 가능
         </p>
       </div>
 
@@ -89,11 +90,11 @@ export default function SubscriptionTab({ refreshKey, onRefresh }: Props) {
               </div>
               <p className="text-xs text-gray-400 mt-0.5">
                 매월 {s.payment_day}일 · {PAYMENT_METHOD_LABEL[s.payment_method]}
-                {' · 연 '}{formatAmount(s.amount * 12)}
+                {' · 연 '}{displayAmount(s.amount * 12, hideAmounts)}
               </p>
             </div>
             <span className="text-sm font-semibold text-purple-600 flex-shrink-0">
-              {formatAmount(s.amount)}
+              {displayAmount(s.amount, hideAmounts)}
             </span>
           </button>
         ))}

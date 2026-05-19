@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react'
 import { lifeRecordRepo } from '../../data/repositories'
-import { formatAmount } from '../../utils/date'
 import type { QuickAddType } from '../common/QuickAddMenu'
 import type { RecordType } from '../../data/models'
 import RecordFormModal from './RecordFormModal'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import EmptyState from '../common/EmptyState'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 const RECORD_TYPE_CONFIG: Record<
   RecordType,
@@ -26,6 +26,7 @@ interface Props {
 }
 
 export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const [filter, setFilter] = useState<FilterType>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -151,7 +152,7 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
                       <span className="text-xs text-gray-400">{cfg.label}</span>
                       {r.related_amount && (
                         <span className="text-xs text-gray-400 ml-auto">
-                          {formatAmount(r.related_amount)}
+                          {displayAmount(r.related_amount, hideAmounts)}
                         </span>
                       )}
                     </div>

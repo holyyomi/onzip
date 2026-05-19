@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { todayYear, todayMonth, prevMonth, nextMonth, formatMonthLabel, formatAmount } from '../../utils/date'
+import { todayYear, todayMonth, prevMonth, nextMonth, formatMonthLabel } from '../../utils/date'
 import type { QuickAddType } from '../common/QuickAddMenu'
 import LedgerTab from '../money/LedgerTab'
 import FixedExpenseTab from '../money/FixedExpenseTab'
@@ -9,6 +9,7 @@ import CalculatorTab from '../money/CalculatorTab'
 import TabMemoCard from '../common/TabMemoCard'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import { fixedExpenseRepo, incomeRepo, ledgerEntryRepo, subscriptionRepo } from '../../data/repositories'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 type MoneySubTab = 'summary' | 'ledger' | 'manage' | 'calculator'
 type MoneyManageSubTab = 'fixed' | 'income' | 'subscription'
@@ -143,6 +144,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
 }
 
 function FlowSummary({ year, month, refreshKey }: { year: number; month: number; refreshKey: number }) {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const data = useMemo(() => {
     const entries = ledgerEntryRepo.getByMonth(year, month)
     const entryIncome = ledgerEntryRepo.sumByType(entries, 'income')
@@ -196,16 +198,16 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
       <div className="oz-card p-4">
         <p className="text-xs font-semibold text-[#8a8a8a]">이번 달 예상 흐름</p>
         <p className={`mt-1 text-2xl font-bold ${data.inTotal - data.outTotal >= 0 ? 'text-[#222222]' : 'text-red-500'}`}>
-          {formatAmount(data.inTotal - data.outTotal)}
+          {displayAmount(data.inTotal - data.outTotal, hideAmounts)}
         </p>
         <p className="mt-1 text-xs text-[#8a8a8a]">
-          들어올 돈 {formatAmount(data.inTotal)} - 나갈 돈 {formatAmount(data.outTotal)}
+          들어올 돈 {displayAmount(data.inTotal, hideAmounts)} - 나갈 돈 {displayAmount(data.outTotal, hideAmounts)}
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <FlowStat label="들어올 돈" value={formatAmount(data.inTotal)} tone="in" />
-        <FlowStat label="나갈 돈" value={formatAmount(data.outTotal)} tone="out" />
+        <FlowStat label="들어올 돈" value={displayAmount(data.inTotal, hideAmounts)} tone="in" />
+        <FlowStat label="나갈 돈" value={displayAmount(data.outTotal, hideAmounts)} tone="out" />
       </div>
 
       <div className="oz-card p-4">
@@ -221,7 +223,7 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
                 <span className="mt-0.5 block truncate text-xs text-[#8a8a8a]">{item.title}</span>
               </span>
               <span className={`flex-shrink-0 text-sm font-semibold ${item.type === 'in' ? 'text-blue-600' : 'text-red-500'}`}>
-                {item.type === 'in' ? '+' : '-'}{formatAmount(item.amount)}
+                {item.type === 'in' ? '+' : '-'}{displayAmount(item.amount, hideAmounts)}
               </span>
             </div>
           ))}
@@ -231,10 +233,10 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
       <div className="oz-card p-4">
         <h3 className="text-base font-semibold text-[#222222]">구성</h3>
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <MiniFlow label="반복 수입" value={formatAmount(data.recurringIncome)} />
-          <MiniFlow label="기록 수입" value={formatAmount(data.entryIncome)} />
-          <MiniFlow label="고정 지출" value={formatAmount(data.fixedOut)} />
-          <MiniFlow label="구독/자동결제" value={formatAmount(data.subOut)} />
+          <MiniFlow label="반복 수입" value={displayAmount(data.recurringIncome, hideAmounts)} />
+          <MiniFlow label="기록 수입" value={displayAmount(data.entryIncome, hideAmounts)} />
+          <MiniFlow label="고정 지출" value={displayAmount(data.fixedOut, hideAmounts)} />
+          <MiniFlow label="구독/자동결제" value={displayAmount(data.subOut, hideAmounts)} />
         </div>
       </div>
     </div>
