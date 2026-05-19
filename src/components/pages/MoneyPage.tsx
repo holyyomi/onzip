@@ -146,6 +146,8 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
 function FlowSummary({ year, month, refreshKey }: { year: number; month: number; refreshKey: number }) {
   const { hidden: hideAmounts } = useAmountPrivacy()
   const data = useMemo(() => {
+    const isCurrentMonthView = year === todayYear() && month === todayMonth()
+    const todayDay = new Date().getDate()
     const entries = ledgerEntryRepo.getByMonth(year, month)
     const entryIncome = ledgerEntryRepo.sumByType(entries, 'income')
     const entryExpense = ledgerEntryRepo.sumByType(entries, 'expense')
@@ -192,9 +194,14 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
         title: sub.title,
         amount: sub.amount,
       })),
-    ].sort((a, b) => a.day - b.day)
+    ].sort((a, b) => {
+      if (!isCurrentMonthView) return a.day - b.day
+      return getMoneyDayDistance(a.day, todayDay) - getMoneyDayDistance(b.day, todayDay)
+    })
 
     return {
+      isCurrentMonthView,
+      todayDay,
       inTotal: recurringIncome + entryIncome,
       outTotal: fixedOut + subOut + entryExpense,
       entryIncome,
@@ -253,33 +260,57 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
       </div>
 
       <div className="oz-card p-4">
-        <h3 className="text-base font-semibold text-[#222222]">날짜별 돈 흐름</h3>
+        <div>
+          <h3 className="text-base font-semibold text-[#222222]">날짜별 돈 흐름</h3>
+          {data.isCurrentMonthView && (
+            <p className="mt-0.5 text-xs text-[#8a8a8a]">오늘 이후 챙길 돈이 먼저 보입니다.</p>
+          )}
+        </div>
         <div className="mt-3 divide-y divide-[#f0f0f0]">
           {data.timeline.length === 0 && (
             <p className="py-3 text-sm text-[#8a8a8a]">등록된 반복 수입이나 고정 지출이 없습니다.</p>
           )}
-          {data.timeline.slice(0, 8).map((item) => (
-            <div key={item.id} className="flex items-center justify-between gap-3 py-3">
-              <span className="min-w-0">
-                <span className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-[#222222]">매월 {item.day}일</span>
-                  <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
-                    item.type === 'in' ? 'bg-blue-50 text-blue-600' : 'bg-[#fff0f3] text-[#ff385c]'
-                  }`}>
-                    {item.label}
+          {data.timeline.slice(0, 8).map((item) => {
+            const dayStatus = getMoneyDayStatus(item.day, data.isCurrentMonthView, data.todayDay)
+            return (
+              <div key={item.id} className="flex items-center justify-between gap-3 py-3">
+                <span className="min-w-0">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold text-[#222222]">매월 {item.day}일</span>
+                    <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
+                      item.type === 'in' ? 'bg-blue-50 text-blue-600' : 'bg-[#fff0f3] text-[#ff385c]'
+                    }`}>
+                      {item.label}
+                    </span>
+                    {dayStatus && (
+                      <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${dayStatus.cls}`}>
+                        {dayStatus.label}
+                      </span>
+                    )}
                   </span>
+                  <span className="mt-0.5 block truncate text-xs text-[#8a8a8a]">{item.title}</span>
                 </span>
-                <span className="mt-0.5 block truncate text-xs text-[#8a8a8a]">{item.title}</span>
-              </span>
-              <span className={`flex-shrink-0 text-sm font-semibold ${item.type === 'in' ? 'text-blue-600' : 'text-red-500'}`}>
-                {item.type === 'in' ? '+' : '-'}{displayAmount(item.amount, hideAmounts)}
-              </span>
-            </div>
-          ))}
+                <span className={`flex-shrink-0 text-sm font-semibold ${item.type === 'in' ? 'text-blue-600' : 'text-red-500'}`}>
+                  {item.type === 'in' ? '+' : '-'}{displayAmount(item.amount, hideAmounts)}
+                </span>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
   )
+}
+
+function getMoneyDayDistance(day: number, todayDay: number): number {
+  return day >= todayDay ? day - todayDay : day + 31 - todayDay
+}
+
+function getMoneyDayStatus(day: number, isCurrentMonthView: boolean, todayDay: number): { label: string; cls: string } | null {
+  if (!isCurrentMonthView) return null
+  if (day === todayDay) return { label: '오늘', cls: 'bg-[#222222] text-white' }
+  if (day > todayDay) return { label: `D-${day - todayDay}`, cls: 'bg-gray-100 text-gray-600' }
+  return { label: '지남', cls: 'bg-gray-50 text-gray-400' }
 }
 
 function FlowStat({ label, value, tone }: { label: string; value: string; tone: 'in' | 'out' }) {
