@@ -103,7 +103,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       )}
 
       {activeTab === 'summary' && (
-        <FlowSummary year={year} month={month} refreshKey={pageRefreshKey} />
+        <FlowSummary year={year} month={month} refreshKey={pageRefreshKey} onRefresh={onRefresh} />
       )}
       {activeTab === 'ledger' && (
         <LedgerTab year={year} month={month} refreshKey={pageRefreshKey} onRefresh={onRefresh} />
@@ -143,7 +143,17 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
   )
 }
 
-function FlowSummary({ year, month, refreshKey }: { year: number; month: number; refreshKey: number }) {
+function FlowSummary({
+  year,
+  month,
+  refreshKey,
+  onRefresh,
+}: {
+  year: number
+  month: number
+  refreshKey: number
+  onRefresh: () => void
+}) {
   const { hidden: hideAmounts } = useAmountPrivacy()
   const data = useMemo(() => {
     const isCurrentMonthView = year === todayYear() && month === todayMonth()
@@ -202,6 +212,8 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
         id: `income_${income.id}`,
         day: income.income_day,
         type: 'in' as const,
+        source: 'income' as const,
+        sourceId: income.id,
         label: '받을 돈',
         paymentState: null,
         priority: getMoneyDayDistance(income.income_day, todayDay),
@@ -214,6 +226,8 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
           id: `fixed_${expense.id}`,
           day: expense.payment_day,
           type: 'out' as const,
+          source: 'fixed' as const,
+          sourceId: expense.id,
           label: expense.category === '카드' ? '카드값' : '줄 돈',
           paymentState,
           priority: paymentState?.kind === 'overdue' ? -1 : getMoneyDayDistance(expense.payment_day, todayDay),
@@ -225,6 +239,8 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
         id: `sub_${sub.id}`,
         day: sub.payment_day,
         type: 'out' as const,
+        source: 'subscription' as const,
+        sourceId: sub.id,
         label: '자동결제',
         paymentState: null,
         priority: getMoneyDayDistance(sub.payment_day, todayDay),
@@ -257,6 +273,11 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, month, refreshKey])
+
+  function handleMarkFixedDone(id: string) {
+    fixedExpenseRepo.update(id, { status: 'done' })
+    onRefresh()
+  }
 
   return (
     <div className="p-4 space-y-3">
@@ -352,8 +373,18 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
                   </span>
                   <span className="mt-0.5 block truncate text-xs text-[#8a8a8a]">{item.title}</span>
                 </span>
-                <span className={`flex-shrink-0 text-sm font-semibold ${item.type === 'in' ? 'text-blue-600' : 'text-red-500'}`}>
-                  {item.type === 'in' ? '+' : '-'}{displayAmount(item.amount, hideAmounts)}
+                <span className="flex flex-shrink-0 items-center gap-2">
+                  <span className={`text-sm font-semibold ${item.type === 'in' ? 'text-blue-600' : 'text-red-500'}`}>
+                    {item.type === 'in' ? '+' : '-'}{displayAmount(item.amount, hideAmounts)}
+                  </span>
+                  {item.source === 'fixed' && item.paymentState?.kind !== 'done' && (
+                    <button
+                      onClick={() => handleMarkFixedDone(item.sourceId)}
+                      className="min-h-[30px] rounded-full border border-[#dddddd] bg-white px-2 text-xs font-semibold text-[#222222]"
+                    >
+                      완료
+                    </button>
+                  )}
                 </span>
               </div>
             )
