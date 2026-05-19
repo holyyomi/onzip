@@ -155,12 +155,24 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
     const recurringIncome = incomes.reduce((sum, income) => sum + income.amount, 0)
     const fixedOut = fixedExpenses.reduce((sum, expense) => sum + expense.amount, 0)
     const subOut = subscriptions.reduce((sum, sub) => sum + sub.amount, 0)
+    const salaryIncome = incomes
+      .filter((income) => income.income_type === 'fixed')
+      .reduce((sum, income) => sum + income.amount, 0)
+    const sideIncome = incomes
+      .filter((income) => income.income_type === 'side')
+      .reduce((sum, income) => sum + income.amount, 0)
+    const otherRecurringIncome = Math.max(0, recurringIncome - salaryIncome - sideIncome)
+    const cardOut = fixedExpenses
+      .filter((expense) => expense.category === '카드')
+      .reduce((sum, expense) => sum + expense.amount, 0)
+    const fixedOtherOut = Math.max(0, fixedOut - cardOut)
 
     const timeline = [
       ...incomes.map((income) => ({
         id: `income_${income.id}`,
         day: income.income_day,
         type: 'in' as const,
+        label: '받을 돈',
         title: income.title,
         amount: income.amount,
       })),
@@ -168,6 +180,7 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
         id: `fixed_${expense.id}`,
         day: expense.payment_day,
         type: 'out' as const,
+        label: expense.category === '카드' ? '카드값' : '줄 돈',
         title: expense.title,
         amount: expense.amount,
       })),
@@ -175,6 +188,7 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
         id: `sub_${sub.id}`,
         day: sub.payment_day,
         type: 'out' as const,
+        label: '자동결제',
         title: sub.title,
         amount: sub.amount,
       })),
@@ -185,8 +199,11 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
       outTotal: fixedOut + subOut + entryExpense,
       entryIncome,
       entryExpense,
-      recurringIncome,
-      fixedOut,
+      salaryIncome,
+      sideIncome,
+      otherRecurringIncome,
+      cardOut,
+      fixedOtherOut,
       subOut,
       timeline,
     }
@@ -210,6 +227,31 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
         <FlowStat label="나갈 돈" value={displayAmount(data.outTotal, hideAmounts)} tone="out" />
       </div>
 
+      <div className="grid grid-cols-2 gap-3">
+        <FlowBreakdownCard
+          title="받을 돈"
+          tone="in"
+          items={[
+            { label: '월급/고정', value: data.salaryIncome },
+            { label: '부수입', value: data.sideIncome },
+            { label: '기타 반복', value: data.otherRecurringIncome },
+            { label: '이번 달 기록', value: data.entryIncome },
+          ]}
+          hideAmounts={hideAmounts}
+        />
+        <FlowBreakdownCard
+          title="줄 돈"
+          tone="out"
+          items={[
+            { label: '카드값', value: data.cardOut },
+            { label: '고정지출', value: data.fixedOtherOut },
+            { label: '자동결제', value: data.subOut },
+            { label: '이번 달 기록', value: data.entryExpense },
+          ]}
+          hideAmounts={hideAmounts}
+        />
+      </div>
+
       <div className="oz-card p-4">
         <h3 className="text-base font-semibold text-[#222222]">날짜별 돈 흐름</h3>
         <div className="mt-3 divide-y divide-[#f0f0f0]">
@@ -219,7 +261,14 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
           {data.timeline.slice(0, 8).map((item) => (
             <div key={item.id} className="flex items-center justify-between gap-3 py-3">
               <span className="min-w-0">
-                <span className="block text-sm font-semibold text-[#222222]">매월 {item.day}일</span>
+                <span className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-[#222222]">매월 {item.day}일</span>
+                  <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
+                    item.type === 'in' ? 'bg-blue-50 text-blue-600' : 'bg-[#fff0f3] text-[#ff385c]'
+                  }`}>
+                    {item.label}
+                  </span>
+                </span>
                 <span className="mt-0.5 block truncate text-xs text-[#8a8a8a]">{item.title}</span>
               </span>
               <span className={`flex-shrink-0 text-sm font-semibold ${item.type === 'in' ? 'text-blue-600' : 'text-red-500'}`}>
@@ -227,16 +276,6 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
               </span>
             </div>
           ))}
-        </div>
-      </div>
-
-      <div className="oz-card p-4">
-        <h3 className="text-base font-semibold text-[#222222]">구성</h3>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <MiniFlow label="반복 수입" value={displayAmount(data.recurringIncome, hideAmounts)} />
-          <MiniFlow label="기록 수입" value={displayAmount(data.entryIncome, hideAmounts)} />
-          <MiniFlow label="고정 지출" value={displayAmount(data.fixedOut, hideAmounts)} />
-          <MiniFlow label="구독/자동결제" value={displayAmount(data.subOut, hideAmounts)} />
         </div>
       </div>
     </div>
@@ -254,11 +293,35 @@ function FlowStat({ label, value, tone }: { label: string; value: string; tone: 
   )
 }
 
-function MiniFlow({ label, value }: { label: string; value: string }) {
+function FlowBreakdownCard({
+  title,
+  tone,
+  items,
+  hideAmounts,
+}: {
+  title: string
+  tone: 'in' | 'out'
+  items: { label: string; value: number }[]
+  hideAmounts: boolean
+}) {
+  const visibleItems = items.filter((item) => item.value > 0)
+
   return (
-    <div className="rounded-[16px] bg-[#f7f7f7] px-3 py-2">
-      <p className="text-[11px] font-semibold text-[#8a8a8a]">{label}</p>
-      <p className="mt-0.5 truncate text-sm font-semibold text-[#222222]">{value}</p>
+    <div className="oz-card p-4">
+      <p className={`text-sm font-semibold ${tone === 'in' ? 'text-blue-600' : 'text-red-500'}`}>{title}</p>
+      <div className="mt-3 space-y-2">
+        {visibleItems.length === 0 && (
+          <p className="text-xs text-[#8a8a8a]">등록된 항목이 없습니다.</p>
+        )}
+        {visibleItems.map((item) => (
+          <div key={item.label} className="flex items-center justify-between gap-2">
+            <span className="truncate text-xs text-[#6a6a6a]">{item.label}</span>
+            <span className="flex-shrink-0 text-xs font-semibold text-[#222222]">
+              {displayAmount(item.value, hideAmounts)}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
