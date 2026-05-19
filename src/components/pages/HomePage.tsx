@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { TabId } from '../../app/App'
 import type { QuickAddType } from '../common/QuickAddMenu'
 import {
@@ -14,9 +14,9 @@ import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import { displayRecordTitle, useVaultPrivacy } from '../../utils/vaultPrivacy'
 import { getVaultRecordBadge, isDatedVaultRecord, isImportantVaultRecord } from '../../utils/vaultRecords'
-import { getFixedExpenseMonthStatus } from '../../utils/fixedExpenseMonthStatus'
-import { getIncomeMonthStatus } from '../../utils/incomeMonthStatus'
-import { getSubscriptionMonthStatus } from '../../utils/subscriptionMonthStatus'
+import { getFixedExpenseMonthStatus, setFixedExpenseMonthStatus } from '../../utils/fixedExpenseMonthStatus'
+import { getIncomeMonthStatus, setIncomeMonthStatus } from '../../utils/incomeMonthStatus'
+import { getSubscriptionMonthStatus, setSubscriptionMonthStatus } from '../../utils/subscriptionMonthStatus'
 
 interface Props {
   refreshKey: number
@@ -30,6 +30,8 @@ interface ImportantItem {
   title: string
   detail: string
   tab: TabId
+  actionLabel?: string
+  onAction?: () => void
 }
 
 function addDays(dateStr: string, days: number): string {
@@ -40,6 +42,7 @@ function addDays(dateStr: string, days: number): string {
 export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props) {
   const { hidden: hideAmounts } = useAmountPrivacy()
   const { hidden: hideSensitive } = useVaultPrivacy()
+  const [localRefreshKey, setLocalRefreshKey] = useState(0)
   const data = useMemo(() => {
     const today = todayStr()
     const year = todayYear()
@@ -129,7 +132,23 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       upcomingVaultRecords,
       importantRecords,
     }
-  }, [refreshKey])
+  }, [refreshKey, localRefreshKey])
+
+  function completeIncome(id: string) {
+    setIncomeMonthStatus(id, todayYear(), todayMonth(), 'received')
+    setLocalRefreshKey((key) => key + 1)
+  }
+
+  function completeFixedExpense(id: string) {
+    setFixedExpenseMonthStatus(id, todayYear(), todayMonth(), 'done')
+    fixedExpenseRepo.update(id, { status: 'done' })
+    setLocalRefreshKey((key) => key + 1)
+  }
+
+  function completeSubscription(id: string) {
+    setSubscriptionMonthStatus(id, todayYear(), todayMonth(), 'paid')
+    setLocalRefreshKey((key) => key + 1)
+  }
 
   const todayItems: ImportantItem[] = [
     ...data.overdueIncome.map((income) => ({
@@ -138,6 +157,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: income.title,
       detail: `${income.income_day}일 · ${displayAmount(income.amount, hideAmounts)}`,
       tab: 'money' as TabId,
+      actionLabel: '받음',
+      onAction: () => completeIncome(income.id),
     })),
     ...data.overdueFixed.map((expense) => ({
       id: `overdue_fixed_${expense.id}`,
@@ -145,6 +166,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: expense.title,
       detail: `${expense.payment_day}일 · ${displayAmount(expense.amount, hideAmounts)}`,
       tab: 'money' as TabId,
+      actionLabel: '완료',
+      onAction: () => completeFixedExpense(expense.id),
     })),
     ...data.overdueSubs.map((sub) => ({
       id: `overdue_sub_${sub.id}`,
@@ -152,6 +175,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: sub.title,
       detail: `${sub.payment_day}일 · ${displayAmount(sub.amount, hideAmounts)}`,
       tab: 'money' as TabId,
+      actionLabel: '결제',
+      onAction: () => completeSubscription(sub.id),
     })),
     ...data.todayIncome.map((income) => ({
       id: `income_${income.id}`,
@@ -159,6 +184,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: income.title,
       detail: displayAmount(income.amount, hideAmounts),
       tab: 'money' as TabId,
+      actionLabel: '받음',
+      onAction: () => completeIncome(income.id),
     })),
     ...data.todayFixed.map((expense) => ({
       id: `fixed_${expense.id}`,
@@ -166,6 +193,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: expense.title,
       detail: displayAmount(expense.amount, hideAmounts),
       tab: 'money' as TabId,
+      actionLabel: '완료',
+      onAction: () => completeFixedExpense(expense.id),
     })),
     ...data.todaySubs.map((sub) => ({
       id: `sub_${sub.id}`,
@@ -173,6 +202,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: sub.title,
       detail: displayAmount(sub.amount, hideAmounts),
       tab: 'money' as TabId,
+      actionLabel: '결제',
+      onAction: () => completeSubscription(sub.id),
     })),
     ...data.todayEvents.map((event) => ({
       id: `event_${event.id}`,
@@ -210,6 +241,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
               title={item.title}
               detail={item.detail}
               onClick={() => onTabChange(item.tab)}
+              actionLabel={item.actionLabel}
+              onAction={item.onAction}
             />
           ))}
         </div>
@@ -306,20 +339,34 @@ function ImportantLine({
   title,
   detail,
   onClick,
+  actionLabel,
+  onAction,
 }: {
   label: string
   title: string
   detail: string
   onClick: () => void
+  actionLabel?: string
+  onAction?: () => void
 }) {
   return (
-    <button onClick={onClick} className="flex w-full items-center gap-3 rounded-[18px] border border-[#ebebeb] bg-[#f7f7f7] px-3 py-3 text-left">
-      <span className="rounded-full bg-[#fff0f3] px-2.5 py-1 text-xs font-semibold text-[#ff385c]">{label}</span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-semibold text-[#222222]">{title}</span>
-        <span className="mt-0.5 block truncate text-xs text-[#8a8a8a]">{detail}</span>
-      </span>
-    </button>
+    <div className="flex w-full items-center gap-2 rounded-[18px] border border-[#ebebeb] bg-[#f7f7f7] px-3 py-3 text-left">
+      <button onClick={onClick} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+        <span className="rounded-full bg-[#fff0f3] px-2.5 py-1 text-xs font-semibold text-[#ff385c]">{label}</span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold text-[#222222]">{title}</span>
+          <span className="mt-0.5 block truncate text-xs text-[#8a8a8a]">{detail}</span>
+        </span>
+      </button>
+      {actionLabel && onAction && (
+        <button
+          onClick={onAction}
+          className="min-h-[32px] flex-shrink-0 rounded-full border border-[#ffd1da] bg-white px-2.5 text-xs font-semibold text-[#ff385c]"
+        >
+          {actionLabel}
+        </button>
+      )}
+    </div>
   )
 }
 
