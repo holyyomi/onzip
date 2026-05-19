@@ -16,6 +16,10 @@ import {
   templateRepo,
 } from '../data/repositories'
 import { trackEvent } from './analytics'
+import {
+  readFixedExpenseMonthStatusBackup,
+  writeFixedExpenseMonthStatusBackup,
+} from './fixedExpenseMonthStatus'
 
 export const LAST_BACKUP_AT_KEY = 'last_backup_at'
 
@@ -75,6 +79,7 @@ export function exportLocalData(): string {
       app_settings: appSettingsRepo.getAll(),
       custom_categories: readCustomCategories(),
       tab_memos: readTabMemos(),
+      fixed_expense_month_status: readFixedExpenseMonthStatusBackup(),
     },
   }
 
@@ -131,6 +136,7 @@ export async function importLocalDataFromFile(file: File) {
     'onzip_tab_memos',
     JSON.stringify(isRecord(data.tab_memos) ? data.tab_memos : {}),
   )
+  writeFixedExpenseMonthStatusBackup(data.fixed_expense_month_status)
   localStorage.setItem('onzip_seed_done_v1', 'true')
   localStorage.setItem('onzip_full_reset_done_20260516_v1', 'true')
 

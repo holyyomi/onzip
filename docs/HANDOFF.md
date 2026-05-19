@@ -83,6 +83,7 @@ npm run build
 - 흐름 일정: 현재 달의 날짜별 돈 흐름은 오늘 이후 항목이 먼저 보이고 `오늘`, `D-n`, `지남` 상태 배지를 표시
 - 남은 흐름: 현재 달 흐름 카드에 오늘 이후 남은 받을 돈, 남은 나갈 돈, 남은 차이를 별도 표시
 - 미납 반영: 완료 처리된 고정지출은 남은 나갈 돈에서 제외하고, 날짜가 지난 미완료 고정지출은 미납 경고와 날짜별 흐름 상단에 표시. 날짜별 돈 흐름에서 고정지출을 바로 완료/취소 처리 가능
+- 고정지출 완료: 고정지출 완료/취소 상태는 월별로 저장해 이번 달 완료 처리가 다음 달까지 완료로 남지 않음. 기존 현재 달 상태는 보존
 - 모바일 사용성: 홈 첫 화면을 `오늘 중요한 것 → 빠른 추가 → 이번 달 흐름 → 곧 챙길 것` 흐름으로 정리. 빠른추가는 `나갈 돈`, `들어올 돈`, `중요 날짜`, `금고 메모` 중심으로 정리
 - 탭 메모 사용성: 메모 카드 높이를 줄이고 앱 하단 여백을 늘려 바닥에서 잘려 보이지 않도록 수정
 - 탭별 쉬운 진입: 흐름/일정/금고 탭 상단에 바로 추가 버튼을 배치해 하단 `+` 버튼을 찾지 않아도 핵심 입력을 바로 열 수 있음
@@ -142,6 +143,7 @@ src/
     dataExport.ts
     tabMemoStore.ts
     featureIcons.ts
+    fixedExpenseMonthStatus.ts
     vaultRecords.ts
     csvExport.ts
 docs/
@@ -191,6 +193,7 @@ onzip_templates
 onzip_app_settings
 onzip_custom_categories
 onzip_tab_memos
+onzip_fixed_expense_month_status
 onzip_seed_done_v1
 onzip_update_notice_20260519_flow_vault
 ```

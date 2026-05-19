@@ -10,6 +10,11 @@ import TabMemoCard from '../common/TabMemoCard'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import { fixedExpenseRepo, incomeRepo, ledgerEntryRepo, subscriptionRepo } from '../../data/repositories'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
+import {
+  getFixedExpenseMonthStatus,
+  isCurrentFixedExpenseMonth,
+  setFixedExpenseMonthStatus,
+} from '../../utils/fixedExpenseMonthStatus'
 
 type MoneySubTab = 'summary' | 'ledger' | 'manage' | 'calculator'
 type MoneyManageSubTab = 'fixed' | 'income' | 'subscription'
@@ -124,7 +129,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
             ))}
           </div>
           {manageTab === 'fixed' && (
-            <FixedExpenseTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
+            <FixedExpenseTab year={year} month={month} refreshKey={pageRefreshKey} onRefresh={onRefresh} />
           )}
           {manageTab === 'income' && (
             <IncomeTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
@@ -173,6 +178,10 @@ function FlowSummary({
       : 0
     const incomes = incomeRepo.getAll().filter((income) => income.repeat_rule === 'monthly')
     const fixedExpenses = fixedExpenseRepo.getActive()
+    const fixedExpensesWithStatus = fixedExpenses.map((expense) => ({
+      ...expense,
+      monthStatus: getFixedExpenseMonthStatus(expense, year, month),
+    }))
     const subscriptions = subscriptionRepo.getActive()
     const recurringIncome = incomes.reduce((sum, income) => sum + income.amount, 0)
     const fixedOut = fixedExpenses.reduce((sum, expense) => sum + expense.amount, 0)
@@ -189,7 +198,7 @@ function FlowSummary({
       .reduce((sum, expense) => sum + expense.amount, 0)
     const fixedOtherOut = Math.max(0, fixedOut - cardOut)
     const overdueFixedExpenses = isCurrentMonthView
-      ? fixedExpenses.filter((expense) => expense.status !== 'done' && expense.payment_day < todayDay)
+      ? fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && expense.payment_day < todayDay)
       : []
     const overdueFixedOut = overdueFixedExpenses.reduce((sum, expense) => sum + expense.amount, 0)
     const upcomingIncome = isCurrentMonthView
@@ -198,8 +207,8 @@ function FlowSummary({
           .reduce((sum, income) => sum + income.amount, 0) + upcomingEntryIncome
       : 0
     const upcomingOut = isCurrentMonthView
-      ? fixedExpenses
-          .filter((expense) => expense.status !== 'done')
+      ? fixedExpensesWithStatus
+          .filter((expense) => expense.monthStatus !== 'done')
           .reduce((sum, expense) => sum + expense.amount, 0) +
         subscriptions
           .filter((sub) => sub.payment_day >= todayDay)
@@ -220,8 +229,8 @@ function FlowSummary({
         title: income.title,
         amount: income.amount,
       })),
-      ...fixedExpenses.map((expense) => {
-        const paymentState = getFixedPaymentState(expense.status, expense.payment_day, isCurrentMonthView, todayDay)
+      ...fixedExpensesWithStatus.map((expense) => {
+        const paymentState = getFixedPaymentState(expense.monthStatus, expense.payment_day, isCurrentMonthView, todayDay)
         return {
           id: `fixed_${expense.id}`,
           day: expense.payment_day,
@@ -275,7 +284,11 @@ function FlowSummary({
   }, [year, month, refreshKey])
 
   function handleSetFixedStatus(id: string, done: boolean) {
-    fixedExpenseRepo.update(id, { status: done ? 'done' : 'pending' })
+    const status = done ? 'done' : 'pending'
+    setFixedExpenseMonthStatus(id, year, month, status)
+    if (isCurrentFixedExpenseMonth(year, month)) {
+      fixedExpenseRepo.update(id, { status })
+    }
     onRefresh()
   }
 

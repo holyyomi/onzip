@@ -4,8 +4,15 @@ import { PAYMENT_METHOD_LABEL } from '../../utils/constants'
 import EmptyState from '../common/EmptyState'
 import FixedExpenseFormModal from './FixedExpenseFormModal'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
+import {
+  getFixedExpenseMonthStatus,
+  isCurrentFixedExpenseMonth,
+  setFixedExpenseMonthStatus,
+} from '../../utils/fixedExpenseMonthStatus'
 
 interface Props {
+  year: number
+  month: number
   refreshKey: number
   onRefresh: () => void
 }
@@ -21,22 +28,30 @@ const STATUS_LABEL: Record<string, string> = {
   overdue: '미납',
 }
 
-export default function FixedExpenseTab({ refreshKey, onRefresh }: Props) {
+export default function FixedExpenseTab({ year, month, refreshKey, onRefresh }: Props) {
   const { hidden: hideAmounts } = useAmountPrivacy()
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
   const expenses = useMemo(
-    () => fixedExpenseRepo.getActive().sort((a, b) => a.payment_day - b.payment_day),
+    () => fixedExpenseRepo.getActive()
+      .map((expense) => ({
+        ...expense,
+        monthStatus: getFixedExpenseMonthStatus(expense, year, month),
+      }))
+      .sort((a, b) => a.payment_day - b.payment_day),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [refreshKey],
+    [year, month, refreshKey],
   )
 
   const total = expenses.reduce((s, e) => s + e.amount, 0)
 
   function toggleStatus(id: string, current: string) {
     const next = current === 'done' ? 'pending' : 'done'
-    fixedExpenseRepo.update(id, { status: next as 'pending' | 'done' })
+    setFixedExpenseMonthStatus(id, year, month, next)
+    if (isCurrentFixedExpenseMonth(year, month)) {
+      fixedExpenseRepo.update(id, { status: next })
+    }
     onRefresh()
   }
 
@@ -69,14 +84,14 @@ export default function FixedExpenseTab({ refreshKey, onRefresh }: Props) {
           <div key={fe.id} className="oz-card px-4 py-3 flex items-center gap-3">
             {/* 납부완료 체크 */}
             <button
-              onClick={() => toggleStatus(fe.id, fe.status)}
+              onClick={() => toggleStatus(fe.id, fe.monthStatus)}
               className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                fe.status === 'done'
+                fe.monthStatus === 'done'
                   ? 'bg-green-500 border-green-500 text-white'
                   : 'border-gray-300'
               }`}
             >
-              {fe.status === 'done' && <span className="text-xs">✓</span>}
+              {fe.monthStatus === 'done' && <span className="text-xs">✓</span>}
             </button>
 
             <button
@@ -85,8 +100,8 @@ export default function FixedExpenseTab({ refreshKey, onRefresh }: Props) {
             >
               <div className="flex items-center gap-2">
                 <p className="text-sm font-medium text-gray-800 truncate">{fe.title}</p>
-                <span className={`text-xs px-1.5 py-0.5 rounded-full flex-shrink-0 ${STATUS_BADGE[fe.status]}`}>
-                  {STATUS_LABEL[fe.status]}
+                <span className={`text-xs px-1.5 py-0.5 rounded-full flex-shrink-0 ${STATUS_BADGE[fe.monthStatus]}`}>
+                  {STATUS_LABEL[fe.monthStatus]}
                 </span>
               </div>
               <p className="text-xs text-gray-400 mt-0.5">
