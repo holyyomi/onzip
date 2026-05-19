@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { todayYear, todayMonth, prevMonth, nextMonth, formatMonthLabel } from '../../utils/date'
+import { getEffectiveMonthDay, todayYear, todayMonth, prevMonth, nextMonth, formatMonthLabel } from '../../utils/date'
 import type { QuickAddType } from '../common/QuickAddMenu'
 import LedgerTab from '../money/LedgerTab'
 import FixedExpenseTab from '../money/FixedExpenseTab'
@@ -211,15 +211,15 @@ function FlowSummary({
       .reduce((sum, expense) => sum + expense.amount, 0)
     const fixedOtherOut = Math.max(0, fixedOut - cardOut)
     const overdueIncomes = isCurrentMonthView
-      ? incomesWithStatus.filter((income) => income.monthStatus !== 'received' && income.income_day < todayDay)
+      ? incomesWithStatus.filter((income) => income.monthStatus !== 'received' && getEffectiveMonthDay(year, month, income.income_day) < todayDay)
       : []
     const overdueIncome = overdueIncomes.reduce((sum, income) => sum + income.amount, 0)
     const overdueFixedExpenses = isCurrentMonthView
-      ? fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && expense.payment_day < todayDay)
+      ? fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && getEffectiveMonthDay(year, month, expense.payment_day) < todayDay)
       : []
     const overdueFixedOut = overdueFixedExpenses.reduce((sum, expense) => sum + expense.amount, 0)
     const overdueSubscriptions = isCurrentMonthView
-      ? subscriptionsWithStatus.filter((sub) => sub.monthStatus !== 'paid' && sub.payment_day < todayDay)
+      ? subscriptionsWithStatus.filter((sub) => sub.monthStatus !== 'paid' && getEffectiveMonthDay(year, month, sub.payment_day) < todayDay)
       : []
     const overdueSubscriptionOut = overdueSubscriptions.reduce((sum, sub) => sum + sub.amount, 0)
     const upcomingIncome = isCurrentMonthView
@@ -239,46 +239,49 @@ function FlowSummary({
 
     const timeline = [
       ...incomesWithStatus.map((income) => {
-        const paymentState = getIncomeReceiveState(income.monthStatus, income.income_day, isCurrentMonthView, todayDay)
+        const effectiveDay = getEffectiveMonthDay(year, month, income.income_day)
+        const paymentState = getIncomeReceiveState(income.monthStatus, effectiveDay, isCurrentMonthView, todayDay)
         return {
           id: `income_${income.id}`,
-          day: income.income_day,
+          day: effectiveDay,
           type: 'in' as const,
           source: 'income' as const,
           sourceId: income.id,
           label: '받을 돈',
           paymentState,
-          priority: paymentState?.kind === 'overdue' ? -2 : getMoneyDayDistance(income.income_day, todayDay),
+          priority: paymentState?.kind === 'overdue' ? -2 : getMoneyDayDistance(effectiveDay, todayDay),
           title: income.title,
           amount: income.amount,
         }
       }),
       ...fixedExpensesWithStatus.map((expense) => {
-        const paymentState = getFixedPaymentState(expense.monthStatus, expense.payment_day, isCurrentMonthView, todayDay)
+        const effectiveDay = getEffectiveMonthDay(year, month, expense.payment_day)
+        const paymentState = getFixedPaymentState(expense.monthStatus, effectiveDay, isCurrentMonthView, todayDay)
         return {
           id: `fixed_${expense.id}`,
-          day: expense.payment_day,
+          day: effectiveDay,
           type: 'out' as const,
           source: 'fixed' as const,
           sourceId: expense.id,
           label: expense.category === '카드' ? '카드값' : '줄 돈',
           paymentState,
-          priority: paymentState?.kind === 'overdue' ? -1 : getMoneyDayDistance(expense.payment_day, todayDay),
+          priority: paymentState?.kind === 'overdue' ? -1 : getMoneyDayDistance(effectiveDay, todayDay),
           title: expense.title,
           amount: expense.amount,
         }
       }),
       ...subscriptionsWithStatus.map((sub) => {
-        const paymentState = getSubscriptionPaymentState(sub.monthStatus, sub.payment_day, isCurrentMonthView, todayDay)
+        const effectiveDay = getEffectiveMonthDay(year, month, sub.payment_day)
+        const paymentState = getSubscriptionPaymentState(sub.monthStatus, effectiveDay, isCurrentMonthView, todayDay)
         return {
           id: `sub_${sub.id}`,
-          day: sub.payment_day,
+          day: effectiveDay,
           type: 'out' as const,
           source: 'subscription' as const,
           sourceId: sub.id,
           label: '자동결제',
           paymentState,
-          priority: paymentState?.kind === 'overdue' ? -1 : getMoneyDayDistance(sub.payment_day, todayDay),
+          priority: paymentState?.kind === 'overdue' ? -1 : getMoneyDayDistance(effectiveDay, todayDay),
           title: sub.title,
           amount: sub.amount,
         }

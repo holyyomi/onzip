@@ -9,7 +9,7 @@ import {
   subscriptionRepo,
 } from '../../data/repositories'
 import { getAggregatedEvents } from '../../utils/calendarAggregator'
-import { formatDate, todayMonth, todayStr, todayYear } from '../../utils/date'
+import { formatDate, getEffectiveMonthDay, todayMonth, todayStr, todayYear } from '../../utils/date'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import { displayRecordTitle, useVaultPrivacy } from '../../utils/vaultPrivacy'
@@ -44,7 +44,7 @@ function nextMonthOf(year: number, month: number): { year: number; month: number
 }
 
 function dateInMonth(year: number, month: number, day: number): string {
-  return formatDate(new Date(year, month - 1, day))
+  return formatDate(new Date(year, month - 1, getEffectiveMonthDay(year, month, day)))
 }
 
 export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props) {
@@ -86,12 +86,12 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       subscriptions.reduce((sum, sub) => sum + sub.amount, 0) +
       monthExpense
 
-    const overdueIncome = incomesWithStatus.filter((income) => income.monthStatus !== 'received' && income.income_day < todayDay)
-    const overdueFixed = fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && expense.payment_day < todayDay)
-    const overdueSubs = subscriptionsWithStatus.filter((sub) => sub.monthStatus !== 'paid' && sub.payment_day < todayDay)
-    const todayIncome = incomesWithStatus.filter((income) => income.monthStatus !== 'received' && income.income_day === todayDay)
-    const todayFixed = fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && expense.payment_day === todayDay)
-    const todaySubs = subscriptionsWithStatus.filter((sub) => sub.monthStatus !== 'paid' && sub.payment_day === todayDay)
+    const overdueIncome = incomesWithStatus.filter((income) => income.monthStatus !== 'received' && getEffectiveMonthDay(year, month, income.income_day) < todayDay)
+    const overdueFixed = fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && getEffectiveMonthDay(year, month, expense.payment_day) < todayDay)
+    const overdueSubs = subscriptionsWithStatus.filter((sub) => sub.monthStatus !== 'paid' && getEffectiveMonthDay(year, month, sub.payment_day) < todayDay)
+    const todayIncome = incomesWithStatus.filter((income) => income.monthStatus !== 'received' && getEffectiveMonthDay(year, month, income.income_day) === todayDay)
+    const todayFixed = fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && getEffectiveMonthDay(year, month, expense.payment_day) === todayDay)
+    const todaySubs = subscriptionsWithStatus.filter((sub) => sub.monthStatus !== 'paid' && getEffectiveMonthDay(year, month, sub.payment_day) === todayDay)
     const remainingIn =
       incomesWithStatus
         .filter((income) => income.monthStatus !== 'received')
@@ -195,7 +195,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       id: `overdue_income_${income.id}`,
       label: '미수령',
       title: income.title,
-      detail: `${income.income_day}일 · ${displayAmount(income.amount, hideAmounts)}`,
+      detail: `${getEffectiveMonthDay(todayYear(), todayMonth(), income.income_day)}일 · ${displayAmount(income.amount, hideAmounts)}`,
       tab: 'money' as TabId,
       actionLabel: '받음',
       onAction: () => completeIncome(income.id),
@@ -204,7 +204,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       id: `overdue_fixed_${expense.id}`,
       label: '미납',
       title: expense.title,
-      detail: `${expense.payment_day}일 · ${displayAmount(expense.amount, hideAmounts)}`,
+      detail: `${getEffectiveMonthDay(todayYear(), todayMonth(), expense.payment_day)}일 · ${displayAmount(expense.amount, hideAmounts)}`,
       tab: 'money' as TabId,
       actionLabel: '완료',
       onAction: () => completeFixedExpense(expense.id),
@@ -213,7 +213,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       id: `overdue_sub_${sub.id}`,
       label: '확인필요',
       title: sub.title,
-      detail: `${sub.payment_day}일 · ${displayAmount(sub.amount, hideAmounts)}`,
+      detail: `${getEffectiveMonthDay(todayYear(), todayMonth(), sub.payment_day)}일 · ${displayAmount(sub.amount, hideAmounts)}`,
       tab: 'money' as TabId,
       actionLabel: '결제',
       onAction: () => completeSubscription(sub.id),

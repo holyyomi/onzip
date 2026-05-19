@@ -8,7 +8,7 @@ import {
   subscriptionRepo,
   checklistRepo,
 } from '../data/repositories'
-import { getDaysInMonth, todayStr, todayMonth, todayYear } from './date'
+import { getDaysInMonth, getEffectiveMonthDay, todayStr, todayMonth, todayYear } from './date'
 
 export interface AggregatedEvent {
   id: string
@@ -96,7 +96,6 @@ function toAggregated(e: CalendarEvent, date: string, isRepeat = false): Aggrega
 
 export function getAggregatedEvents(year: number, month: number): AggregatedEvent[] {
   const prefix = `${year}-${String(month).padStart(2, '0')}`
-  const daysInMonth = getDaysInMonth(year, month)
   const events: AggregatedEvent[] = []
 
   // 1. 직접 생성한 캘린더 이벤트 (일정, 기념일)
@@ -119,9 +118,9 @@ export function getAggregatedEvents(year: number, month: number): AggregatedEven
   // 2. 고정지출 → 납부일 자동 생성 (공과금 카테고리는 utility 타입으로 표시)
   fixedExpenseRepo
     .getActive()
-    .filter((fe) => fe.calendar_visible && fe.payment_day <= daysInMonth)
+    .filter((fe) => fe.calendar_visible)
     .forEach((fe) => {
-      const day = String(fe.payment_day).padStart(2, '0')
+      const day = String(getEffectiveMonthDay(year, month, fe.payment_day)).padStart(2, '0')
       const isUtility = fe.category === '공과금'
       events.push({
         id: `fe_${fe.id}`,
@@ -140,9 +139,9 @@ export function getAggregatedEvents(year: number, month: number): AggregatedEven
   // 3. 구독 → 결제일 자동 생성
   subscriptionRepo
     .getActive()
-    .filter((s) => s.calendar_visible && s.payment_day <= daysInMonth)
+    .filter((s) => s.calendar_visible)
     .forEach((s) => {
-      const day = String(s.payment_day).padStart(2, '0')
+      const day = String(getEffectiveMonthDay(year, month, s.payment_day)).padStart(2, '0')
       events.push({
         id: `sub_${s.id}`,
         title: s.title,

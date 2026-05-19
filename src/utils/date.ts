@@ -52,6 +52,10 @@ export function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate()
 }
 
+export function getEffectiveMonthDay(year: number, month: number, day: number): number {
+  return Math.min(day, getDaysInMonth(year, month))
+}
+
 export function isCurrentMonth(date: Date, year: number, month: number): boolean {
   return date.getFullYear() === year && date.getMonth() + 1 === month
 }
