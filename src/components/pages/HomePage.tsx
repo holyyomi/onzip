@@ -39,6 +39,14 @@ function addDays(dateStr: string, days: number): string {
   return formatDate(new Date(year, month - 1, day + days))
 }
 
+function nextMonthOf(year: number, month: number): { year: number; month: number } {
+  return month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 }
+}
+
+function dateInMonth(year: number, month: number, day: number): string {
+  return formatDate(new Date(year, month - 1, day))
+}
+
 export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props) {
   const { hidden: hideAmounts } = useAmountPrivacy()
   const { hidden: hideSensitive } = useVaultPrivacy()
@@ -100,8 +108,39 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
     const todayEvents = getAggregatedEvents(year, month).filter((event) => event.date === today && event.type === 'schedule')
     const weekEnd = addDays(today, 7)
     const vaultDueEnd = addDays(today, 30)
+    const targetMonths = weekEnd.slice(0, 7) === today.slice(0, 7)
+      ? [{ year, month }]
+      : [{ year, month }, nextMonthOf(year, month)]
+    const upcomingMoneyItems = targetMonths.flatMap(({ year: targetYear, month: targetMonth }) => [
+      ...recurringIncome.map((income) => ({
+        id: `upcoming_income_${targetYear}_${targetMonth}_${income.id}`,
+        label: '받을 돈',
+        date: dateInMonth(targetYear, targetMonth, income.income_day),
+        title: income.title,
+        amount: income.amount,
+        isDone: getIncomeMonthStatus(income, targetYear, targetMonth) === 'received',
+      })),
+      ...fixedExpenses.map((expense) => ({
+        id: `upcoming_fixed_${targetYear}_${targetMonth}_${expense.id}`,
+        label: expense.category === '카드' ? '카드값' : '나갈 돈',
+        date: dateInMonth(targetYear, targetMonth, expense.payment_day),
+        title: expense.title,
+        amount: expense.amount,
+        isDone: getFixedExpenseMonthStatus(expense, targetYear, targetMonth) === 'done',
+      })),
+      ...subscriptions.map((sub) => ({
+        id: `upcoming_sub_${targetYear}_${targetMonth}_${sub.id}`,
+        label: '자동결제',
+        date: dateInMonth(targetYear, targetMonth, sub.payment_day),
+        title: sub.title,
+        amount: sub.amount,
+        isDone: getSubscriptionMonthStatus(sub, targetYear, targetMonth) === 'paid',
+      })),
+    ])
+      .filter((item) => !item.isDone && item.date > today && item.date <= weekEnd)
+      .sort((a, b) => a.date.localeCompare(b.date))
     const weekEvents = getAggregatedEvents(year, month)
-      .filter((event) => event.date > today && event.date <= weekEnd)
+      .filter((event) => event.date > today && event.date <= weekEnd && event.type !== 'fixed_expense' && event.type !== 'subscription')
       .sort((a, b) => a.date.localeCompare(b.date))
     const upcomingVaultRecords = lifeRecordRepo
       .getAll()
@@ -128,6 +167,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       todayFixed,
       todaySubs,
       todayEvents,
+      upcomingMoneyItems,
       weekEvents,
       upcomingVaultRecords,
       importantRecords,
@@ -277,16 +317,25 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           </button>
         </div>
         <div className="divide-y divide-[#f0f0f0]">
-          {data.weekEvents.length === 0 && data.upcomingVaultRecords.length === 0 && data.importantRecords.length === 0 && (
+          {data.upcomingMoneyItems.length === 0 && data.weekEvents.length === 0 && data.upcomingVaultRecords.length === 0 && data.importantRecords.length === 0 && (
             <p className="py-3 text-sm text-[#8a8a8a]">곧 챙길 돈, 일정, 금고 메모가 없습니다.</p>
           )}
-          {data.weekEvents.slice(0, 4).map((event) => (
+          {data.upcomingMoneyItems.slice(0, 4).map((item) => (
+            <StatusRow
+              key={item.id}
+              label={item.label}
+              value={item.date.slice(5).replace('-', '.')}
+              detail={`${item.title} · ${displayAmount(item.amount, hideAmounts)}`}
+              onClick={() => onTabChange('money')}
+            />
+          ))}
+          {data.weekEvents.slice(0, Math.max(0, 4 - data.upcomingMoneyItems.length)).map((event) => (
             <StatusRow
               key={event.id}
-              label={event.type === 'schedule' ? '일정' : '돈'}
+              label={event.type === 'anniversary' ? '기념일' : event.type === 'checklist' ? '할 일' : '일정'}
               value={event.date.slice(5).replace('-', '.')}
               detail={event.title}
-              onClick={() => onTabChange(event.type === 'schedule' ? 'calendar' : 'money')}
+              onClick={() => onTabChange('calendar')}
             />
           ))}
           {data.upcomingVaultRecords.slice(0, 3).map((record) => (
