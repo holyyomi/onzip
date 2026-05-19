@@ -292,6 +292,10 @@ function PinLockCard() {
         />
       </div>
 
+      <p className="mt-3 rounded-[16px] bg-[#f7f7f7] px-3 py-2 text-xs leading-relaxed text-[#8a8a8a]">
+        PIN을 잊으면 앱을 우회해서 열 수 없습니다. 백업 파일을 주기적으로 내려받아 보관하세요.
+      </p>
+
       {message && <p className="mt-2 text-xs font-semibold text-[#ff385c]">{message}</p>}
 
       <div className="mt-4 flex gap-2">

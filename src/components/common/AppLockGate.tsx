@@ -8,6 +8,7 @@ export default function AppLockGate() {
   const [locked, setLocked] = useState(false)
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
+  const [showHelp, setShowHelp] = useState(false)
   const idleTimerRef = useRef<number | null>(null)
   const backgroundStartedAtRef = useRef<number | null>(null)
 
@@ -122,6 +123,23 @@ export default function AppLockGate() {
         >
           열기
         </button>
+
+        <button
+          onClick={() => setShowHelp((value) => !value)}
+          className="mt-4 w-full text-center text-xs font-semibold text-[#6a6a6a]"
+        >
+          PIN을 잊었나요?
+        </button>
+        {showHelp && (
+          <div className="mt-3 rounded-[18px] bg-[#f7f7f7] p-3 text-xs leading-relaxed text-[#6a6a6a]">
+            <p>
+              온집은 PIN을 우회해서 열 수 없습니다. 백업 파일이 있다면 브라우저 저장 데이터를 삭제한 뒤 백업 파일로 복원하세요.
+            </p>
+            <p className="mt-1">
+              백업이 없으면 이 기기에 저장된 데이터도 함께 잃을 수 있습니다.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
