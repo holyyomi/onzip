@@ -151,6 +151,16 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
     const entries = ledgerEntryRepo.getByMonth(year, month)
     const entryIncome = ledgerEntryRepo.sumByType(entries, 'income')
     const entryExpense = ledgerEntryRepo.sumByType(entries, 'expense')
+    const upcomingEntryIncome = isCurrentMonthView
+      ? entries
+          .filter((entry) => entry.entry_type === 'income' && Number(entry.date.slice(-2)) >= todayDay)
+          .reduce((sum, entry) => sum + entry.amount, 0)
+      : 0
+    const upcomingEntryExpense = isCurrentMonthView
+      ? entries
+          .filter((entry) => entry.entry_type === 'expense' && Number(entry.date.slice(-2)) >= todayDay)
+          .reduce((sum, entry) => sum + entry.amount, 0)
+      : 0
     const incomes = incomeRepo.getAll().filter((income) => income.repeat_rule === 'monthly')
     const fixedExpenses = fixedExpenseRepo.getActive()
     const subscriptions = subscriptionRepo.getActive()
@@ -168,6 +178,20 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
       .filter((expense) => expense.category === '카드')
       .reduce((sum, expense) => sum + expense.amount, 0)
     const fixedOtherOut = Math.max(0, fixedOut - cardOut)
+    const upcomingIncome = isCurrentMonthView
+      ? incomes
+          .filter((income) => income.income_day >= todayDay)
+          .reduce((sum, income) => sum + income.amount, 0) + upcomingEntryIncome
+      : 0
+    const upcomingOut = isCurrentMonthView
+      ? fixedExpenses
+          .filter((expense) => expense.payment_day >= todayDay)
+          .reduce((sum, expense) => sum + expense.amount, 0) +
+        subscriptions
+          .filter((sub) => sub.payment_day >= todayDay)
+          .reduce((sum, sub) => sum + sub.amount, 0) +
+        upcomingEntryExpense
+      : 0
 
     const timeline = [
       ...incomes.map((income) => ({
@@ -206,6 +230,8 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
       outTotal: fixedOut + subOut + entryExpense,
       entryIncome,
       entryExpense,
+      upcomingIncome,
+      upcomingOut,
       salaryIncome,
       sideIncome,
       otherRecurringIncome,
@@ -227,6 +253,17 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
         <p className="mt-1 text-xs text-[#8a8a8a]">
           들어올 돈 {displayAmount(data.inTotal, hideAmounts)} - 나갈 돈 {displayAmount(data.outTotal, hideAmounts)}
         </p>
+        {data.isCurrentMonthView && (
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <RemainingFlowPill label="남은 받을" value={displayAmount(data.upcomingIncome, hideAmounts)} />
+            <RemainingFlowPill label="남은 나갈" value={displayAmount(data.upcomingOut, hideAmounts)} />
+            <RemainingFlowPill
+              label="남은 차이"
+              value={displayAmount(data.upcomingIncome - data.upcomingOut, hideAmounts)}
+              negative={data.upcomingIncome - data.upcomingOut < 0}
+            />
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -311,6 +348,15 @@ function getMoneyDayStatus(day: number, isCurrentMonthView: boolean, todayDay: n
   if (day === todayDay) return { label: '오늘', cls: 'bg-[#222222] text-white' }
   if (day > todayDay) return { label: `D-${day - todayDay}`, cls: 'bg-gray-100 text-gray-600' }
   return { label: '지남', cls: 'bg-gray-50 text-gray-400' }
+}
+
+function RemainingFlowPill({ label, value, negative = false }: { label: string; value: string; negative?: boolean }) {
+  return (
+    <div className="rounded-[16px] bg-[#f7f7f7] px-2.5 py-2">
+      <p className="text-[11px] font-semibold text-[#8a8a8a]">{label}</p>
+      <p className={`mt-0.5 truncate text-xs font-bold ${negative ? 'text-red-500' : 'text-[#222222]'}`}>{value}</p>
+    </div>
+  )
 }
 
 function FlowStat({ label, value, tone }: { label: string; value: string; tone: 'in' | 'out' }) {
