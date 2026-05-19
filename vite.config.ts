@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       // dev 환경에서도 SW 활성화 (테스트용)
       devOptions: { enabled: false },
       manifest: {

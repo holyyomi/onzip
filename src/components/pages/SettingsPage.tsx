@@ -16,6 +16,7 @@ import TabMemoCard from '../common/TabMemoCard'
 import StorageNoticeCard from '../common/StorageNoticeCard'
 import ShareAndSupportCard from '../common/ShareAndSupportCard'
 import UpdateNoticeCard from '../common/UpdateNoticeCard'
+import PwaUpdateCard from '../common/PwaUpdateCard'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
 
@@ -86,6 +87,8 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
       </div>
 
       <StorageNoticeCard />
+
+      <PwaUpdateCard />
 
       <UpdateNoticeCard />
 
