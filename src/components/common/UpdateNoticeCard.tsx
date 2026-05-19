@@ -1,4 +1,4 @@
-const UPDATE_NOTICE_KEY = 'onzip_update_notice_20260519_ux_update'
+const UPDATE_NOTICE_KEY = 'onzip_update_notice_20260519_flow_vault'
 
 import { useState } from 'react'
 
@@ -17,7 +17,7 @@ export default function UpdateNoticeCard() {
         <div>
           <p className="text-base font-semibold text-[#222222]">최근 업데이트</p>
           <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-            홈을 단순화하고, 가계부/장보기/메모 탭과 업데이트 확인 기능을 정리했습니다.
+            홈을 오늘 중요한 것 중심으로 바꾸고, 흐름/일정/금고 구조로 정리했습니다.
           </p>
         </div>
         <button

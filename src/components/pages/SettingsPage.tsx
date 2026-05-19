@@ -121,7 +121,7 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
       <div className="oz-card p-4">
         <p className="text-xs text-gray-400 font-medium mb-3">앱 현황</p>
         <div className="grid grid-cols-2 gap-3">
-          <StatCard label="가계부 내역" value={`${totalEntries}건`} />
+          <StatCard label="흐름 기록" value={`${totalEntries}건`} />
           <StatCard label="활성 구성원" value={`${members}명`} />
           <StatCard label="고정지출" value={`${fixedExpenseRepo.getActive().length}개`} />
           <StatCard label="구독 서비스" value={`${subscriptionRepo.getActive().length}개`} />

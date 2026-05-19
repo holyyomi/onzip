@@ -14,20 +14,20 @@ interface Props {
 }
 
 const RECORD_TYPES: { value: RecordType; label: string }[] = [
-  { value: 'life', label: '생활 기록' },
-  { value: 'spending_note', label: '소비 메모' },
-  { value: 'family_meeting', label: '가족 회의록' },
-  { value: 'anniversary', label: '기념일 기록' },
-  { value: 'home', label: '집 관련' },
+  { value: 'life', label: '중요 메모' },
+  { value: 'spending_note', label: '돈 메모' },
+  { value: 'family_meeting', label: '계약/정리' },
+  { value: 'anniversary', label: '갱신/만료' },
+  { value: 'home', label: '집/차량' },
 ]
 
-const FAMILY_MEETING_TEMPLATE = `## 오늘 회의 주제
+const FAMILY_MEETING_TEMPLATE = `## 정리할 내용
 -
 
-## 결정한 것
+## 꼭 기억할 것
 -
 
-## 다음에 할 것
+## 다음 확인일
 -`
 
 export default function RecordFormModal({ recordId, defaultType, onSaved, onClose }: Props) {
@@ -35,7 +35,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
   const members = memberRepo.getAll().filter((m) => m.is_active)
   const startsAsFamilyMeeting = !existing && defaultType === 'family_meeting'
 
-  const [title, setTitle] = useState(existing?.title ?? (startsAsFamilyMeeting ? '가족 회의록' : ''))
+  const [title, setTitle] = useState(existing?.title ?? (startsAsFamilyMeeting ? '계약/정리 메모' : ''))
   const [content, setContent] = useState(existing?.content ?? (startsAsFamilyMeeting ? FAMILY_MEETING_TEMPLATE : ''))
   const [recordType, setRecordType] = useState<RecordType>(existing?.record_type ?? defaultType)
   const [recordDate, setRecordDate] = useState(existing?.record_date ?? todayStr())
@@ -68,7 +68,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
       .find(Boolean)
 
     if (firstContentLine) return firstContentLine.slice(0, 24)
-    if (recordType === 'family_meeting') return '가족 회의록'
+    if (recordType === 'family_meeting') return '계약/정리 메모'
     return ''
   }
 
@@ -105,7 +105,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
   }
 
   return (
-    <FormModal title={recordId ? '기록 수정' : '기록 작성'} onClose={onClose}>
+    <FormModal title={recordId ? '금고 수정' : '금고 메모'} onClose={onClose}>
       {/* 유형 선택 */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {RECORD_TYPES.map((t) => (
@@ -131,7 +131,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
 
       <Field label="내용">
         <textarea value={content} onChange={(e) => setContent(e.target.value)}
-          placeholder="기억해둘 내용이나 결정 사항을 기록하세요"
+          placeholder="계좌 용도, 계약 내용, 보험, 갱신일처럼 꼭 필요한 내용을 기록하세요"
           rows={5}
           className={`${inputCls} resize-none`} />
       </Field>
@@ -149,14 +149,14 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
             <input type="date" value={recordDate} onChange={(e) => setRecordDate(e.target.value)} className={inputCls} />
           </Field>
 
-          <Field label="작성자">
+          <Field label="관련 사람">
             <select value={memberId} onChange={(e) => setMemberId(e.target.value)} className={inputCls}>
               {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
           </Field>
 
           <Field label="태그">
-            <input type="text" placeholder="예) 여행, 쇼핑, 결정" value={tagInput}
+            <input type="text" placeholder="예) 중요, 계좌, 보험, 계약" value={tagInput}
               onChange={(e) => setTagInput(e.target.value)} className={inputCls} />
           </Field>
 

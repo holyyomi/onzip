@@ -11,11 +11,11 @@ const RECORD_TYPE_CONFIG: Record<
   RecordType,
   { label: string; dot: string }
 > = {
-  life: { label: '생활 기록', dot: 'bg-blue-400' },
-  spending_note: { label: '소비 메모', dot: 'bg-orange-400' },
-  family_meeting: { label: '가족 회의록', dot: 'bg-purple-400' },
-  anniversary: { label: '기념일 기록', dot: 'bg-pink-400' },
-  home: { label: '집 관련', dot: 'bg-green-400' },
+  life: { label: '중요 메모', dot: 'bg-blue-400' },
+  spending_note: { label: '돈 메모', dot: 'bg-orange-400' },
+  family_meeting: { label: '계약/정리', dot: 'bg-purple-400' },
+  anniversary: { label: '갱신/만료', dot: 'bg-pink-400' },
+  home: { label: '집/차량', dot: 'bg-green-400' },
 }
 
 type FilterType = 'all' | RecordType
@@ -82,8 +82,8 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
         >
           <img src={QUICK_ADD_ICON.record} alt="" className="h-12 w-12 rounded-[18px] object-contain flex-shrink-0" />
           <span className="min-w-0">
-          <span className="block text-lg font-semibold text-[#222222]">메모 남기기</span>
-          <span className="block text-sm text-[#6a6a6a] mt-1">기억할 내용, 회의록, 집 관련 기록을 남깁니다</span>
+          <span className="block text-lg font-semibold text-[#222222]">금고 메모 남기기</span>
+          <span className="block text-sm text-[#6a6a6a] mt-1">계좌, 계약, 보험, 중요한 내용을 보관합니다</span>
           </span>
         </button>
       </div>
@@ -92,7 +92,7 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 py-3 bg-white border-b border-gray-100">
         <input
           type="text"
-          placeholder="제목, 내용, 태그 검색..."
+          placeholder="계좌, 계약, 보험, 태그 검색..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#ff385c]"
@@ -127,9 +127,9 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 pb-6 space-y-4">
         {grouped.length === 0 && (
           <EmptyState
-            message="메모가 비어 있습니다"
-            sub="기억할 내용이나 회의록을 남겨두면 나중에 찾기 쉽습니다."
-            actionLabel="메모 남기기"
+            message="금고가 비어 있습니다"
+            sub="남에게 보이기 싫지만 꼭 필요한 내용을 보관하세요."
+            actionLabel="금고 메모 남기기"
             onAction={() => onQuickAdd('record')}
           />
         )}

@@ -6,7 +6,7 @@ const APP_URL = 'https://onzip.vercel.app'
 const CONTACT_EMAIL = 'holyyomi@naver.com'
 
 const SHARE_TEXT = `온집
-우리 집 일정, 가계 관리, 장보기, 체크리스트, 생활 기록을 한곳에서 관리하는 앱입니다.
+들어올 돈, 나갈 돈, 중요한 날짜와 금고 메모를 한곳에서 챙기는 개인 생활 앱입니다.
 
 설치 방법:
 1. ${APP_URL} 접속
@@ -74,7 +74,7 @@ export default function ShareAndSupportCard() {
       <section className="oz-card p-4">
         <p className="text-base font-semibold text-[#222222]">앱 링크 공유</p>
         <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-          온집 설치 링크만 전달합니다. 내 일정, 지출, 메모 데이터는 함께 전송되지 않습니다.
+          온집 설치 링크만 전달합니다. 내 돈, 일정, 금고 데이터는 함께 전송되지 않습니다.
         </p>
         <button
           onClick={handleShare}

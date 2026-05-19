@@ -1,22 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import type { TabId } from '../../app/App'
 import type { QuickAddType } from '../common/QuickAddMenu'
 import {
-  checklistItemRepo,
-  checklistRepo,
-  choreRepo,
   fixedExpenseRepo,
-  householdSupplyRepo,
+  incomeRepo,
   ledgerEntryRepo,
   lifeRecordRepo,
-  shoppingItemRepo,
   subscriptionRepo,
 } from '../../data/repositories'
-import { newId, now } from '../../data/repositories/base'
-import { getTodayAggregated } from '../../utils/calendarAggregator'
-import { formatAmount, todayMonth, todayStr, todayYear } from '../../utils/date'
+import { getAggregatedEvents } from '../../utils/calendarAggregator'
+import { formatAmount, formatDate, todayMonth, todayStr, todayYear } from '../../utils/date'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
-import type { HouseholdSupply } from '../../data/models'
 
 interface Props {
   refreshKey: number
@@ -24,256 +18,178 @@ interface Props {
   onTabChange: (tab: TabId) => void
 }
 
-const ROUTINE_PRESETS = ['분리수거', '음식물 쓰레기', '빨래', '청소기', '아이 준비물', '약 챙기기']
+interface ImportantItem {
+  id: string
+  label: string
+  title: string
+  detail: string
+  tab: TabId
+}
+
+function addDays(dateStr: string, days: number): string {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return formatDate(new Date(year, month - 1, day + days))
+}
 
 export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props) {
-  const [localRefresh, setLocalRefresh] = useState(0)
-  const [notice, setNotice] = useState('')
-
   const data = useMemo(() => {
-    const todayEvents = getTodayAggregated()
     const today = todayStr()
-    const monthEntries = ledgerEntryRepo.getByMonth(todayYear(), todayMonth())
-    const monthExpense = ledgerEntryRepo.sumByType(monthEntries, 'expense')
+    const year = todayYear()
+    const month = todayMonth()
+    const todayDay = Number(today.slice(-2))
+    const monthEntries = ledgerEntryRepo.getByMonth(year, month)
     const monthIncome = ledgerEntryRepo.sumByType(monthEntries, 'income')
-    const pendingShopping = shoppingItemRepo.getAll().filter((item) => !item.is_done)
-    const dueChores = choreRepo
-      .getByHousehold('default')
-      .filter((chore) => !chore.is_done && (!chore.due_date || chore.due_date <= today))
-      .sort((a, b) => (a.due_date ?? today).localeCompare(b.due_date ?? today))
-    const needBuySupplies = householdSupplyRepo
+    const monthExpense = ledgerEntryRepo.sumByType(monthEntries, 'expense')
+    const recurringIncome = incomeRepo.getAll().filter((income) => income.repeat_rule === 'monthly')
+    const fixedExpenses = fixedExpenseRepo.getActive()
+    const subscriptions = subscriptionRepo.getActive()
+    const expectedIn = recurringIncome.reduce((sum, income) => sum + income.amount, 0) + monthIncome
+    const expectedOut =
+      fixedExpenses.reduce((sum, expense) => sum + expense.amount, 0) +
+      subscriptions.reduce((sum, sub) => sum + sub.amount, 0) +
+      monthExpense
+
+    const todayIncome = recurringIncome.filter((income) => income.income_day === todayDay)
+    const todayFixed = fixedExpenses.filter((expense) => expense.payment_day === todayDay)
+    const todaySubs = subscriptions.filter((sub) => sub.payment_day === todayDay)
+    const todayEvents = getAggregatedEvents(year, month).filter((event) => event.date === today && event.type === 'schedule')
+    const weekEnd = addDays(today, 7)
+    const weekEvents = getAggregatedEvents(year, month)
+      .filter((event) => event.date > today && event.date <= weekEnd)
+      .sort((a, b) => a.date.localeCompare(b.date))
+
+    const importantRecords = lifeRecordRepo
       .getAll()
-      .filter((supply) => supply.status === 'need_buy')
-    const dueChecklists = checklistRepo
-      .getAll()
-      .filter((checklist) => checklist.due_date === today)
-      .map((checklist) => ({
-        ...checklist,
-        rate: checklistItemRepo.completionRate(checklist.id),
-      }))
-    const monthlyFixed = fixedExpenseRepo.monthlyTotal()
-    const monthlySubs = subscriptionRepo.monthlyTotal()
-    const records = lifeRecordRepo.getAll()
+      .filter((record) => record.tags.some((tag) => ['중요', '계약', '계좌', '보험'].includes(tag)))
+      .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
 
     return {
-      todayEvents,
-      monthExpense,
       monthIncome,
-      pendingShopping,
-      dueChores,
-      needBuySupplies,
-      dueChecklists,
-      monthlyFixed,
-      monthlySubs,
-      records,
+      monthExpense,
+      expectedIn,
+      expectedOut,
+      todayIncome,
+      todayFixed,
+      todaySubs,
+      todayEvents,
+      weekEvents,
+      importantRecords,
     }
-  }, [refreshKey, localRefresh])
+  }, [refreshKey])
 
-  const todayPayments = data.todayEvents.filter(
-    (event) => event.type === 'fixed_expense' || event.type === 'subscription' || event.type === 'utility',
-  )
-  const todaySchedules = data.todayEvents.filter((event) => event.type === 'schedule')
-  const todayCount =
-    todaySchedules.length +
-    todayPayments.length +
-    data.dueChecklists.length +
-    data.dueChores.length +
-    data.needBuySupplies.length +
-    data.pendingShopping.length
-
-  function refreshHome(message?: string) {
-    setLocalRefresh((key) => key + 1)
-    if (message) setNotice(message)
-  }
-
-  function completeChore(choreId: string) {
-    choreRepo.update(choreId, { is_done: true })
-    refreshHome('오늘 할 일을 완료했어요.')
-  }
-
-  function addSupplyToShopping(supply: HouseholdSupply) {
-    const alreadyAdded = shoppingItemRepo
-      .getAll()
-      .some((item) => item.name === supply.name && !item.is_done)
-
-    if (alreadyAdded) {
-      setNotice('이미 장보기 목록에 있어요.')
-      return
-    }
-
-    shoppingItemRepo.create({
-      id: newId(),
-      household_id: 'default',
-      name: supply.name,
-      category: '생활용품',
-      expected_amount: null,
-      actual_amount: null,
-      store: '',
-      is_done: false,
-      is_favorite: false,
-      memo: '',
-      created_at: now(),
-      updated_at: now(),
-    })
-    refreshHome('장보기 목록에 추가했어요.')
-  }
-
-  function addRoutine(title: string) {
-    const today = todayStr()
-    const alreadyAdded = choreRepo
-      .getByHousehold('default')
-      .some((chore) => !chore.is_done && chore.title === title && chore.due_date === today)
-
-    if (alreadyAdded) {
-      setNotice('이미 오늘 할 일에 있어요.')
-      return
-    }
-
-    choreRepo.create({
-      id: newId(),
-      household_id: 'default',
-      title,
-      repeat_rule: 'none',
-      member_id: 'shared',
-      due_date: today,
-      calendar_visible: false,
-      is_done: false,
-      memo: '',
-      created_at: now(),
-      updated_at: now(),
-    })
-    refreshHome('오늘 할 일에 추가했어요.')
-  }
+  const todayItems: ImportantItem[] = [
+    ...data.todayIncome.map((income) => ({
+      id: `income_${income.id}`,
+      label: '들어올 돈',
+      title: income.title,
+      detail: formatAmount(income.amount),
+      tab: 'money' as TabId,
+    })),
+    ...data.todayFixed.map((expense) => ({
+      id: `fixed_${expense.id}`,
+      label: '나갈 돈',
+      title: expense.title,
+      detail: formatAmount(expense.amount),
+      tab: 'money' as TabId,
+    })),
+    ...data.todaySubs.map((sub) => ({
+      id: `sub_${sub.id}`,
+      label: '자동결제',
+      title: sub.title,
+      detail: formatAmount(sub.amount),
+      tab: 'money' as TabId,
+    })),
+    ...data.todayEvents.map((event) => ({
+      id: `event_${event.id}`,
+      label: '일정',
+      title: event.title,
+      detail: event.date.replace(/-/g, '.'),
+      tab: 'calendar' as TabId,
+    })),
+  ]
 
   return (
     <div className="px-5 py-3 space-y-3">
-      <section className="oz-card p-4 bg-white">
-        <div className="flex items-center justify-between mb-3">
-          <div>
+      <section className="oz-card bg-white p-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="min-w-0">
             <p className="text-xs font-semibold text-[#8a8a8a]">{todayStr().replace(/-/g, '.')}</p>
-            <h2 className="mt-0.5 text-xl font-semibold text-[#222222]">
-              {todayCount === 0 ? '오늘은 챙길 일이 없습니다' : `오늘 ${todayCount}개 챙기기`}
-            </h2>
+            <h2 className="mt-0.5 text-xl font-semibold text-[#222222]">오늘 중요한 것</h2>
           </div>
           <button
-            onClick={() => onTabChange('life')}
+            onClick={() => onTabChange('money')}
             className="min-h-[36px] rounded-full bg-[#fff0f3] px-3 text-sm font-semibold text-[#ff385c]"
           >
-            장보기
+            흐름 보기
           </button>
         </div>
 
         <div className="space-y-2">
-          {todayCount === 0 && (
-            <EmptyReminder
-              onAddShopping={() => onQuickAdd('shopping')}
-              onAddRoutine={() => addRoutine('분리수거')}
-            />
+          {todayItems.length === 0 && (
+            <EmptyLine title="오늘 예정된 돈과 일정이 없습니다" text="나갈 돈, 들어올 돈, 중요한 날짜를 추가해두면 여기서 바로 확인합니다." />
           )}
-          {data.dueChores.slice(0, 3).map((chore) => (
-            <ReminderLine
-              key={chore.id}
-              label="할 일"
-              text={chore.title}
-              actionLabel="완료"
-              onAction={() => completeChore(chore.id)}
-            />
-          ))}
-          {data.pendingShopping.slice(0, 3).map((item) => (
-            <ReminderLine
+          {todayItems.slice(0, 5).map((item) => (
+            <ImportantLine
               key={item.id}
-              label="살 것"
-              text={item.name}
-              actionLabel="보기"
-              onAction={() => onTabChange('life')}
+              label={item.label}
+              title={item.title}
+              detail={item.detail}
+              onClick={() => onTabChange(item.tab)}
             />
-          ))}
-          {data.needBuySupplies.slice(0, 2).map((supply) => (
-            <ReminderLine
-              key={supply.id}
-              label="부족"
-              text={supply.name}
-              actionLabel="담기"
-              onAction={() => addSupplyToShopping(supply)}
-            />
-          ))}
-          {todaySchedules.slice(0, 2).map((event) => (
-            <ReminderLine key={event.id} label="일정" text={event.title} onAction={() => onTabChange('calendar')} actionLabel="보기" />
-          ))}
-          {todayPayments.slice(0, 2).map((event) => (
-            <ReminderLine
-              key={event.id}
-              label="납부"
-              text={`${event.title}${event.amount ? ` · ${formatAmount(event.amount)}` : ''}`}
-              onAction={() => onTabChange('money')}
-              actionLabel="보기"
-            />
-          ))}
-          {data.dueChecklists.slice(0, 2).map((checklist) => (
-            <ReminderLine
-              key={checklist.id}
-              label="체크"
-              text={`${checklist.title} · ${checklist.rate}%`}
-              onAction={() => onTabChange('life')}
-              actionLabel="보기"
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="oz-card p-4">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div>
-            <h3 className="text-lg font-semibold text-[#222222]">자주 쓰는 알림</h3>
-            <p className="mt-0.5 text-xs text-[#8a8a8a]">오늘 할 일로 바로 추가합니다</p>
-          </div>
-          {notice && <span className="text-xs font-semibold text-[#ff385c]">{notice}</span>}
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          {ROUTINE_PRESETS.map((title) => (
-            <button
-              key={title}
-              onClick={() => addRoutine(title)}
-              className="min-h-[42px] rounded-full border border-[#ebebeb] bg-[#f7f7f7] px-2 text-xs font-semibold text-[#222222]"
-            >
-              {title}
-            </button>
           ))}
         </div>
       </section>
 
       <section className="grid grid-cols-2 gap-2">
-        <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="돈 썼어요" onClick={() => onQuickAdd('expense')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.shopping} label="살 것 추가" onClick={() => onQuickAdd('shopping')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="일정 넣기" onClick={() => onQuickAdd('schedule')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="메모 남기기" onClick={() => onQuickAdd('record')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="나갈 돈" onClick={() => onQuickAdd('expense')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.income} label="들어올 돈" onClick={() => onQuickAdd('income')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="중요 날짜" onClick={() => onQuickAdd('schedule')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="금고 메모" onClick={() => onQuickAdd('record')} />
       </section>
 
       <section className="oz-card p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-[#222222]">월간 요약</h3>
+          <h3 className="text-lg font-semibold text-[#222222]">이번 달 흐름</h3>
           <button onClick={() => onTabChange('money')} className="min-h-[34px] px-2 text-sm font-semibold text-[#ff385c]">
             자세히
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <MiniStat label="지출" value={formatAmount(data.monthExpense)} />
-          <MiniStat label="수입" value={formatAmount(data.monthIncome)} />
-          <MiniStat label="고정비" value={formatAmount(data.monthlyFixed + data.monthlySubs)} />
+          <MiniStat label="들어올 돈" value={formatAmount(data.expectedIn)} />
+          <MiniStat label="나갈 돈" value={formatAmount(data.expectedOut)} />
+          <MiniStat label="예상 차이" value={formatAmount(data.expectedIn - data.expectedOut)} />
         </div>
-        <div className="mt-3 divide-y divide-[#f0f0f0]">
-          <StatusRow
-            label="장보기"
-            value={`${data.pendingShopping.length}개 남음`}
-            detail={data.pendingShopping.slice(0, 2).map((item) => item.name).join(', ') || '등록된 구매 항목이 없습니다'}
-            onClick={() => onTabChange('life')}
-          />
-          <StatusRow
-            label="메모"
-            value={`${data.records.length}개`}
-            detail="기억할 내용과 회의록 모아보기"
-            onClick={() => onTabChange('records')}
-          />
+      </section>
+
+      <section className="oz-card p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-[#222222]">곧 챙길 것</h3>
+          <button onClick={() => onTabChange('calendar')} className="min-h-[34px] px-2 text-sm font-semibold text-[#ff385c]">
+            일정
+          </button>
+        </div>
+        <div className="divide-y divide-[#f0f0f0]">
+          {data.weekEvents.length === 0 && (
+            <p className="py-3 text-sm text-[#8a8a8a]">이번 주에 등록된 중요 날짜가 없습니다.</p>
+          )}
+          {data.weekEvents.slice(0, 4).map((event) => (
+            <StatusRow
+              key={event.id}
+              label={event.type === 'schedule' ? '일정' : '돈'}
+              value={event.date.slice(5).replace('-', '.')}
+              detail={event.title}
+              onClick={() => onTabChange(event.type === 'schedule' ? 'calendar' : 'money')}
+            />
+          ))}
+          {data.importantRecords.slice(0, 2).map((record) => (
+            <StatusRow
+              key={record.id}
+              label="금고"
+              value="중요"
+              detail={record.title}
+              onClick={() => onTabChange('records')}
+            />
+          ))}
         </div>
       </section>
     </div>
@@ -301,6 +217,28 @@ function MiniStat({ label, value }: { label: string; value: string }) {
   )
 }
 
+function ImportantLine({
+  label,
+  title,
+  detail,
+  onClick,
+}: {
+  label: string
+  title: string
+  detail: string
+  onClick: () => void
+}) {
+  return (
+    <button onClick={onClick} className="flex w-full items-center gap-3 rounded-[18px] border border-[#ebebeb] bg-[#f7f7f7] px-3 py-3 text-left">
+      <span className="rounded-full bg-[#fff0f3] px-2.5 py-1 text-xs font-semibold text-[#ff385c]">{label}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-semibold text-[#222222]">{title}</span>
+        <span className="mt-0.5 block truncate text-xs text-[#8a8a8a]">{detail}</span>
+      </span>
+    </button>
+  )
+}
+
 function StatusRow({
   label,
   value,
@@ -323,50 +261,11 @@ function StatusRow({
   )
 }
 
-function ReminderLine({
-  label,
-  text,
-  actionLabel,
-  onAction,
-}: {
-  label: string
-  text: string
-  actionLabel: string
-  onAction: () => void
-}) {
+function EmptyLine({ title, text }: { title: string; text: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-[18px] bg-[#f7f7f7] border border-[#ebebeb] px-3 py-3">
-      <span className="text-xs font-semibold text-[#ff385c] bg-[#fff0f3] rounded-full px-2.5 py-1">{label}</span>
-      <span className="min-w-0 flex-1 truncate text-sm font-medium text-[#222222]">{text}</span>
-      <button
-        onClick={onAction}
-        className="min-h-[30px] flex-shrink-0 rounded-full bg-white px-3 text-xs font-semibold text-[#222222] border border-[#dddddd]"
-      >
-        {actionLabel}
-      </button>
-    </div>
-  )
-}
-
-function EmptyReminder({
-  onAddShopping,
-  onAddRoutine,
-}: {
-  onAddShopping: () => void
-  onAddRoutine: () => void
-}) {
-  return (
-    <div className="rounded-[18px] bg-[#f7f7f7] border border-[#ebebeb] px-3 py-4 text-center">
-      <p className="text-sm font-semibold text-[#222222]">지금 챙길 일은 비어 있어요</p>
-      <p className="mt-1 text-xs text-[#8a8a8a]">살 것 또는 집안일을 하나 추가해보세요.</p>
-      <div className="mt-3 flex justify-center gap-2">
-        <button onClick={onAddShopping} className="min-h-[34px] rounded-full bg-white px-3 text-xs font-semibold text-[#ff385c] border border-[#ffd1da]">
-          살 것 추가
-        </button>
-        <button onClick={onAddRoutine} className="min-h-[34px] rounded-full bg-white px-3 text-xs font-semibold text-[#222222] border border-[#dddddd]">
-          분리수거 추가
-        </button>
-      </div>
+    <div className="rounded-[18px] border border-[#ebebeb] bg-[#f7f7f7] px-3 py-4 text-center">
+      <p className="text-sm font-semibold text-[#222222]">{title}</p>
+      <p className="mt-1 text-xs leading-relaxed text-[#8a8a8a]">{text}</p>
     </div>
   )
 }

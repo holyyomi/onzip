@@ -88,7 +88,7 @@ export default function LedgerFormModal({
   }
 
   return (
-    <FormModal title={entryId ? '가계부 수정' : defaultType === 'income' ? '수입 기록' : '지출 기록'} onClose={onClose}>
+    <FormModal title={entryId ? '흐름 수정' : defaultType === 'income' ? '들어올 돈' : '나갈 돈'} onClose={onClose}>
       <div className="flex gap-2 mb-4">
         {(['expense', 'income'] as const).map((t) => (
           <button

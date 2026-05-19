@@ -14,6 +14,7 @@ export const TAB_ICON: Partial<Record<TabId, string>> = {
 
 export const QUICK_ADD_ICON: Record<QuickAddType, string> = {
   expense: `${ICON_BASE}/money.png`,
+  income: `${ICON_BASE}/bill.png`,
   shopping: `${ICON_BASE}/shopping.png`,
   schedule: `${ICON_BASE}/calendar.png`,
   checklist: `${ICON_BASE}/checklist.png`,

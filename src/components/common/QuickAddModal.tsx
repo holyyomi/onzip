@@ -31,6 +31,13 @@ export default function QuickAddModal({ type, onSaved, onClose }: Props) {
           onSaved={onSaved} onClose={onClose}
         />
       )
+    case 'income':
+      return (
+        <LedgerFormModal
+          entryId={null} defaultDate={today} defaultType="income"
+          onSaved={onSaved} onClose={onClose}
+        />
+      )
     case 'fixed_expense':
       return <FixedExpenseFormModal expenseId={null} onSaved={onSaved} onClose={onClose} />
     case 'subscription':
