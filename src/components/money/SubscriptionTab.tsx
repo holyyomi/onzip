@@ -4,8 +4,11 @@ import { PAYMENT_METHOD_LABEL } from '../../utils/constants'
 import EmptyState from '../common/EmptyState'
 import SubscriptionFormModal from './SubscriptionFormModal'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
+import { getSubscriptionMonthStatus, setSubscriptionMonthStatus } from '../../utils/subscriptionMonthStatus'
 
 interface Props {
+  year: number
+  month: number
   refreshKey: number
   onRefresh: () => void
 }
@@ -21,21 +24,41 @@ const STATUS_LABEL: Record<string, string> = {
   cancelled: '해지',
 }
 
-export default function SubscriptionTab({ refreshKey, onRefresh }: Props) {
+const PAYMENT_STATUS_BADGE: Record<string, string> = {
+  pending: 'bg-gray-100 text-gray-500',
+  paid: 'bg-purple-100 text-purple-600',
+}
+
+const PAYMENT_STATUS_LABEL: Record<string, string> = {
+  pending: '예정',
+  paid: '결제됨',
+}
+
+export default function SubscriptionTab({ year, month, refreshKey, onRefresh }: Props) {
   const { hidden: hideAmounts } = useAmountPrivacy()
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
 
   const subscriptions = useMemo(
-    () => subscriptionRepo.getAll().sort((a, b) => a.payment_day - b.payment_day),
+    () => subscriptionRepo.getAll()
+      .map((sub) => ({
+        ...sub,
+        monthStatus: getSubscriptionMonthStatus(sub, year, month),
+      }))
+      .sort((a, b) => a.payment_day - b.payment_day),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [refreshKey],
+    [year, month, refreshKey],
   )
 
   const visible = showAll ? subscriptions : subscriptions.filter((s) => s.status !== 'cancelled')
   const monthlyTotal = subscriptionRepo.monthlyTotal()
   const annualTotal = subscriptionRepo.annualTotal()
+
+  function togglePaymentStatus(id: string, current: string) {
+    setSubscriptionMonthStatus(id, year, month, current === 'paid' ? 'pending' : 'paid')
+    onRefresh()
+  }
 
   return (
     <div>
@@ -76,27 +99,45 @@ export default function SubscriptionTab({ refreshKey, onRefresh }: Props) {
           />
         )}
         {visible.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => { setEditingId(s.id); setShowModal(true) }}
-            className="w-full oz-card px-4 py-3 flex items-center gap-3 text-left"
-          >
+          <div key={s.id} className="oz-card px-4 py-3 flex items-center gap-3">
+            {s.status !== 'cancelled' && (
+              <button
+                onClick={() => togglePaymentStatus(s.id, s.monthStatus)}
+                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                  s.monthStatus === 'paid'
+                    ? 'bg-purple-500 border-purple-500 text-white'
+                    : 'border-gray-300'
+                }`}
+              >
+                {s.monthStatus === 'paid' && <span className="text-xs">✓</span>}
+              </button>
+            )}
+            <button
+              onClick={() => { setEditingId(s.id); setShowModal(true) }}
+              className="flex-1 min-w-0 text-left"
+            >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-medium text-gray-800 truncate">{s.title}</p>
                 <span className={`text-xs px-1.5 py-0.5 rounded-full flex-shrink-0 ${STATUS_BADGE[s.status]}`}>
                   {STATUS_LABEL[s.status]}
                 </span>
+                {s.status !== 'cancelled' && (
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full flex-shrink-0 ${PAYMENT_STATUS_BADGE[s.monthStatus]}`}>
+                    {PAYMENT_STATUS_LABEL[s.monthStatus]}
+                  </span>
+                )}
               </div>
               <p className="text-xs text-gray-400 mt-0.5">
                 매월 {s.payment_day}일 · {PAYMENT_METHOD_LABEL[s.payment_method]}
                 {' · 연 '}{displayAmount(s.amount * 12, hideAmounts)}
               </p>
             </div>
+            </button>
             <span className="text-sm font-semibold text-purple-600 flex-shrink-0">
               {displayAmount(s.amount, hideAmounts)}
             </span>
-          </button>
+          </div>
         ))}
       </div>
 

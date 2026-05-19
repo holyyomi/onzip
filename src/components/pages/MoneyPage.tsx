@@ -16,6 +16,10 @@ import {
   setFixedExpenseMonthStatus,
 } from '../../utils/fixedExpenseMonthStatus'
 import { getIncomeMonthStatus, setIncomeMonthStatus } from '../../utils/incomeMonthStatus'
+import {
+  getSubscriptionMonthStatus,
+  setSubscriptionMonthStatus,
+} from '../../utils/subscriptionMonthStatus'
 
 type MoneySubTab = 'summary' | 'ledger' | 'manage' | 'calculator'
 type MoneyManageSubTab = 'fixed' | 'income' | 'subscription'
@@ -136,7 +140,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
             <IncomeTab year={year} month={month} refreshKey={pageRefreshKey} onRefresh={onRefresh} />
           )}
           {manageTab === 'subscription' && (
-            <SubscriptionTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
+            <SubscriptionTab year={year} month={month} refreshKey={pageRefreshKey} onRefresh={onRefresh} />
           )}
         </>
       )}
@@ -188,6 +192,10 @@ function FlowSummary({
       monthStatus: getFixedExpenseMonthStatus(expense, year, month),
     }))
     const subscriptions = subscriptionRepo.getActive()
+    const subscriptionsWithStatus = subscriptions.map((sub) => ({
+      ...sub,
+      monthStatus: getSubscriptionMonthStatus(sub, year, month),
+    }))
     const recurringIncome = incomes.reduce((sum, income) => sum + income.amount, 0)
     const fixedOut = fixedExpenses.reduce((sum, expense) => sum + expense.amount, 0)
     const subOut = subscriptions.reduce((sum, sub) => sum + sub.amount, 0)
@@ -210,6 +218,10 @@ function FlowSummary({
       ? fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && expense.payment_day < todayDay)
       : []
     const overdueFixedOut = overdueFixedExpenses.reduce((sum, expense) => sum + expense.amount, 0)
+    const overdueSubscriptions = isCurrentMonthView
+      ? subscriptionsWithStatus.filter((sub) => sub.monthStatus !== 'paid' && sub.payment_day < todayDay)
+      : []
+    const overdueSubscriptionOut = overdueSubscriptions.reduce((sum, sub) => sum + sub.amount, 0)
     const upcomingIncome = isCurrentMonthView
       ? incomesWithStatus
           .filter((income) => income.monthStatus !== 'received')
@@ -219,8 +231,8 @@ function FlowSummary({
       ? fixedExpensesWithStatus
           .filter((expense) => expense.monthStatus !== 'done')
           .reduce((sum, expense) => sum + expense.amount, 0) +
-        subscriptions
-          .filter((sub) => sub.payment_day >= todayDay)
+        subscriptionsWithStatus
+          .filter((sub) => sub.monthStatus !== 'paid')
           .reduce((sum, sub) => sum + sub.amount, 0) +
         upcomingEntryExpense
       : 0
@@ -256,18 +268,21 @@ function FlowSummary({
           amount: expense.amount,
         }
       }),
-      ...subscriptions.map((sub) => ({
-        id: `sub_${sub.id}`,
-        day: sub.payment_day,
-        type: 'out' as const,
-        source: 'subscription' as const,
-        sourceId: sub.id,
-        label: '자동결제',
-        paymentState: null,
-        priority: getMoneyDayDistance(sub.payment_day, todayDay),
-        title: sub.title,
-        amount: sub.amount,
-      })),
+      ...subscriptionsWithStatus.map((sub) => {
+        const paymentState = getSubscriptionPaymentState(sub.monthStatus, sub.payment_day, isCurrentMonthView, todayDay)
+        return {
+          id: `sub_${sub.id}`,
+          day: sub.payment_day,
+          type: 'out' as const,
+          source: 'subscription' as const,
+          sourceId: sub.id,
+          label: '자동결제',
+          paymentState,
+          priority: paymentState?.kind === 'overdue' ? -1 : getMoneyDayDistance(sub.payment_day, todayDay),
+          title: sub.title,
+          amount: sub.amount,
+        }
+      }),
     ].sort((a, b) => {
       if (!isCurrentMonthView) return a.day - b.day
       return a.priority - b.priority
@@ -286,6 +301,8 @@ function FlowSummary({
       overdueIncome,
       overdueFixedCount: overdueFixedExpenses.length,
       overdueFixedOut,
+      overdueSubscriptionCount: overdueSubscriptions.length,
+      overdueSubscriptionOut,
       salaryIncome,
       sideIncome,
       otherRecurringIncome,
@@ -308,6 +325,11 @@ function FlowSummary({
 
   function handleSetIncomeStatus(id: string, received: boolean) {
     setIncomeMonthStatus(id, year, month, received ? 'received' : 'pending')
+    onRefresh()
+  }
+
+  function handleSetSubscriptionStatus(id: string, paid: boolean) {
+    setSubscriptionMonthStatus(id, year, month, paid ? 'paid' : 'pending')
     onRefresh()
   }
 
@@ -340,6 +362,11 @@ function FlowSummary({
         {data.isCurrentMonthView && data.overdueIncomeCount > 0 && (
           <p className="mt-2 rounded-[16px] bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-600">
             아직 받음 처리하지 않은 돈 {data.overdueIncomeCount}건, {displayAmount(data.overdueIncome, hideAmounts)}이 있습니다.
+          </p>
+        )}
+        {data.isCurrentMonthView && data.overdueSubscriptionCount > 0 && (
+          <p className="mt-2 rounded-[16px] bg-purple-50 px-3 py-2 text-xs font-semibold text-purple-600">
+            아직 결제 확인하지 않은 자동결제 {data.overdueSubscriptionCount}건, {displayAmount(data.overdueSubscriptionOut, hideAmounts)}이 있습니다.
           </p>
         )}
       </div>
@@ -438,6 +465,18 @@ function FlowSummary({
                       {item.paymentState?.kind === 'done' ? '취소' : '완료'}
                     </button>
                   )}
+                  {item.source === 'subscription' && (
+                    <button
+                      onClick={() => handleSetSubscriptionStatus(item.sourceId, item.paymentState?.kind !== 'paid')}
+                      className={`min-h-[30px] rounded-full border px-2 text-xs font-semibold ${
+                        item.paymentState?.kind === 'paid'
+                          ? 'border-purple-200 bg-purple-50 text-purple-700'
+                          : 'border-[#dddddd] bg-white text-[#222222]'
+                      }`}
+                    >
+                      {item.paymentState?.kind === 'paid' ? '취소' : '결제'}
+                    </button>
+                  )}
                 </span>
               </div>
             )
@@ -478,6 +517,17 @@ function getIncomeReceiveState(
 ): { kind: 'received' | 'overdue'; label: string; cls: string } | null {
   if (status === 'received') return { kind: 'received', label: '받음', cls: 'bg-blue-100 text-blue-600' }
   if (isCurrentMonthView && day < todayDay) return { kind: 'overdue', label: '미수령', cls: 'bg-blue-50 text-blue-600' }
+  return null
+}
+
+function getSubscriptionPaymentState(
+  status: string,
+  day: number,
+  isCurrentMonthView: boolean,
+  todayDay: number,
+): { kind: 'paid' | 'overdue'; label: string; cls: string } | null {
+  if (status === 'paid') return { kind: 'paid', label: '결제됨', cls: 'bg-purple-100 text-purple-600' }
+  if (isCurrentMonthView && day < todayDay) return { kind: 'overdue', label: '확인필요', cls: 'bg-purple-50 text-purple-600' }
   return null
 }
 

@@ -24,6 +24,10 @@ import {
   readIncomeMonthStatusBackup,
   writeIncomeMonthStatusBackup,
 } from './incomeMonthStatus'
+import {
+  readSubscriptionMonthStatusBackup,
+  writeSubscriptionMonthStatusBackup,
+} from './subscriptionMonthStatus'
 
 export const LAST_BACKUP_AT_KEY = 'last_backup_at'
 
@@ -85,6 +89,7 @@ export function exportLocalData(): string {
       tab_memos: readTabMemos(),
       fixed_expense_month_status: readFixedExpenseMonthStatusBackup(),
       income_month_status: readIncomeMonthStatusBackup(),
+      subscription_month_status: readSubscriptionMonthStatusBackup(),
     },
   }
 
@@ -143,6 +148,7 @@ export async function importLocalDataFromFile(file: File) {
   )
   writeFixedExpenseMonthStatusBackup(data.fixed_expense_month_status)
   writeIncomeMonthStatusBackup(data.income_month_status)
+  writeSubscriptionMonthStatusBackup(data.subscription_month_status)
   localStorage.setItem('onzip_seed_done_v1', 'true')
   localStorage.setItem('onzip_full_reset_done_20260516_v1', 'true')
 
