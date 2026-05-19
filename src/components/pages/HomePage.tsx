@@ -13,6 +13,7 @@ import { formatDate, todayMonth, todayStr, todayYear } from '../../utils/date'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import { displayRecordTitle, useVaultPrivacy } from '../../utils/vaultPrivacy'
+import { getVaultRecordBadge, isImportantVaultRecord } from '../../utils/vaultRecords'
 
 interface Props {
   refreshKey: number
@@ -64,7 +65,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
 
     const importantRecords = lifeRecordRepo
       .getAll()
-      .filter((record) => record.tags.some((tag) => ['중요', '계약', '계좌', '보험'].includes(tag)))
+      .filter(isImportantVaultRecord)
       .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
 
     return {
@@ -189,7 +190,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
             <StatusRow
               key={record.id}
               label="금고"
-              value="중요"
+              value={getVaultRecordBadge(record)}
               detail={displayRecordTitle(record, hideSensitive)}
               onClick={() => onTabChange('records')}
             />

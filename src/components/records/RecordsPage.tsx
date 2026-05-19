@@ -7,6 +7,7 @@ import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import EmptyState from '../common/EmptyState'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import { displayRecordContent, displayRecordTitle, isSensitiveRecord, useVaultPrivacy } from '../../utils/vaultPrivacy'
+import { getVaultRecordBadge, isImportantVaultRecord } from '../../utils/vaultRecords'
 
 const RECORD_TYPE_CONFIG: Record<
   RecordType,
@@ -19,7 +20,7 @@ const RECORD_TYPE_CONFIG: Record<
   home: { label: '집/차량', dot: 'bg-green-400' },
 }
 
-type FilterType = 'all' | RecordType
+type FilterType = 'all' | 'important' | 'sensitive' | RecordType
 
 interface Props {
   externalRefreshKey: number
@@ -39,7 +40,11 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
   const records = useMemo(() => {
     let list = lifeRecordRepo.getAll()
 
-    if (filter !== 'all') {
+    if (filter === 'important') {
+      list = list.filter(isImportantVaultRecord)
+    } else if (filter === 'sensitive') {
+      list = list.filter(isSensitiveRecord)
+    } else if (filter !== 'all') {
       list = list.filter((r) => r.record_type === filter)
     }
 
@@ -75,6 +80,7 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       .reverse()
       .map((date) => ({ date, items: map[date] }))
   }, [records])
+  const hasActiveFilter = filter !== 'all' || Boolean(searchQuery.trim())
 
   return (
     <div>
@@ -105,6 +111,8 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       {/* 유형 필터 */}
       <div className="flex overflow-x-auto gap-2 px-4 py-2 bg-white border-b border-gray-100">
         <FilterChip value="all" label="전체" active={filter === 'all'} onClick={() => setFilter('all')} />
+        <FilterChip value="important" label="중요만" active={filter === 'important'} onClick={() => setFilter('important')} />
+        <FilterChip value="sensitive" label="민감만" active={filter === 'sensitive'} onClick={() => setFilter('sensitive')} />
         {(Object.entries(RECORD_TYPE_CONFIG) as [RecordType, { label: string; dot: string }][]).map(
           ([type, cfg]) => (
             <FilterChip key={type} value={type} label={cfg.label}
@@ -130,8 +138,8 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 pb-6 space-y-4">
         {grouped.length === 0 && (
           <EmptyState
-            message="금고가 비어 있습니다"
-            sub="남에게 보이기 싫지만 꼭 필요한 내용을 보관하세요."
+            message={hasActiveFilter ? '조건에 맞는 메모가 없습니다' : '금고가 비어 있습니다'}
+            sub={hasActiveFilter ? '검색어나 필터를 바꿔보세요.' : '남에게 보이기 싫지만 꼭 필요한 내용을 보관하세요.'}
             actionLabel="금고 메모 남기기"
             onAction={() => onQuickAdd('record')}
           />
@@ -155,6 +163,11 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
                       {isSensitiveRecord(r) && (
                         <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-xs font-semibold text-gray-500">
                           민감
+                        </span>
+                      )}
+                      {isImportantVaultRecord(r) && (
+                        <span className="rounded-full bg-[#fff0f3] px-1.5 py-0.5 text-xs font-semibold text-[#ff385c]">
+                          {getVaultRecordBadge(r)}
                         </span>
                       )}
                       {r.related_amount && (
