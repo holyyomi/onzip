@@ -250,7 +250,7 @@ function PinLockCard() {
         <div>
           <p className="text-base font-semibold text-[#222222]">앱 잠금</p>
           <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-            앱을 열 때 PIN을 입력해야 돈 흐름과 금고를 볼 수 있습니다.
+            앱을 열 때 PIN을 입력해야 돈 흐름과 금고를 볼 수 있습니다. 5분 동안 사용하지 않거나 1분 이상 앱을 벗어나면 다시 잠깁니다.
           </p>
         </div>
         {enabled && (

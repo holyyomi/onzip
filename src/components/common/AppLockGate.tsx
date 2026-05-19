@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { APP_LOCK_EVENT, hasAppPin, verifyAppPin } from '../../utils/appLock'
+
+const IDLE_LOCK_MS = 5 * 60 * 1000
+const BACKGROUND_LOCK_MS = 60 * 1000
 
 export default function AppLockGate() {
   const [locked, setLocked] = useState(false)
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
+  const idleTimerRef = useRef<number | null>(null)
+  const backgroundStartedAtRef = useRef<number | null>(null)
 
   useEffect(() => {
     setLocked(hasAppPin())
@@ -17,8 +22,57 @@ export default function AppLockGate() {
       }
     }
 
+    function clearIdleTimer() {
+      if (idleTimerRef.current) {
+        window.clearTimeout(idleTimerRef.current)
+        idleTimerRef.current = null
+      }
+    }
+
+    function scheduleIdleLock() {
+      clearIdleTimer()
+      if (!hasAppPin()) return
+      idleTimerRef.current = window.setTimeout(handleLock, IDLE_LOCK_MS)
+    }
+
+    function handleActivity() {
+      if (document.visibilityState === 'visible') {
+        scheduleIdleLock()
+      }
+    }
+
+    function handleVisibilityChange() {
+      if (!hasAppPin()) return
+
+      if (document.visibilityState === 'hidden') {
+        backgroundStartedAtRef.current = Date.now()
+        clearIdleTimer()
+        return
+      }
+
+      const backgroundStartedAt = backgroundStartedAtRef.current
+      backgroundStartedAtRef.current = null
+      if (backgroundStartedAt && Date.now() - backgroundStartedAt >= BACKGROUND_LOCK_MS) {
+        handleLock()
+        return
+      }
+
+      scheduleIdleLock()
+    }
+
+    const activityEvents = ['pointerdown', 'keydown', 'touchstart', 'scroll'] as const
+
     window.addEventListener(APP_LOCK_EVENT, handleLock)
-    return () => window.removeEventListener(APP_LOCK_EVENT, handleLock)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    activityEvents.forEach((eventName) => window.addEventListener(eventName, handleActivity, { passive: true }))
+    scheduleIdleLock()
+
+    return () => {
+      clearIdleTimer()
+      window.removeEventListener(APP_LOCK_EVENT, handleLock)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      activityEvents.forEach((eventName) => window.removeEventListener(eventName, handleActivity))
+    }
   }, [])
 
   if (!locked) return null
