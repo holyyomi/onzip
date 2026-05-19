@@ -306,8 +306,13 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
 
       {showDetails && (
         <div className="rounded-[20px] bg-[#f7f7f7] p-4 mb-4">
-          <Field label="날짜">
+          <Field label={recordType === 'anniversary' ? '갱신/만료일' : '날짜'}>
             <input type="date" value={recordDate} onChange={(e) => setRecordDate(e.target.value)} className={inputCls} />
+            {recordType === 'anniversary' && (
+              <p className="mt-1 text-xs text-gray-400">
+                이 날짜가 가까워지면 홈의 곧 챙길 것에 표시됩니다.
+              </p>
+            )}
           </Field>
 
           <Field label="관련 사람">

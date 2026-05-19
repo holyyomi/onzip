@@ -11,6 +11,11 @@ export function isImportantVaultRecord(record: Pick<LifeRecord, 'record_type' | 
   return record.tags.some((tag) => IMPORTANT_TAGS.includes(normalizeTag(tag)) || IMPORTANT_TAGS.includes(tag.trim()))
 }
 
+export function isDatedVaultRecord(record: Pick<LifeRecord, 'record_type' | 'tags'>): boolean {
+  const normalizedTags = record.tags.map(normalizeTag)
+  return record.record_type === 'anniversary' || normalizedTags.includes('갱신') || normalizedTags.includes('만료')
+}
+
 export function getVaultRecordBadge(record: Pick<LifeRecord, 'record_type' | 'tags'>): string {
   const normalizedTags = record.tags.map(normalizeTag)
   if (normalizedTags.includes('갱신') || normalizedTags.includes('만료') || record.record_type === 'anniversary') return '갱신'

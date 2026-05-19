@@ -13,7 +13,7 @@ import { formatDate, todayMonth, todayStr, todayYear } from '../../utils/date'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import { displayRecordTitle, useVaultPrivacy } from '../../utils/vaultPrivacy'
-import { getVaultRecordBadge, isImportantVaultRecord } from '../../utils/vaultRecords'
+import { getVaultRecordBadge, isDatedVaultRecord, isImportantVaultRecord } from '../../utils/vaultRecords'
 
 interface Props {
   refreshKey: number
@@ -59,13 +59,19 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
     const todaySubs = subscriptions.filter((sub) => sub.payment_day === todayDay)
     const todayEvents = getAggregatedEvents(year, month).filter((event) => event.date === today && event.type === 'schedule')
     const weekEnd = addDays(today, 7)
+    const vaultDueEnd = addDays(today, 30)
     const weekEvents = getAggregatedEvents(year, month)
       .filter((event) => event.date > today && event.date <= weekEnd)
       .sort((a, b) => a.date.localeCompare(b.date))
+    const upcomingVaultRecords = lifeRecordRepo
+      .getAll()
+      .filter((record) => isDatedVaultRecord(record) && record.record_date >= today && record.record_date <= vaultDueEnd)
+      .sort((a, b) => a.record_date.localeCompare(b.record_date))
+    const upcomingVaultRecordIds = new Set(upcomingVaultRecords.map((record) => record.id))
 
     const importantRecords = lifeRecordRepo
       .getAll()
-      .filter(isImportantVaultRecord)
+      .filter((record) => isImportantVaultRecord(record) && !upcomingVaultRecordIds.has(record.id))
       .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
 
     return {
@@ -78,6 +84,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       todaySubs,
       todayEvents,
       weekEvents,
+      upcomingVaultRecords,
       importantRecords,
     }
   }, [refreshKey])
@@ -174,8 +181,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           </button>
         </div>
         <div className="divide-y divide-[#f0f0f0]">
-          {data.weekEvents.length === 0 && (
-            <p className="py-3 text-sm text-[#8a8a8a]">이번 주에 등록된 중요 날짜가 없습니다.</p>
+          {data.weekEvents.length === 0 && data.upcomingVaultRecords.length === 0 && data.importantRecords.length === 0 && (
+            <p className="py-3 text-sm text-[#8a8a8a]">곧 챙길 돈, 일정, 금고 메모가 없습니다.</p>
           )}
           {data.weekEvents.slice(0, 4).map((event) => (
             <StatusRow
@@ -184,6 +191,15 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
               value={event.date.slice(5).replace('-', '.')}
               detail={event.title}
               onClick={() => onTabChange(event.type === 'schedule' ? 'calendar' : 'money')}
+            />
+          ))}
+          {data.upcomingVaultRecords.slice(0, 3).map((record) => (
+            <StatusRow
+              key={record.id}
+              label="금고"
+              value={record.record_date.slice(5).replace('-', '.')}
+              detail={`${getVaultRecordBadge(record)} · ${displayRecordTitle(record, hideSensitive)}`}
+              onClick={() => onTabChange('records')}
             />
           ))}
           {data.importantRecords.slice(0, 2).map((record) => (
