@@ -158,6 +158,9 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
           <Field label="태그">
             <input type="text" placeholder="예) 중요, 계좌, 보험, 계약" value={tagInput}
               onChange={(e) => setTagInput(e.target.value)} className={inputCls} />
+            <p className="mt-1 text-xs text-gray-400">
+              민감하게 숨기려면 태그에 민감 또는 비밀을 추가하세요.
+            </p>
           </Field>
 
           <Field label="관련 금액">

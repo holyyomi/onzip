@@ -6,6 +6,7 @@ import RecordFormModal from './RecordFormModal'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import EmptyState from '../common/EmptyState'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
+import { displayRecordContent, displayRecordTitle, isSensitiveRecord, useVaultPrivacy } from '../../utils/vaultPrivacy'
 
 const RECORD_TYPE_CONFIG: Record<
   RecordType,
@@ -27,6 +28,7 @@ interface Props {
 
 export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
   const { hidden: hideAmounts } = useAmountPrivacy()
+  const { hidden: hideSensitive } = useVaultPrivacy()
   const [filter, setFilter] = useState<FilterType>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -150,16 +152,23 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
                       <span className="text-xs text-gray-400">{cfg.label}</span>
+                      {isSensitiveRecord(r) && (
+                        <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-xs font-semibold text-gray-500">
+                          민감
+                        </span>
+                      )}
                       {r.related_amount && (
                         <span className="text-xs text-gray-400 ml-auto">
                           {displayAmount(r.related_amount, hideAmounts)}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm font-semibold text-gray-800 truncate">{r.title}</p>
+                    <p className="text-sm font-semibold text-gray-800 truncate">
+                      {displayRecordTitle(r, hideSensitive)}
+                    </p>
                     {r.content && (
                       <p className="text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">
-                        {r.content}
+                        {displayRecordContent(r, hideSensitive)}
                       </p>
                     )}
                     {r.tags.length > 0 && (

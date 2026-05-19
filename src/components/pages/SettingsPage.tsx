@@ -19,6 +19,7 @@ import UpdateNoticeCard from '../common/UpdateNoticeCard'
 import PwaUpdateCard from '../common/PwaUpdateCard'
 import { useAmountPrivacy } from '../../utils/amountPrivacy'
 import { clearAppPin, hasAppPin, requestAppLock, setAppPin, verifyAppPin } from '../../utils/appLock'
+import { useVaultPrivacy } from '../../utils/vaultPrivacy'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
 
@@ -66,6 +67,7 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
   const [name, setName] = useState(household.name)
   const [saved, setSaved] = useState(false)
   const { hidden: hideAmounts, setHidden: setHideAmounts } = useAmountPrivacy()
+  const { hidden: hideSensitive, setHidden: setHideSensitive } = useVaultPrivacy()
 
   function handleSave() {
     householdRepo.update(household.id, { name: name.trim() || '우리집' })
@@ -107,6 +109,24 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
             aria-label="금액 가리기"
           >
             <span className={`block h-6 w-6 rounded-full bg-white shadow transition-transform ${hideAmounts ? 'translate-x-6' : 'translate-x-0'}`} />
+          </button>
+        </div>
+      </div>
+
+      <div className="oz-card p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-base font-semibold text-[#222222]">민감 메모 숨김</p>
+            <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
+              민감, 비밀, 숨김 태그가 붙은 금고 메모의 제목과 내용을 가립니다.
+            </p>
+          </div>
+          <button
+            onClick={() => setHideSensitive(!hideSensitive)}
+            className={`h-8 w-14 flex-shrink-0 rounded-full p-1 transition-colors ${hideSensitive ? 'bg-[#ff385c]' : 'bg-gray-200'}`}
+            aria-label="민감 메모 숨김"
+          >
+            <span className={`block h-6 w-6 rounded-full bg-white shadow transition-transform ${hideSensitive ? 'translate-x-6' : 'translate-x-0'}`} />
           </button>
         </div>
       </div>

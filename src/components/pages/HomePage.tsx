@@ -12,6 +12,7 @@ import { getAggregatedEvents } from '../../utils/calendarAggregator'
 import { formatDate, todayMonth, todayStr, todayYear } from '../../utils/date'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
+import { displayRecordTitle, useVaultPrivacy } from '../../utils/vaultPrivacy'
 
 interface Props {
   refreshKey: number
@@ -34,6 +35,7 @@ function addDays(dateStr: string, days: number): string {
 
 export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props) {
   const { hidden: hideAmounts } = useAmountPrivacy()
+  const { hidden: hideSensitive } = useVaultPrivacy()
   const data = useMemo(() => {
     const today = todayStr()
     const year = todayYear()
@@ -188,7 +190,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
               key={record.id}
               label="금고"
               value="중요"
-              detail={record.title}
+              detail={displayRecordTitle(record, hideSensitive)}
               onClick={() => onTabChange('records')}
             />
           ))}
