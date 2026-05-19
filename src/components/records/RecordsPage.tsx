@@ -82,8 +82,8 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
         >
           <img src={QUICK_ADD_ICON.record} alt="" className="h-12 w-12 rounded-[18px] object-contain flex-shrink-0" />
           <span className="min-w-0">
-            <span className="block text-lg font-semibold text-[#222222]">생활 기록 작성</span>
-            <span className="block text-sm text-[#6a6a6a] mt-1">메모, 회의록, 집 관련 기록을 남깁니다</span>
+          <span className="block text-lg font-semibold text-[#222222]">메모 남기기</span>
+          <span className="block text-sm text-[#6a6a6a] mt-1">기억할 내용, 회의록, 집 관련 기록을 남깁니다</span>
           </span>
         </button>
       </div>
@@ -127,9 +127,9 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 pb-6 space-y-4">
         {grouped.length === 0 && (
           <EmptyState
-            message="생활 기록이 비어 있습니다"
-            sub="메모, 회의록, 집 관련 기록을 남겨두면 나중에 찾기 쉽습니다."
-            actionLabel="생활 기록 작성"
+            message="메모가 비어 있습니다"
+            sub="기억할 내용이나 회의록을 남겨두면 나중에 찾기 쉽습니다."
+            actionLabel="메모 남기기"
             onAction={() => onQuickAdd('record')}
           />
         )}

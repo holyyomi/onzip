@@ -10,7 +10,8 @@ import CalculatorTab from '../money/CalculatorTab'
 import TabMemoCard from '../common/TabMemoCard'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 
-type MoneySubTab = 'summary' | 'ledger' | 'fixed' | 'income' | 'subscription' | 'calculator'
+type MoneySubTab = 'summary' | 'ledger' | 'manage' | 'calculator'
+type MoneyManageSubTab = 'fixed' | 'income' | 'subscription'
 
 interface Props {
   externalRefreshKey: number
@@ -18,16 +19,21 @@ interface Props {
 }
 
 const SUB_TABS: { value: MoneySubTab; label: string }[] = [
-  { value: 'summary', label: '한눈에' },
-  { value: 'ledger', label: '지출·수입' },
-  { value: 'fixed', label: '고정 지출' },
+  { value: 'summary', label: '요약' },
+  { value: 'ledger', label: '내역' },
+  { value: 'manage', label: '관리' },
+  { value: 'calculator', label: '계산기' },
+]
+
+const MANAGE_TABS: { value: MoneyManageSubTab; label: string }[] = [
+  { value: 'fixed', label: '고정비' },
   { value: 'income', label: '수입' },
   { value: 'subscription', label: '구독' },
-  { value: 'calculator', label: '계산기' },
 ]
 
 export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
   const [activeTab, setActiveTab] = useState<MoneySubTab>('summary')
+  const [manageTab, setManageTab] = useState<MoneyManageSubTab>('fixed')
   const [year, setYear] = useState(todayYear())
   const [month, setMonth] = useState(todayMonth())
   const [refreshKey, setRefreshKey] = useState(0)
@@ -53,13 +59,13 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 pt-3 grid grid-cols-2 gap-3">
         <MoneyQuickButton
           iconSrc={QUICK_ADD_ICON.expense}
-          label="지출 기록"
-          sub="금액과 분류 입력"
+          label="돈 썼어요"
+          sub="금액만 빠르게 기록"
           onClick={() => onQuickAdd('expense')}
         />
         <MoneyQuickButton
           iconSrc={QUICK_ADD_ICON.fixed_expense}
-          label="고정 지출"
+          label="고정비 넣기"
           sub="월세, 관리비, 보험료"
           onClick={() => onQuickAdd('fixed_expense')}
         />
@@ -101,14 +107,31 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       {activeTab === 'ledger' && (
         <LedgerTab year={year} month={month} refreshKey={pageRefreshKey} onRefresh={onRefresh} />
       )}
-      {activeTab === 'fixed' && (
-        <FixedExpenseTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
-      )}
-      {activeTab === 'income' && (
-        <IncomeTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
-      )}
-      {activeTab === 'subscription' && (
-        <SubscriptionTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
+      {activeTab === 'manage' && (
+        <>
+          <div className="mx-4 mb-2 grid grid-cols-3 gap-2 rounded-[18px] bg-white p-1.5 border border-[#ebebeb]">
+            {MANAGE_TABS.map((tab) => (
+              <button
+                key={tab.value}
+                onClick={() => setManageTab(tab.value)}
+                className={`min-h-[38px] rounded-[14px] text-sm font-semibold transition-colors ${
+                  manageTab === tab.value ? 'bg-[#222222] text-white' : 'text-[#6a6a6a]'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          {manageTab === 'fixed' && (
+            <FixedExpenseTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
+          )}
+          {manageTab === 'income' && (
+            <IncomeTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
+          )}
+          {manageTab === 'subscription' && (
+            <SubscriptionTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
+          )}
+        </>
       )}
       {activeTab === 'calculator' && <CalculatorTab />}
 

@@ -12,9 +12,9 @@ interface Props {
 const TAB_TITLE: Record<TabId, string> = {
   home: '오늘',
   calendar: '일정',
-  money: '돈',
-  life: '생활',
-  records: '기록',
+  money: '가계부',
+  life: '장보기',
+  records: '메모',
   settings: '설정',
 }
 

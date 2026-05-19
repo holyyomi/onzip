@@ -15,13 +15,13 @@ interface Props {
 }
 
 const OPTIONS: { type: QuickAddType; label: string; sub: string; primary?: boolean }[] = [
-  { type: 'expense',       label: '지출 기록', sub: '금액과 분류를 기록', primary: true },
-  { type: 'shopping',      label: '구매 항목', sub: '장보기 목록에 추가', primary: true },
-  { type: 'schedule',      label: '일정 등록', sub: '가족 일정과 약속 관리', primary: true },
-  { type: 'record',        label: '생활 기록', sub: '메모와 회의록 보관', primary: true },
-  { type: 'checklist',     label: '체크리스트', sub: '준비물과 진행 항목' },
-  { type: 'fixed_expense', label: '고정 지출',  sub: '월세, 관리비, 보험' },
-  { type: 'subscription',  label: '구독 관리', sub: '정기 결제 서비스' },
+  { type: 'expense',       label: '돈 썼어요', sub: '금액만 빠르게 기록', primary: true },
+  { type: 'shopping',      label: '살 것 추가', sub: '장보기 목록에 넣기', primary: true },
+  { type: 'schedule',      label: '일정 넣기', sub: '가족 약속과 할 일', primary: true },
+  { type: 'record',        label: '메모 남기기', sub: '기억할 내용 보관', primary: true },
+  { type: 'checklist',     label: '할 일 목록', sub: '준비물과 진행 항목' },
+  { type: 'fixed_expense', label: '고정비 넣기',  sub: '월세, 관리비, 보험' },
+  { type: 'subscription',  label: '구독 넣기', sub: '정기 결제 서비스' },
 ]
 
 const primaryOptions = OPTIONS.filter((option) => option.primary)
@@ -39,8 +39,8 @@ export default function QuickAddMenu({ onSelect, onClose }: Props) {
         </div>
 
         <div className="px-5 pb-3">
-          <p className="text-2xl font-semibold text-[#222222]">새 항목 추가</p>
-          <p className="text-sm text-[#6a6a6a] mt-1">등록할 항목을 선택하세요.</p>
+          <p className="text-2xl font-semibold text-[#222222]">무엇을 할까요?</p>
+          <p className="text-sm text-[#6a6a6a] mt-1">지금 하려는 일을 고르세요.</p>
         </div>
 
         <div className="px-5 grid grid-cols-2 gap-3">

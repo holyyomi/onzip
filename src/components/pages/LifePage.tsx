@@ -8,7 +8,8 @@ import TemplateTab from '../life/TemplateTab'
 import TabMemoCard from '../common/TabMemoCard'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 
-type LifeSubTab = 'checklist' | 'shopping' | 'supplies' | 'chore' | 'template'
+type LifeSubTab = 'shopping' | 'checklist' | 'manage'
+type LifeManageSubTab = 'supplies' | 'chore' | 'template'
 
 interface Props {
   externalRefreshKey: number
@@ -16,15 +17,20 @@ interface Props {
 }
 
 const SUB_TABS: { value: LifeSubTab; label: string }[] = [
-  { value: 'checklist', label: '체크리스트' },
   { value: 'shopping', label: '장보기' },
+  { value: 'checklist', label: '할 일' },
+  { value: 'manage', label: '관리' },
+]
+
+const MANAGE_TABS: { value: LifeManageSubTab; label: string }[] = [
   { value: 'supplies', label: '용품' },
   { value: 'chore', label: '집안일' },
   { value: 'template', label: '템플릿' },
 ]
 
 export default function LifePage({ externalRefreshKey, onQuickAdd }: Props) {
-  const [activeTab, setActiveTab] = useState<LifeSubTab>('checklist')
+  const [activeTab, setActiveTab] = useState<LifeSubTab>('shopping')
+  const [manageTab, setManageTab] = useState<LifeManageSubTab>('supplies')
   const [refreshKey, setRefreshKey] = useState(0)
 
   const onRefresh = () => setRefreshKey((k) => k + 1)
@@ -35,13 +41,13 @@ export default function LifePage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 pt-3 grid grid-cols-2 gap-3">
         <LifeQuickButton
           iconSrc={QUICK_ADD_ICON.shopping}
-          label="구매 항목"
-          sub="장보기 목록 관리"
+          label="살 것 추가"
+          sub="장보기 목록에 넣기"
           onClick={() => onQuickAdd('shopping')}
         />
         <LifeQuickButton
           iconSrc={QUICK_ADD_ICON.checklist}
-          label="체크리스트"
+          label="할 일 목록"
           sub="준비물과 진행 항목"
           onClick={() => onQuickAdd('checklist')}
         />
@@ -69,13 +75,30 @@ export default function LifePage({ externalRefreshKey, onQuickAdd }: Props) {
       {activeTab === 'shopping' && (
         <ShoppingTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
       )}
-      {activeTab === 'supplies' && (
-        <SuppliesTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
+      {activeTab === 'manage' && (
+        <>
+          <div className="mx-4 mb-2 grid grid-cols-3 gap-2 rounded-[18px] bg-white p-1.5 border border-[#ebebeb]">
+            {MANAGE_TABS.map((tab) => (
+              <button
+                key={tab.value}
+                onClick={() => setManageTab(tab.value)}
+                className={`min-h-[38px] rounded-[14px] text-sm font-semibold transition-colors ${
+                  manageTab === tab.value ? 'bg-[#222222] text-white' : 'text-[#6a6a6a]'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          {manageTab === 'supplies' && (
+            <SuppliesTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
+          )}
+          {manageTab === 'chore' && (
+            <ChoreTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
+          )}
+          {manageTab === 'template' && <TemplateTab onRefresh={onRefresh} />}
+        </>
       )}
-      {activeTab === 'chore' && (
-        <ChoreTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
-      )}
-      {activeTab === 'template' && <TemplateTab onRefresh={onRefresh} />}
 
       <div className="px-5 py-5">
         <TabMemoCard tab="life" title="생활 메모" placeholder="구매 항목, 준비물, 집안일 관련 내용을 기록하세요." />

@@ -13,9 +13,6 @@ import {
 import { getTodayAggregated } from '../../utils/calendarAggregator'
 import { formatAmount, todayMonth, todayStr, todayYear } from '../../utils/date'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
-import TabMemoCard from '../common/TabMemoCard'
-import InstallPromptCard from '../common/InstallPromptCard'
-import StorageNoticeCard from '../common/StorageNoticeCard'
 
 interface Props {
   refreshKey: number
@@ -98,17 +95,17 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       </section>
 
       <section className="grid grid-cols-2 gap-2">
-        <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="지출 기록" onClick={() => onQuickAdd('expense')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.shopping} label="구매 항목" onClick={() => onQuickAdd('shopping')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="일정 등록" onClick={() => onQuickAdd('schedule')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="생활 기록" onClick={() => onQuickAdd('record')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="돈 썼어요" onClick={() => onQuickAdd('expense')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.shopping} label="살 것 추가" onClick={() => onQuickAdd('shopping')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="일정 넣기" onClick={() => onQuickAdd('schedule')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="메모 남기기" onClick={() => onQuickAdd('record')} />
       </section>
 
       <section className="oz-card p-4">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-[#222222]">월간 요약</h3>
           <button onClick={() => onTabChange('money')} className="min-h-[34px] px-2 text-sm font-semibold text-[#ff385c]">
-            가계부 보기
+            자세히
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -124,23 +121,13 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
             onClick={() => onTabChange('life')}
           />
           <StatusRow
-            label="기록"
+            label="메모"
             value={`${data.records.length}개`}
-            detail="생활 기록과 회의록 모아보기"
+            detail="기억할 내용과 회의록 모아보기"
             onClick={() => onTabChange('records')}
           />
         </div>
       </section>
-
-      <TabMemoCard
-        tab="home"
-        title="우리집 메모"
-        placeholder="공유할 내용이나 기억할 일을 기록하세요."
-      />
-
-      <InstallPromptCard />
-
-      <StorageNoticeCard dismissible />
     </div>
   )
 }

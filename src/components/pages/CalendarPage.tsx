@@ -100,13 +100,13 @@ export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) 
       <div className="px-4 grid grid-cols-2 gap-3">
         <CalendarQuickButton
           iconSrc={QUICK_ADD_ICON.schedule}
-          label="일정 추가"
+          label="일정 넣기"
           sub="약속, 병원, 학교"
           onClick={() => onQuickAdd('schedule')}
         />
         <CalendarQuickButton
           iconSrc={QUICK_ADD_ICON.checklist}
-          label="체크리스트"
+          label="할 일 목록"
           sub="준비물과 진행 항목"
           onClick={() => onQuickAdd('checklist')}
         />
