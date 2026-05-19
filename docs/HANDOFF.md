@@ -62,7 +62,7 @@ npm run build
 - 저장 안내: 설정에 로컬 저장 안내 표시
 - 설치 UX: Android는 Chrome 설치를 권장하고, 삼성 인터넷에서는 자동 설치 팝업 대신 수동 설치 안내를 표시
 - 공유 미리보기: `public/og-image.png`와 Open Graph/Twitter 메타 태그 설정 완료
-- 공유/문의/백업: 설정 탭에서 앱 링크 공유, 문의 메일(`holyyomi@naver.com`), 로컬 JSON 파일 내보내기 가능. 앱 링크 공유와 내 데이터 백업은 별도 카드로 분리
+- 공유/문의/백업: 설정 탭에서 앱 링크 공유, 문의 메일(`holyyomi@naver.com`), 로컬 JSON 파일 내보내기 가능. 앱 링크 공유와 내 데이터 백업은 별도 카드로 분리하고, 최근 백업 상태를 표시
 - 백업 복원: 설정 탭에서 온집 JSON 백업 파일을 불러와 현재 기기의 로컬 데이터를 교체할 수 있음
 - 온보딩/업데이트: 첫 실행 안내, 설정의 최근 업데이트 카드, 새 버전 확인/적용 버튼 추가
 - SEO 기본 파일: `public/robots.txt`, `public/sitemap.xml`
@@ -192,6 +192,7 @@ onzip_update_notice_20260519_flow_vault
 - `app_lock_pin_hash`: 앱 잠금 PIN 해시
 - `app_lock_pin_salt`: 앱 잠금 PIN salt
 - `hide_sensitive_records`: `true`이면 민감 태그 금고 메모 제목/내용 숨김
+- `last_backup_at`: 사용자가 마지막으로 로컬 JSON 백업 파일을 내려받은 ISO 시각
 
 ---
 

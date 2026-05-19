@@ -17,6 +17,8 @@ import {
 } from '../data/repositories'
 import { trackEvent } from './analytics'
 
+export const LAST_BACKUP_AT_KEY = 'last_backup_at'
+
 function readCustomCategories() {
   try {
     return JSON.parse(localStorage.getItem('onzip_custom_categories') ?? '{}') as unknown
@@ -42,8 +44,14 @@ function importCollection(data: Record<string, unknown>, key: string, repo: { im
   repo.importAll(JSON.stringify(Array.isArray(value) ? value : []))
 }
 
-export function exportLocalData() {
+export function getLastBackupAt(): string | null {
+  return appSettingsRepo.get('default', LAST_BACKUP_AT_KEY)
+}
+
+export function exportLocalData(): string {
   const exportedAt = new Date().toISOString()
+  appSettingsRepo.set('default', LAST_BACKUP_AT_KEY, exportedAt)
+
   const payload = {
     app: 'onzip',
     version: 1,
@@ -81,6 +89,7 @@ export function exportLocalData() {
   URL.revokeObjectURL(url)
 
   trackEvent('local_data_export')
+  return exportedAt
 }
 
 export async function importLocalDataFromFile(file: File) {

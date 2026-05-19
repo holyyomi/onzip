@@ -1,6 +1,6 @@
-import { useRef, type ChangeEvent } from 'react'
+import { useRef, useState, type ChangeEvent } from 'react'
 import { trackEvent } from '../../utils/analytics'
-import { exportLocalData, importLocalDataFromFile } from '../../utils/dataExport'
+import { exportLocalData, getLastBackupAt, importLocalDataFromFile } from '../../utils/dataExport'
 
 const APP_URL = 'https://onzip.vercel.app'
 const CONTACT_EMAIL = 'holyyomi@naver.com'
@@ -15,8 +15,47 @@ const SHARE_TEXT = `온집
 
 참고: 입력한 데이터는 서버가 아니라 본인 기기에 저장됩니다.`
 
+function getBackupStatus(lastBackupAt: string | null) {
+  if (!lastBackupAt) {
+    return {
+      label: '아직 백업 없음',
+      tone: 'warn',
+      detail: '금고나 돈 흐름을 쓰기 시작했다면 한 번 내려받아 두는 게 좋습니다.',
+    }
+  }
+
+  const savedAt = new Date(lastBackupAt)
+  if (!Number.isFinite(savedAt.getTime())) {
+    return {
+      label: '백업 확인 필요',
+      tone: 'warn',
+      detail: '최근 백업 시간을 확인할 수 없습니다. 새 백업 파일을 내려받아 두세요.',
+    }
+  }
+
+  const diffMs = Date.now() - savedAt.getTime()
+  const diffDays = Math.max(0, Math.floor(diffMs / 86_400_000))
+  const dateLabel = savedAt.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
+
+  if (diffDays === 0) {
+    return {
+      label: '오늘 백업함',
+      tone: 'ok',
+      detail: `${dateLabel}에 백업 파일을 내려받았습니다.`,
+    }
+  }
+
+  return {
+    label: `${diffDays}일 전 백업`,
+    tone: diffDays >= 14 ? 'warn' : 'ok',
+    detail: `${dateLabel} 이후 새로 적은 내용은 다시 백업해야 안전합니다.`,
+  }
+}
+
 export default function ShareAndSupportCard() {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [lastBackupAt, setLastBackupAt] = useState(getLastBackupAt)
+  const backupStatus = getBackupStatus(lastBackupAt)
 
   async function handleShare() {
     trackEvent('share_app_click')
@@ -47,7 +86,7 @@ export default function ShareAndSupportCard() {
 
   function handleExport() {
     if (!confirm('이 기기에 저장된 온집 데이터를 JSON 파일로 내려받겠습니까?')) return
-    exportLocalData()
+    setLastBackupAt(exportLocalData())
   }
 
   function handleImportClick() {
@@ -85,9 +124,21 @@ export default function ShareAndSupportCard() {
       </section>
 
       <section className="oz-card p-4">
-        <p className="text-base font-semibold text-[#222222]">내 데이터 백업</p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-base font-semibold text-[#222222]">내 데이터 백업</p>
+            <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
+              이 기기에 저장된 온집 데이터를 파일로 보관하거나, 이전에 받은 백업 파일로 복원합니다.
+            </p>
+          </div>
+          <span className={`flex-shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${
+            backupStatus.tone === 'ok' ? 'bg-[#eefaf5] text-[#0a7f52]' : 'bg-[#fff0f3] text-[#ff385c]'
+          }`}>
+            {backupStatus.label}
+          </span>
+        </div>
         <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-          이 기기에 저장된 온집 데이터를 파일로 보관하거나, 이전에 받은 백업 파일로 복원합니다.
+          {backupStatus.detail}
         </p>
         <input
           ref={fileInputRef}
