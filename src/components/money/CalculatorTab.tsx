@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { formatAmount } from '../../utils/date'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 type CalcMode = 'basic' | 'split' | 'subscription'
 
@@ -165,6 +165,7 @@ function BasicCalculator() {
 // 2. 생활비 분담 계산기
 // ─────────────────────────────────
 function SplitCalculator() {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const [total, setTotal] = useState('')
   const [ratio, setRatio] = useState<'5:5' | '6:4' | '7:3' | 'custom'>('5:5')
   const [myRatio, setMyRatio] = useState(50)
@@ -217,11 +218,11 @@ function SplitCalculator() {
         <div className="bg-blue-50 rounded-xl p-4 space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">나 ({ratio === 'custom' ? myRatio : RATIOS.find(r => r.value === ratio)!.my}%)</span>
-            <span className="font-bold text-gray-800">{formatAmount(myAmt)}</span>
+            <span className="font-bold text-gray-800">{displayAmount(myAmt, hideAmounts)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">배우자 ({ratio === 'custom' ? 100 - myRatio : spouseRatio}%)</span>
-            <span className="font-bold text-gray-800">{formatAmount(spouseAmt)}</span>
+            <span className="font-bold text-gray-800">{displayAmount(spouseAmt, hideAmounts)}</span>
           </div>
         </div>
       )}
@@ -233,6 +234,7 @@ function SplitCalculator() {
 // 3. 구독료 연간 계산기
 // ─────────────────────────────────
 function SubscriptionAnnualCalculator() {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const [monthly, setMonthly] = useState('')
 
   const amt = Number(monthly.replace(/,/g, '')) || 0
@@ -251,12 +253,12 @@ function SubscriptionAnnualCalculator() {
 
       {amt > 0 && (
         <div className="space-y-2">
-          <ResultRow label="연간 비용" value={annual} highlight />
-          <ResultRow label="2년 비용" value={twoYear} />
-          <ResultRow label="해지 시 연간 절약" value={annual} color="text-green-600" />
+          <ResultRow label="연간 비용" value={annual} hidden={hideAmounts} highlight />
+          <ResultRow label="2년 비용" value={twoYear} hidden={hideAmounts} />
+          <ResultRow label="해지 시 연간 절약" value={annual} hidden={hideAmounts} color="text-green-600" />
           <div className="bg-purple-50 rounded-xl p-3 mt-2">
             <p className="text-xs text-purple-500">
-              하루 환산: {formatAmount(Math.round(amt / 30))}
+              하루 환산: {displayAmount(Math.round(amt / 30), hideAmounts)}
             </p>
           </div>
         </div>
@@ -265,14 +267,14 @@ function SubscriptionAnnualCalculator() {
   )
 }
 
-function ResultRow({ label, value, highlight, color }: {
-  label: string; value: number; highlight?: boolean; color?: string
+function ResultRow({ label, value, hidden, highlight, color }: {
+  label: string; value: number; hidden: boolean; highlight?: boolean; color?: string
 }) {
   return (
     <div className={`flex justify-between items-center p-3 rounded-xl ${highlight ? 'bg-gray-50' : ''}`}>
       <span className="text-sm text-gray-600">{label}</span>
       <span className={`text-sm font-bold ${color ?? 'text-gray-800'}`}>
-        {formatAmount(value)}
+        {displayAmount(value, hidden)}
       </span>
     </div>
   )

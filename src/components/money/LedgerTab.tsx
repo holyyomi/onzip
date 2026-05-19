@@ -5,7 +5,7 @@ import { exportLedgerCSV } from '../../utils/csvExport'
 import type { LedgerEntryType } from '../../data/models'
 import EmptyState from '../common/EmptyState'
 import LedgerFormModal from './LedgerFormModal'
-import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
+import { displayAmount, isAmountHidden, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 interface Props {
   year: number
@@ -75,6 +75,17 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
     setShowModal(true)
   }
 
+  function handleExportCSV() {
+    if (
+      isAmountHidden() &&
+      !confirm('CSV 파일에는 실제 금액이 그대로 포함됩니다. 내려받을까요?')
+    ) {
+      return
+    }
+
+    exportLedgerCSV(ledgerEntryRepo.getByMonth(year, month), `${year}${String(month).padStart(2, '0')}`)
+  }
+
   return (
     <div>
       {/* 월 합계 바 */}
@@ -120,7 +131,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => exportLedgerCSV(ledgerEntryRepo.getByMonth(year, month), `${year}${String(month).padStart(2,'0')}`)}
+            onClick={handleExportCSV}
             className="text-xs text-gray-400 border border-gray-200 rounded-lg px-2 py-1">
             CSV↓
           </button>

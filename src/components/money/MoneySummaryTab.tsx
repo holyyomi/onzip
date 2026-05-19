@@ -4,7 +4,7 @@ import {
   fixedExpenseRepo,
   subscriptionRepo,
 } from '../../data/repositories'
-import { formatAmount } from '../../utils/date'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import PaymentProgressCard from './PaymentProgressCard'
 
 interface Props {
@@ -31,6 +31,7 @@ function getMonthlyTrend(currentYear: number, currentMonth: number, months: numb
 }
 
 export default function MoneySummaryTab({ year, month, refreshKey }: Props) {
+  const { hidden: hideAmounts } = useAmountPrivacy()
   const data = useMemo(() => {
     const entries = ledgerEntryRepo.getByMonth(year, month)
     const income = ledgerEntryRepo.sumByType(entries, 'income')
@@ -66,10 +67,10 @@ export default function MoneySummaryTab({ year, month, refreshKey }: Props) {
     <div className="p-4 space-y-3">
       {/* 핵심 4개 카드 */}
       <div className="grid grid-cols-2 gap-3">
-        <SummaryCard label="이번 달 수입" amount={data.income} color="text-blue-600" />
-        <SummaryCard label="이번 달 지출" amount={data.expense} color="text-red-500" />
-        <SummaryCard label="고정지출 합계" amount={data.fixedTotal} color="text-orange-500" />
-        <SummaryCard label="구독료 합계" amount={data.subTotal} color="text-purple-500" />
+        <SummaryCard label="이번 달 수입" amount={data.income} hidden={hideAmounts} color="text-blue-600" />
+        <SummaryCard label="이번 달 지출" amount={data.expense} hidden={hideAmounts} color="text-red-500" />
+        <SummaryCard label="고정지출 합계" amount={data.fixedTotal} hidden={hideAmounts} color="text-orange-500" />
+        <SummaryCard label="구독료 합계" amount={data.subTotal} hidden={hideAmounts} color="text-purple-500" />
       </div>
 
       {/* 남은 생활비 */}
@@ -77,10 +78,10 @@ export default function MoneySummaryTab({ year, month, refreshKey }: Props) {
         <p className="text-xs text-gray-400 mb-1">남은 생활비</p>
         <p className={`text-2xl font-bold ${data.balance >= 0 ? 'text-gray-800' : 'text-red-500'}`}>
           {data.balance < 0 ? '-' : ''}
-          {formatAmount(Math.abs(data.balance))}
+          {displayAmount(Math.abs(data.balance), hideAmounts)}
         </p>
         <p className="text-xs text-gray-400 mt-1">
-          수입 {formatAmount(data.income)} − 지출 {formatAmount(data.expense)} − 고정 {formatAmount(data.fixedTotal)}
+          수입 {displayAmount(data.income, hideAmounts)} − 지출 {displayAmount(data.expense, hideAmounts)} − 고정 {displayAmount(data.fixedTotal, hideAmounts)}
         </p>
       </div>
 
@@ -93,9 +94,9 @@ export default function MoneySummaryTab({ year, month, refreshKey }: Props) {
               <div className="flex justify-between text-xs text-gray-500 mb-1">
                 <span className="font-medium">{t.label}</span>
                 <span>
-                  <span className="text-blue-500">{formatAmount(t.income)}</span>
+                  <span className="text-blue-500">{displayAmount(t.income, hideAmounts)}</span>
                   {' / '}
-                  <span className="text-red-500">{formatAmount(t.expense)}</span>
+                  <span className="text-red-500">{displayAmount(t.expense, hideAmounts)}</span>
                 </span>
               </div>
               {/* 수입 바 */}
@@ -137,7 +138,7 @@ export default function MoneySummaryTab({ year, month, refreshKey }: Props) {
           {data.todayPayments.map((fe) => (
             <div key={fe.id} className="flex justify-between text-sm">
               <span className="text-gray-700">{fe.title}</span>
-              <span className="text-red-500 font-medium">{formatAmount(fe.amount)}</span>
+              <span className="text-red-500 font-medium">{displayAmount(fe.amount, hideAmounts)}</span>
             </div>
           ))}
         </div>
@@ -146,11 +147,11 @@ export default function MoneySummaryTab({ year, month, refreshKey }: Props) {
   )
 }
 
-function SummaryCard({ label, amount, color }: { label: string; amount: number; color: string }) {
+function SummaryCard({ label, amount, hidden, color }: { label: string; amount: number; hidden: boolean; color: string }) {
   return (
     <div className="bg-white rounded-xl p-3">
       <p className="text-xs text-gray-400">{label}</p>
-      <p className={`text-base font-bold mt-1 ${color}`}>{formatAmount(amount)}</p>
+      <p className={`text-base font-bold mt-1 ${color}`}>{displayAmount(amount, hidden)}</p>
     </div>
   )
 }
