@@ -15,6 +15,7 @@ import {
   isCurrentFixedExpenseMonth,
   setFixedExpenseMonthStatus,
 } from '../../utils/fixedExpenseMonthStatus'
+import { getIncomeMonthStatus, setIncomeMonthStatus } from '../../utils/incomeMonthStatus'
 
 type MoneySubTab = 'summary' | 'ledger' | 'manage' | 'calculator'
 type MoneyManageSubTab = 'fixed' | 'income' | 'subscription'
@@ -132,7 +133,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
             <FixedExpenseTab year={year} month={month} refreshKey={pageRefreshKey} onRefresh={onRefresh} />
           )}
           {manageTab === 'income' && (
-            <IncomeTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
+            <IncomeTab year={year} month={month} refreshKey={pageRefreshKey} onRefresh={onRefresh} />
           )}
           {manageTab === 'subscription' && (
             <SubscriptionTab refreshKey={pageRefreshKey} onRefresh={onRefresh} />
@@ -177,6 +178,10 @@ function FlowSummary({
           .reduce((sum, entry) => sum + entry.amount, 0)
       : 0
     const incomes = incomeRepo.getAll().filter((income) => income.repeat_rule === 'monthly')
+    const incomesWithStatus = incomes.map((income) => ({
+      ...income,
+      monthStatus: getIncomeMonthStatus(income, year, month),
+    }))
     const fixedExpenses = fixedExpenseRepo.getActive()
     const fixedExpensesWithStatus = fixedExpenses.map((expense) => ({
       ...expense,
@@ -197,13 +202,17 @@ function FlowSummary({
       .filter((expense) => expense.category === '카드')
       .reduce((sum, expense) => sum + expense.amount, 0)
     const fixedOtherOut = Math.max(0, fixedOut - cardOut)
+    const overdueIncomes = isCurrentMonthView
+      ? incomesWithStatus.filter((income) => income.monthStatus !== 'received' && income.income_day < todayDay)
+      : []
+    const overdueIncome = overdueIncomes.reduce((sum, income) => sum + income.amount, 0)
     const overdueFixedExpenses = isCurrentMonthView
       ? fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && expense.payment_day < todayDay)
       : []
     const overdueFixedOut = overdueFixedExpenses.reduce((sum, expense) => sum + expense.amount, 0)
     const upcomingIncome = isCurrentMonthView
-      ? incomes
-          .filter((income) => income.income_day >= todayDay)
+      ? incomesWithStatus
+          .filter((income) => income.monthStatus !== 'received')
           .reduce((sum, income) => sum + income.amount, 0) + upcomingEntryIncome
       : 0
     const upcomingOut = isCurrentMonthView
@@ -217,18 +226,21 @@ function FlowSummary({
       : 0
 
     const timeline = [
-      ...incomes.map((income) => ({
-        id: `income_${income.id}`,
-        day: income.income_day,
-        type: 'in' as const,
-        source: 'income' as const,
-        sourceId: income.id,
-        label: '받을 돈',
-        paymentState: null,
-        priority: getMoneyDayDistance(income.income_day, todayDay),
-        title: income.title,
-        amount: income.amount,
-      })),
+      ...incomesWithStatus.map((income) => {
+        const paymentState = getIncomeReceiveState(income.monthStatus, income.income_day, isCurrentMonthView, todayDay)
+        return {
+          id: `income_${income.id}`,
+          day: income.income_day,
+          type: 'in' as const,
+          source: 'income' as const,
+          sourceId: income.id,
+          label: '받을 돈',
+          paymentState,
+          priority: paymentState?.kind === 'overdue' ? -2 : getMoneyDayDistance(income.income_day, todayDay),
+          title: income.title,
+          amount: income.amount,
+        }
+      }),
       ...fixedExpensesWithStatus.map((expense) => {
         const paymentState = getFixedPaymentState(expense.monthStatus, expense.payment_day, isCurrentMonthView, todayDay)
         return {
@@ -270,6 +282,8 @@ function FlowSummary({
       entryExpense,
       upcomingIncome,
       upcomingOut,
+      overdueIncomeCount: overdueIncomes.length,
+      overdueIncome,
       overdueFixedCount: overdueFixedExpenses.length,
       overdueFixedOut,
       salaryIncome,
@@ -289,6 +303,11 @@ function FlowSummary({
     if (isCurrentFixedExpenseMonth(year, month)) {
       fixedExpenseRepo.update(id, { status })
     }
+    onRefresh()
+  }
+
+  function handleSetIncomeStatus(id: string, received: boolean) {
+    setIncomeMonthStatus(id, year, month, received ? 'received' : 'pending')
     onRefresh()
   }
 
@@ -316,6 +335,11 @@ function FlowSummary({
         {data.isCurrentMonthView && data.overdueFixedCount > 0 && (
           <p className="mt-3 rounded-[16px] bg-[#fff0f3] px-3 py-2 text-xs font-semibold text-[#ff385c]">
             아직 완료하지 않은 나갈 돈 {data.overdueFixedCount}건, {displayAmount(data.overdueFixedOut, hideAmounts)}이 있습니다.
+          </p>
+        )}
+        {data.isCurrentMonthView && data.overdueIncomeCount > 0 && (
+          <p className="mt-2 rounded-[16px] bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-600">
+            아직 받음 처리하지 않은 돈 {data.overdueIncomeCount}건, {displayAmount(data.overdueIncome, hideAmounts)}이 있습니다.
           </p>
         )}
       </div>
@@ -390,6 +414,18 @@ function FlowSummary({
                   <span className={`text-sm font-semibold ${item.type === 'in' ? 'text-blue-600' : 'text-red-500'}`}>
                     {item.type === 'in' ? '+' : '-'}{displayAmount(item.amount, hideAmounts)}
                   </span>
+                  {item.source === 'income' && (
+                    <button
+                      onClick={() => handleSetIncomeStatus(item.sourceId, item.paymentState?.kind !== 'received')}
+                      className={`min-h-[30px] rounded-full border px-2 text-xs font-semibold ${
+                        item.paymentState?.kind === 'received'
+                          ? 'border-blue-200 bg-blue-50 text-blue-700'
+                          : 'border-[#dddddd] bg-white text-[#222222]'
+                      }`}
+                    >
+                      {item.paymentState?.kind === 'received' ? '취소' : '받음'}
+                    </button>
+                  )}
                   {item.source === 'fixed' && (
                     <button
                       onClick={() => handleSetFixedStatus(item.sourceId, item.paymentState?.kind !== 'done')}
@@ -431,6 +467,17 @@ function getFixedPaymentState(
 ): { kind: 'done' | 'overdue'; label: string; cls: string } | null {
   if (status === 'done') return { kind: 'done', label: '완료', cls: 'bg-green-100 text-green-600' }
   if (isCurrentMonthView && day < todayDay) return { kind: 'overdue', label: '미납', cls: 'bg-red-100 text-red-500' }
+  return null
+}
+
+function getIncomeReceiveState(
+  status: string,
+  day: number,
+  isCurrentMonthView: boolean,
+  todayDay: number,
+): { kind: 'received' | 'overdue'; label: string; cls: string } | null {
+  if (status === 'received') return { kind: 'received', label: '받음', cls: 'bg-blue-100 text-blue-600' }
+  if (isCurrentMonthView && day < todayDay) return { kind: 'overdue', label: '미수령', cls: 'bg-blue-50 text-blue-600' }
   return null
 }
 
