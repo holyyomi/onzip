@@ -253,6 +253,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       tab: 'calendar' as TabId,
     })),
   ]
+  const hiddenTodayItemCount = Math.max(0, todayItems.length - 5)
 
   return (
     <div className="px-5 py-3 space-y-3">
@@ -285,6 +286,14 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
               onAction={item.onAction}
             />
           ))}
+          {hiddenTodayItemCount > 0 && (
+            <button
+              onClick={() => onTabChange('money')}
+              className="w-full rounded-[18px] border border-dashed border-[#ffd1da] bg-white px-3 py-3 text-sm font-semibold text-[#ff385c]"
+            >
+              숨겨진 돈/일정 {hiddenTodayItemCount}건 더 보기
+            </button>
+          )}
         </div>
       </section>
 
