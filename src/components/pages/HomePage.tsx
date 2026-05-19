@@ -48,6 +48,12 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
     const monthEntries = ledgerEntryRepo.getByMonth(year, month)
     const monthIncome = ledgerEntryRepo.sumByType(monthEntries, 'income')
     const monthExpense = ledgerEntryRepo.sumByType(monthEntries, 'expense')
+    const upcomingEntryIncome = monthEntries
+      .filter((entry) => entry.entry_type === 'income' && Number(entry.date.slice(-2)) >= todayDay)
+      .reduce((sum, entry) => sum + entry.amount, 0)
+    const upcomingEntryExpense = monthEntries
+      .filter((entry) => entry.entry_type === 'expense' && Number(entry.date.slice(-2)) >= todayDay)
+      .reduce((sum, entry) => sum + entry.amount, 0)
     const recurringIncome = incomeRepo.getAll().filter((income) => income.repeat_rule === 'monthly')
     const incomesWithStatus = recurringIncome.map((income) => ({
       ...income,
@@ -75,6 +81,19 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
     const todayIncome = incomesWithStatus.filter((income) => income.monthStatus !== 'received' && income.income_day === todayDay)
     const todayFixed = fixedExpensesWithStatus.filter((expense) => expense.monthStatus !== 'done' && expense.payment_day === todayDay)
     const todaySubs = subscriptionsWithStatus.filter((sub) => sub.monthStatus !== 'paid' && sub.payment_day === todayDay)
+    const remainingIn =
+      incomesWithStatus
+        .filter((income) => income.monthStatus !== 'received')
+        .reduce((sum, income) => sum + income.amount, 0) +
+      upcomingEntryIncome
+    const remainingOut =
+      fixedExpensesWithStatus
+        .filter((expense) => expense.monthStatus !== 'done')
+        .reduce((sum, expense) => sum + expense.amount, 0) +
+      subscriptionsWithStatus
+        .filter((sub) => sub.monthStatus !== 'paid')
+        .reduce((sum, sub) => sum + sub.amount, 0) +
+      upcomingEntryExpense
     const todayEvents = getAggregatedEvents(year, month).filter((event) => event.date === today && event.type === 'schedule')
     const weekEnd = addDays(today, 7)
     const vaultDueEnd = addDays(today, 30)
@@ -97,6 +116,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       monthExpense,
       expectedIn,
       expectedOut,
+      remainingIn,
+      remainingOut,
       overdueIncome,
       overdueFixed,
       overdueSubs,
@@ -209,9 +230,9 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <MiniStat label="들어올 돈" value={displayAmount(data.expectedIn, hideAmounts)} />
-          <MiniStat label="나갈 돈" value={displayAmount(data.expectedOut, hideAmounts)} />
-          <MiniStat label="예상 차이" value={displayAmount(data.expectedIn - data.expectedOut, hideAmounts)} />
+          <MiniStat label="남은 받을" value={displayAmount(data.remainingIn, hideAmounts)} />
+          <MiniStat label="남은 나갈" value={displayAmount(data.remainingOut, hideAmounts)} />
+          <MiniStat label="남은 차이" value={displayAmount(data.remainingIn - data.remainingOut, hideAmounts)} />
         </div>
       </section>
 
