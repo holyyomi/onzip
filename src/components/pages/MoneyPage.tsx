@@ -274,8 +274,8 @@ function FlowSummary({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, month, refreshKey])
 
-  function handleMarkFixedDone(id: string) {
-    fixedExpenseRepo.update(id, { status: 'done' })
+  function handleSetFixedStatus(id: string, done: boolean) {
+    fixedExpenseRepo.update(id, { status: done ? 'done' : 'pending' })
     onRefresh()
   }
 
@@ -377,12 +377,16 @@ function FlowSummary({
                   <span className={`text-sm font-semibold ${item.type === 'in' ? 'text-blue-600' : 'text-red-500'}`}>
                     {item.type === 'in' ? '+' : '-'}{displayAmount(item.amount, hideAmounts)}
                   </span>
-                  {item.source === 'fixed' && item.paymentState?.kind !== 'done' && (
+                  {item.source === 'fixed' && (
                     <button
-                      onClick={() => handleMarkFixedDone(item.sourceId)}
-                      className="min-h-[30px] rounded-full border border-[#dddddd] bg-white px-2 text-xs font-semibold text-[#222222]"
+                      onClick={() => handleSetFixedStatus(item.sourceId, item.paymentState?.kind !== 'done')}
+                      className={`min-h-[30px] rounded-full border px-2 text-xs font-semibold ${
+                        item.paymentState?.kind === 'done'
+                          ? 'border-green-200 bg-green-50 text-green-700'
+                          : 'border-[#dddddd] bg-white text-[#222222]'
+                      }`}
                     >
-                      완료
+                      {item.paymentState?.kind === 'done' ? '취소' : '완료'}
                     </button>
                   )}
                 </span>
