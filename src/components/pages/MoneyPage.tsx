@@ -165,6 +165,7 @@ function FlowSummary({
   onRefresh: () => void
 }) {
   const { hidden: hideAmounts } = useAmountPrivacy()
+  const [showAllTimeline, setShowAllTimeline] = useState(false)
   const data = useMemo(() => {
     const isCurrentMonthView = year === todayYear() && month === todayMonth()
     const todayDay = new Date().getDate()
@@ -317,6 +318,9 @@ function FlowSummary({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, month, refreshKey])
 
+  const timelineLimit = showAllTimeline ? data.timeline.length : 8
+  const hiddenTimelineCount = Math.max(0, data.timeline.length - 8)
+
   function handleSetFixedStatus(id: string, done: boolean) {
     const status = done ? 'done' : 'pending'
     setFixedExpenseMonthStatus(id, year, month, status)
@@ -415,7 +419,7 @@ function FlowSummary({
           {data.timeline.length === 0 && (
             <p className="py-3 text-sm text-[#8a8a8a]">등록된 반복 수입이나 고정 지출이 없습니다.</p>
           )}
-          {data.timeline.slice(0, 8).map((item) => {
+          {data.timeline.slice(0, timelineLimit).map((item) => {
             const dayStatus = getMoneyDayStatus(item.day, data.isCurrentMonthView, data.todayDay)
             return (
               <div key={item.id} className="flex items-center justify-between gap-3 py-3">
@@ -484,6 +488,14 @@ function FlowSummary({
               </div>
             )
           })}
+          {hiddenTimelineCount > 0 && (
+            <button
+              onClick={() => setShowAllTimeline((value) => !value)}
+              className="mt-2 w-full rounded-[16px] border border-[#dddddd] bg-white px-3 py-3 text-sm font-semibold text-[#222222]"
+            >
+              {showAllTimeline ? '접기' : `숨겨진 흐름 ${hiddenTimelineCount}건 더 보기`}
+            </button>
+          )}
         </div>
       </div>
     </div>
