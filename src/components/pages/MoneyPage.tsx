@@ -178,6 +178,10 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
       .filter((expense) => expense.category === '카드')
       .reduce((sum, expense) => sum + expense.amount, 0)
     const fixedOtherOut = Math.max(0, fixedOut - cardOut)
+    const overdueFixedExpenses = isCurrentMonthView
+      ? fixedExpenses.filter((expense) => expense.status !== 'done' && expense.payment_day < todayDay)
+      : []
+    const overdueFixedOut = overdueFixedExpenses.reduce((sum, expense) => sum + expense.amount, 0)
     const upcomingIncome = isCurrentMonthView
       ? incomes
           .filter((income) => income.income_day >= todayDay)
@@ -185,7 +189,7 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
       : 0
     const upcomingOut = isCurrentMonthView
       ? fixedExpenses
-          .filter((expense) => expense.payment_day >= todayDay)
+          .filter((expense) => expense.status !== 'done')
           .reduce((sum, expense) => sum + expense.amount, 0) +
         subscriptions
           .filter((sub) => sub.payment_day >= todayDay)
@@ -199,28 +203,37 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
         day: income.income_day,
         type: 'in' as const,
         label: '받을 돈',
+        paymentState: null,
+        priority: getMoneyDayDistance(income.income_day, todayDay),
         title: income.title,
         amount: income.amount,
       })),
-      ...fixedExpenses.map((expense) => ({
-        id: `fixed_${expense.id}`,
-        day: expense.payment_day,
-        type: 'out' as const,
-        label: expense.category === '카드' ? '카드값' : '줄 돈',
-        title: expense.title,
-        amount: expense.amount,
-      })),
+      ...fixedExpenses.map((expense) => {
+        const paymentState = getFixedPaymentState(expense.status, expense.payment_day, isCurrentMonthView, todayDay)
+        return {
+          id: `fixed_${expense.id}`,
+          day: expense.payment_day,
+          type: 'out' as const,
+          label: expense.category === '카드' ? '카드값' : '줄 돈',
+          paymentState,
+          priority: paymentState?.kind === 'overdue' ? -1 : getMoneyDayDistance(expense.payment_day, todayDay),
+          title: expense.title,
+          amount: expense.amount,
+        }
+      }),
       ...subscriptions.map((sub) => ({
         id: `sub_${sub.id}`,
         day: sub.payment_day,
         type: 'out' as const,
         label: '자동결제',
+        paymentState: null,
+        priority: getMoneyDayDistance(sub.payment_day, todayDay),
         title: sub.title,
         amount: sub.amount,
       })),
     ].sort((a, b) => {
       if (!isCurrentMonthView) return a.day - b.day
-      return getMoneyDayDistance(a.day, todayDay) - getMoneyDayDistance(b.day, todayDay)
+      return a.priority - b.priority
     })
 
     return {
@@ -232,6 +245,8 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
       entryExpense,
       upcomingIncome,
       upcomingOut,
+      overdueFixedCount: overdueFixedExpenses.length,
+      overdueFixedOut,
       salaryIncome,
       sideIncome,
       otherRecurringIncome,
@@ -263,6 +278,11 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
               negative={data.upcomingIncome - data.upcomingOut < 0}
             />
           </div>
+        )}
+        {data.isCurrentMonthView && data.overdueFixedCount > 0 && (
+          <p className="mt-3 rounded-[16px] bg-[#fff0f3] px-3 py-2 text-xs font-semibold text-[#ff385c]">
+            아직 완료하지 않은 나갈 돈 {data.overdueFixedCount}건, {displayAmount(data.overdueFixedOut, hideAmounts)}이 있습니다.
+          </p>
         )}
       </div>
 
@@ -324,6 +344,11 @@ function FlowSummary({ year, month, refreshKey }: { year: number; month: number;
                         {dayStatus.label}
                       </span>
                     )}
+                    {item.paymentState && (
+                      <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${item.paymentState.cls}`}>
+                        {item.paymentState.label}
+                      </span>
+                    )}
                   </span>
                   <span className="mt-0.5 block truncate text-xs text-[#8a8a8a]">{item.title}</span>
                 </span>
@@ -348,6 +373,17 @@ function getMoneyDayStatus(day: number, isCurrentMonthView: boolean, todayDay: n
   if (day === todayDay) return { label: '오늘', cls: 'bg-[#222222] text-white' }
   if (day > todayDay) return { label: `D-${day - todayDay}`, cls: 'bg-gray-100 text-gray-600' }
   return { label: '지남', cls: 'bg-gray-50 text-gray-400' }
+}
+
+function getFixedPaymentState(
+  status: string,
+  day: number,
+  isCurrentMonthView: boolean,
+  todayDay: number,
+): { kind: 'done' | 'overdue'; label: string; cls: string } | null {
+  if (status === 'done') return { kind: 'done', label: '완료', cls: 'bg-green-100 text-green-600' }
+  if (isCurrentMonthView && day < todayDay) return { kind: 'overdue', label: '미납', cls: 'bg-red-100 text-red-500' }
+  return null
 }
 
 function RemainingFlowPill({ label, value, negative = false }: { label: string; value: string; negative?: boolean }) {
