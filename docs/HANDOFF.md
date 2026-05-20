@@ -66,6 +66,7 @@ npm run build
 - 백업 복원: 설정 탭에서 온집 JSON 백업 파일을 불러와 현재 기기의 로컬 데이터를 교체할 수 있음
 - 온보딩/업데이트: 첫 실행 안내, 설정의 최근 업데이트 카드, 새 버전 확인/적용 버튼 추가
 - PWA 설치 안내: 설정 화면에 설치 안내 카드를 연결해 Android/iPhone 홈 화면 추가 방법을 확인할 수 있음
+- PWA/공유 문구: manifest와 meta description도 `흐름`, `구매 항목`, `보관 메모` 기준의 정돈된 표현으로 통일
 - SEO 기본 파일: `public/robots.txt`, `public/sitemap.xml`
 - 디자인: Airbnb + Apple 혼합 톤의 밝은 모바일 앱 UI
 - 브랜드: imagegen으로 생성한 `assets/brand/onzip-logo.png` 원본에서 PWA 아이콘을 만들고, `온집` 이름을 헤더/홈/설정에 명확히 표시
