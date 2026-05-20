@@ -38,6 +38,7 @@ npm run dev
 npm run typecheck
 npm run build
 npm run smoke
+npm run smoke:prod
 npm run verify
 ```
 
@@ -111,6 +112,7 @@ npm run verify
 - 문구 4차 정리: 화면 라벨과 상태 배지를 `부가 수입`, `입금`, `입금 대기`, `정기 지출`, `용품명/구매 항목명` 기준으로 정리
 - 로컬 스모크 QA: 2026-05-20 기준 개발 서버 `http://127.0.0.1:3000` 응답 200, 아이콘 응답 200, 빌드 산출물 `manifest.webmanifest`와 `dist/index.html`의 PWA/OG 메타 확인 완료. Browser 자동화 인터페이스는 현재 세션에 노출되지 않아 DOM 기반 화면 조작 QA는 미실행
 - 반복 QA 명령: `npm run smoke`로 빌드 산출물, PWA manifest, 필수 아이콘, OG 메타, 이전 용어 잔여 여부를 자동 확인. `npm run verify`는 typecheck, build, smoke를 순서대로 실행
+- 배포 QA 명령: `npm run smoke:prod`로 `https://onzip.vercel.app`의 HTML, manifest, service worker, 아이콘, OG/SEO 파일 응답을 확인. 다른 URL은 `ONZIP_PROD_URL` 환경변수나 명령 인자로 지정 가능
 - 문구 체계: 하단 탭은 `홈`, `흐름`, `일정`, `금고`로 정리하고, 주요 추가 버튼은 흐름/일정/보관 메모 중심으로 통일
 - 빈 상태/목록 UI: 주요 생활·흐름·기록 화면의 빈 상태, 추가 버튼, 목록 카드를 앱 톤에 맞게 통일
 - QA 보완: 기록 탭에서 가족 회의록을 바로 추가하면 회의록 제목과 기본 템플릿이 자동 삽입됨

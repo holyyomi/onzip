@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "smoke": "node scripts/smoke-check.mjs",
+    "smoke:prod": "node scripts/prod-smoke-check.mjs",
     "verify": "npm run typecheck && npm run build && npm run smoke"
   },
   "dependencies": {
