@@ -36,7 +36,7 @@ export default function FixedExpenseFormModal({ expenseId, onSaved, onClose }: P
   const [showDetails, setShowDetails] = useState(Boolean(expenseId))
 
   function handleSave() {
-    if (!title.trim()) { setError('이름을 입력해주세요'); return }
+    if (!title.trim()) { setError('지출명을 입력해주세요'); return }
     const amt = Number(amount)
     if (!amt || amt <= 0) { setError('금액을 입력해주세요'); return }
 
@@ -76,14 +76,14 @@ export default function FixedExpenseFormModal({ expenseId, onSaved, onClose }: P
 
   function handleDelete() {
     if (!expenseId) return
-    if (!confirm('이 고정지출을 삭제할까요?')) return
+    if (!confirm('이 정기 지출을 삭제할까요?')) return
     fixedExpenseRepo.delete(expenseId)
     onSaved()
   }
 
   return (
-    <FormModal title={expenseId ? '고정지출 수정' : '고정지출 추가'} onClose={onClose}>
-      <Field label="이름 (필수)">
+    <FormModal title={expenseId ? '정기 지출 수정' : '정기 지출 추가'} onClose={onClose}>
+      <Field label="지출명">
         <input type="text" placeholder="예) 월세" value={title}
           onChange={(e) => { setTitle(e.target.value); setError('') }}
           className={inputCls}
@@ -105,7 +105,7 @@ export default function FixedExpenseFormModal({ expenseId, onSaved, onClose }: P
         </div>
       )}
 
-      <Field label="금액 (필수)">
+      <Field label="금액">
         <input type="number" placeholder="0" value={amount}
           onChange={(e) => { setAmount(e.target.value); setError('') }}
           onKeyDown={(e) => e.key === 'Enter' && handleSave()}

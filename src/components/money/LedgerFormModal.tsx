@@ -149,7 +149,7 @@ export default function LedgerFormModal({
         onClick={() => setShowDetails((value) => !value)}
         className="mb-3 text-sm font-semibold text-[#ff385c]"
       >
-        {showDetails ? '자세히 닫기' : '날짜/결제수단 자세히'}
+        {showDetails ? '자세히 닫기' : '날짜/세부 정보 자세히'}
       </button>
 
       {showDetails && (

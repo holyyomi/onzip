@@ -29,7 +29,7 @@ export default function ShoppingFormModal({ itemId, onSaved, onClose }: Props) {
   const [showDetails, setShowDetails] = useState(Boolean(itemId))
 
   function handleSave() {
-    if (!name.trim()) { setError('품목명을 입력해주세요'); return }
+    if (!name.trim()) { setError('구매 항목명을 입력해주세요'); return }
 
     if (itemId && existing) {
       shoppingItemRepo.update(itemId, {
@@ -59,7 +59,7 @@ export default function ShoppingFormModal({ itemId, onSaved, onClose }: Props) {
 
   return (
     <FormModal title={itemId ? '구매 항목 수정' : '구매 항목 추가'} onClose={onClose}>
-      <Field label="품목명">
+      <Field label="구매 항목명">
         <input type="text" placeholder="예) 계란, 우유, 휴지" value={name}
           onChange={(e) => { setName(e.target.value); setError('') }}
           onKeyDown={(e) => e.key === 'Enter' && handleSave()}

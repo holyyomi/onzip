@@ -36,9 +36,10 @@ export default function IncomeFormModal({ incomeId, onSaved, onClose }: Props) {
   const [repeat, setRepeat] = useState<RepeatRule>(existing?.repeat_rule ?? 'monthly')
   const [memo, setMemo] = useState(existing?.memo ?? '')
   const [error, setError] = useState('')
+  const [showDetails, setShowDetails] = useState(Boolean(incomeId))
 
   function handleSave() {
-    if (!title.trim()) { setError('이름을 입력해주세요'); return }
+    if (!title.trim()) { setError('수입명을 입력해주세요'); return }
     const amt = Number(amount)
     if (!amt || amt <= 0) { setError('금액을 입력해주세요'); return }
 
@@ -68,23 +69,20 @@ export default function IncomeFormModal({ incomeId, onSaved, onClose }: Props) {
   }
 
   return (
-    <FormModal title={incomeId ? '수입 수정' : '수입 추가'} onClose={onClose}>
-      <Field label="수입명 (필수)">
+    <FormModal title={incomeId ? '수입 예정 수정' : '수입 예정 추가'} onClose={onClose}>
+      <Field label="수입명">
         <input type="text" placeholder="예) 월급" value={title}
-          onChange={(e) => { setTitle(e.target.value); setError('') }} className={inputCls} />
+          onChange={(e) => { setTitle(e.target.value); setError('') }}
+          className={inputCls}
+          autoFocus />
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
       </Field>
 
-      <Field label="금액 (필수)">
+      <Field label="금액">
         <input type="number" placeholder="0" value={amount}
           onChange={(e) => { setAmount(e.target.value); setError('') }}
+          onKeyDown={(e) => e.key === 'Enter' && handleSave()}
           className={inputCls} inputMode="numeric" />
-      </Field>
-
-      <Field label="수입일">
-        <select value={incomeDay} onChange={(e) => setIncomeDay(Number(e.target.value))} className={inputCls}>
-          {DAYS_OPTIONS.map((d) => <option key={d} value={d}>매월 {d}일</option>)}
-        </select>
       </Field>
 
       <Field label="수입 유형">
@@ -93,21 +91,38 @@ export default function IncomeFormModal({ incomeId, onSaved, onClose }: Props) {
         </select>
       </Field>
 
-      <Field label="담당자">
-        <select value={memberId} onChange={(e) => setMemberId(e.target.value)} className={inputCls}>
-          {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-        </select>
-      </Field>
+      <button
+        onClick={() => setShowDetails((value) => !value)}
+        className="mb-3 min-h-[40px] text-sm font-semibold text-[#ff385c]"
+      >
+        {showDetails ? '자세히 닫기' : '입금일/반복 자세히'}
+      </button>
 
-      <Field label="반복">
-        <select value={repeat} onChange={(e) => setRepeat(e.target.value as RepeatRule)} className={inputCls}>
-          {REPEAT_OPTIONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
-        </select>
-      </Field>
+      {showDetails && (
+        <div className="rounded-[20px] bg-[#f7f7f7] p-4 mb-4">
+          <Field label="입금일">
+            <select value={incomeDay} onChange={(e) => setIncomeDay(Number(e.target.value))} className={inputCls}>
+              {DAYS_OPTIONS.map((d) => <option key={d} value={d}>매월 {d}일</option>)}
+            </select>
+          </Field>
 
-      <Field label="메모 (선택)">
-        <input type="text" placeholder="메모" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
-      </Field>
+          <Field label="담당자">
+            <select value={memberId} onChange={(e) => setMemberId(e.target.value)} className={inputCls}>
+              {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
+          </Field>
+
+          <Field label="반복">
+            <select value={repeat} onChange={(e) => setRepeat(e.target.value as RepeatRule)} className={inputCls}>
+              {REPEAT_OPTIONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+            </select>
+          </Field>
+
+          <Field label="메모">
+            <input type="text" placeholder="예) 급여일, 입금 계좌" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
+          </Field>
+        </div>
+      )}
 
       <FormActions onSave={handleSave} onDelete={incomeId ? handleDelete : undefined}
         saveLabel={incomeId ? '수정 완료' : '저장'} />
