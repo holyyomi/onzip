@@ -121,7 +121,7 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
           <div>
             <p className="text-base font-semibold text-[#222222]">민감 메모 숨김</p>
             <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-              민감, 비밀, 숨김 태그가 붙은 금고 메모의 제목과 내용을 가립니다.
+              민감, 비밀, 숨김 태그가 붙은 보관 메모의 제목과 내용을 가립니다.
             </p>
           </div>
           <button

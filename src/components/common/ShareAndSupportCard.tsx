@@ -6,7 +6,7 @@ const APP_URL = 'https://onzip.vercel.app'
 const CONTACT_EMAIL = 'holyyomi@naver.com'
 
 const SHARE_TEXT = `온집
-들어올 돈, 나갈 돈, 중요한 날짜와 금고 메모를 한곳에서 챙기는 개인 생활 앱입니다.
+수입 예정, 지출 예정, 중요한 일정과 보관 메모를 한곳에서 정리하는 개인 생활 앱입니다.
 
 설치 방법:
 1. ${APP_URL} 접속
@@ -20,7 +20,7 @@ function getBackupStatus(lastBackupAt: string | null) {
     return {
       label: '아직 백업 없음',
       tone: 'warn',
-      detail: '금고나 돈 흐름을 쓰기 시작했다면 한 번 내려받아 두는 게 좋습니다.',
+      detail: '금고나 흐름 기록을 쓰기 시작했다면 한 번 내려받아 두는 게 좋습니다.',
     }
   }
 

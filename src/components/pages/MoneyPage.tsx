@@ -31,13 +31,13 @@ interface Props {
 const SUB_TABS: { value: MoneySubTab; label: string }[] = [
   { value: 'summary', label: '흐름' },
   { value: 'ledger', label: '기록' },
-  { value: 'manage', label: '반복돈' },
+  { value: 'manage', label: '정기 항목' },
   { value: 'calculator', label: '계산기' },
 ]
 
 const MANAGE_TABS: { value: MoneyManageSubTab; label: string }[] = [
-  { value: 'income', label: '들어올 돈' },
-  { value: 'fixed', label: '나갈 돈' },
+  { value: 'income', label: '수입 예정' },
+  { value: 'fixed', label: '지출 예정' },
   { value: 'subscription', label: '자동결제' },
 ]
 
@@ -69,14 +69,14 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 pt-3 grid grid-cols-2 gap-3">
         <MoneyQuickButton
           iconSrc={QUICK_ADD_ICON.expense}
-          label="나갈 돈"
-          sub="카드값, 정산, 생활비"
+          label="지출 예정"
+          sub="카드 결제, 정산, 생활비"
           onClick={() => onQuickAdd('expense')}
         />
         <MoneyQuickButton
           iconSrc={QUICK_ADD_ICON.income}
-          label="들어올 돈"
-          sub="월급, 부수입, 받을 돈"
+          label="수입 예정"
+          sub="월급, 부수입, 받을 금액"
           onClick={() => onQuickAdd('income')}
         />
       </div>
@@ -146,7 +146,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       {activeTab === 'calculator' && <CalculatorTab />}
 
       <div className="px-5 py-5">
-        <TabMemoCard tab="money" title="흐름 메모" placeholder="받을 돈, 나갈 돈, 잔액 확인 내용을 기록하세요." />
+        <TabMemoCard tab="money" title="흐름 메모" placeholder="수입 예정, 지출 예정, 잔액 확인 내용을 기록하세요." />
       </div>
     </div>
   )
@@ -247,7 +247,7 @@ function FlowSummary({
           type: 'in' as const,
           source: 'income' as const,
           sourceId: income.id,
-          label: '받을 돈',
+          label: '수입 예정',
           paymentState,
           priority: paymentState?.kind === 'overdue' ? -2 : getMoneyDayDistance(effectiveDay, todayDay),
           title: income.title,
@@ -263,7 +263,7 @@ function FlowSummary({
           type: 'out' as const,
           source: 'fixed' as const,
           sourceId: expense.id,
-          label: expense.category === '카드' ? '카드값' : '줄 돈',
+          label: expense.category === '카드' ? '카드 결제' : '지출 예정',
           paymentState,
           priority: paymentState?.kind === 'overdue' ? -1 : getMoneyDayDistance(effectiveDay, todayDay),
           title: expense.title,
@@ -344,14 +344,14 @@ function FlowSummary({
           {displayAmount(data.inTotal - data.outTotal, hideAmounts)}
         </p>
         <p className="mt-1 text-xs text-[#8a8a8a]">
-          들어올 돈 {displayAmount(data.inTotal, hideAmounts)} - 나갈 돈 {displayAmount(data.outTotal, hideAmounts)}
+          수입 예정 {displayAmount(data.inTotal, hideAmounts)} - 지출 예정 {displayAmount(data.outTotal, hideAmounts)}
         </p>
         {data.isCurrentMonthView && (
           <div className="mt-4 grid grid-cols-3 gap-2">
-            <RemainingFlowPill label="남은 받을" value={displayAmount(data.upcomingIncome, hideAmounts)} />
-            <RemainingFlowPill label="남은 나갈" value={displayAmount(data.upcomingOut, hideAmounts)} />
+            <RemainingFlowPill label="남은 수입" value={displayAmount(data.upcomingIncome, hideAmounts)} />
+            <RemainingFlowPill label="남은 지출" value={displayAmount(data.upcomingOut, hideAmounts)} />
             <RemainingFlowPill
-              label="남은 차이"
+              label="예상 차액"
               value={displayAmount(data.upcomingIncome - data.upcomingOut, hideAmounts)}
               negative={data.upcomingIncome - data.upcomingOut < 0}
             />
@@ -359,7 +359,7 @@ function FlowSummary({
         )}
         {data.isCurrentMonthView && data.overdueFixedCount > 0 && (
           <p className="mt-3 rounded-[16px] bg-[#fff0f3] px-3 py-2 text-xs font-semibold text-[#ff385c]">
-            아직 완료하지 않은 나갈 돈 {data.overdueFixedCount}건, {displayAmount(data.overdueFixedOut, hideAmounts)}이 있습니다.
+            아직 완료하지 않은 지출 예정 {data.overdueFixedCount}건, {displayAmount(data.overdueFixedOut, hideAmounts)}이 있습니다.
           </p>
         )}
         {data.isCurrentMonthView && data.overdueIncomeCount > 0 && (
@@ -375,13 +375,13 @@ function FlowSummary({
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <FlowStat label="들어올 돈" value={displayAmount(data.inTotal, hideAmounts)} tone="in" />
-        <FlowStat label="나갈 돈" value={displayAmount(data.outTotal, hideAmounts)} tone="out" />
+        <FlowStat label="수입 예정" value={displayAmount(data.inTotal, hideAmounts)} tone="in" />
+        <FlowStat label="지출 예정" value={displayAmount(data.outTotal, hideAmounts)} tone="out" />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <FlowBreakdownCard
-          title="받을 돈"
+          title="수입 예정"
           tone="in"
           items={[
             { label: '월급/고정', value: data.salaryIncome },
@@ -392,10 +392,10 @@ function FlowSummary({
           hideAmounts={hideAmounts}
         />
         <FlowBreakdownCard
-          title="줄 돈"
+          title="지출 예정"
           tone="out"
           items={[
-            { label: '카드값', value: data.cardOut },
+            { label: '카드 결제', value: data.cardOut },
             { label: '고정지출', value: data.fixedOtherOut },
             { label: '자동결제', value: data.subOut },
             { label: '이번 달 기록', value: data.entryExpense },
@@ -406,9 +406,9 @@ function FlowSummary({
 
       <div className="oz-card p-4">
         <div>
-          <h3 className="text-base font-semibold text-[#222222]">날짜별 돈 흐름</h3>
+          <h3 className="text-base font-semibold text-[#222222]">날짜별 흐름</h3>
           {data.isCurrentMonthView && (
-            <p className="mt-0.5 text-xs text-[#8a8a8a]">오늘 이후 챙길 돈이 먼저 보입니다.</p>
+            <p className="mt-0.5 text-xs text-[#8a8a8a]">오늘 이후 확인할 항목이 먼저 보입니다.</p>
           )}
         </div>
         <div className="mt-3 divide-y divide-[#f0f0f0]">
@@ -489,7 +489,7 @@ function FlowSummary({
               onClick={() => setShowAllTimeline((value) => !value)}
               className="mt-2 w-full rounded-[16px] border border-[#dddddd] bg-white px-3 py-3 text-sm font-semibold text-[#222222]"
             >
-              {showAllTimeline ? '접기' : `숨겨진 흐름 ${hiddenTimelineCount}건 더 보기`}
+              {showAllTimeline ? '접기' : `숨겨진 항목 ${hiddenTimelineCount}건 더 보기`}
             </button>
           )}
         </div>

@@ -91,7 +91,7 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
         >
           <img src={QUICK_ADD_ICON.record} alt="" className="h-12 w-12 rounded-[18px] object-contain flex-shrink-0" />
           <span className="min-w-0">
-          <span className="block text-lg font-semibold text-[#222222]">금고 메모 남기기</span>
+          <span className="block text-lg font-semibold text-[#222222]">보관 메모 남기기</span>
           <span className="block text-sm text-[#6a6a6a] mt-1">계좌, 계약, 보험, 중요한 내용을 보관합니다</span>
           </span>
         </button>
@@ -140,7 +140,7 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
           <EmptyState
             message={hasActiveFilter ? '조건에 맞는 메모가 없습니다' : '금고가 비어 있습니다'}
             sub={hasActiveFilter ? '검색어나 필터를 바꿔보세요.' : '남에게 보이기 싫지만 꼭 필요한 내용을 보관하세요.'}
-            actionLabel="금고 메모 남기기"
+            actionLabel="보관 메모 남기기"
             onAction={() => onQuickAdd('record')}
           />
         )}

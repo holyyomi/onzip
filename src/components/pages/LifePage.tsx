@@ -20,7 +20,7 @@ interface Props {
 
 const SUB_TABS: { value: LifeSubTab; label: string }[] = [
   { value: 'shopping', label: '장보기' },
-  { value: 'checklist', label: '할 일' },
+  { value: 'checklist', label: '체크리스트' },
   { value: 'manage', label: '관리' },
 ]
 
@@ -47,14 +47,14 @@ export default function LifePage({ externalRefreshKey, onQuickAdd, initialTab }:
       <div className="px-4 pt-3 grid grid-cols-2 gap-3">
         <LifeQuickButton
           iconSrc={QUICK_ADD_ICON.shopping}
-          label="살 것 추가"
-          sub="장보기 목록에 넣기"
+          label="구매 항목"
+          sub="필요한 물품 기록"
           onClick={() => onQuickAdd('shopping')}
         />
         <LifeQuickButton
           iconSrc={QUICK_ADD_ICON.checklist}
-          label="할 일 목록"
-          sub="준비물과 진행 항목"
+          label="체크리스트"
+          sub="준비 항목과 진행 상황"
           onClick={() => onQuickAdd('checklist')}
         />
       </div>

@@ -133,7 +133,7 @@ const VAULT_TEMPLATES: VaultTemplate[] = [
 ## 금액
 -
 
-## 미리 할 일
+## 미리 확인할 항목
 -
 
 ## 확인한 내용
@@ -249,7 +249,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
   }
 
   return (
-    <FormModal title={recordId ? '금고 수정' : '금고 메모'} onClose={onClose}>
+    <FormModal title={recordId ? '금고 수정' : '보관 메모'} onClose={onClose}>
       {/* 유형 선택 */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {RECORD_TYPES.map((t) => (
@@ -310,7 +310,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
             <input type="date" value={recordDate} onChange={(e) => setRecordDate(e.target.value)} className={inputCls} />
             {recordType === 'anniversary' && (
               <p className="mt-1 text-xs text-gray-400">
-                이 날짜가 가까워지면 홈의 곧 챙길 것에 표시됩니다.
+                이 날짜가 가까워지면 홈의 다가오는 항목에 표시됩니다.
               </p>
             )}
           </Field>

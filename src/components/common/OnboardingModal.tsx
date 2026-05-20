@@ -20,14 +20,14 @@ export default function OnboardingModal() {
         <div className="flex justify-center pb-3">
           <img src="/icons/icon-192.png" alt="" className="h-14 w-14 rounded-[20px]" />
         </div>
-        <h2 className="text-center text-2xl font-semibold text-[#222222]">중요한 것부터 챙겨요</h2>
+        <h2 className="text-center text-2xl font-semibold text-[#222222]">중요한 항목부터 정리해요</h2>
         <p className="mt-2 text-center text-sm leading-relaxed text-[#6a6a6a]">
-          들어올 돈, 나갈 돈, 중요한 날짜와 금고 메모를 한곳에 정리합니다.
+          수입 예정, 지출 예정, 중요한 일정과 보관 메모를 한곳에 정리합니다.
         </p>
         <div className="mt-4 space-y-2">
-          <Step number="1" title="오늘 중요한 것 확인" text="오늘 들어오고 나갈 돈, 일정, 중요 메모를 먼저 봅니다." />
-          <Step number="2" title="흐름으로 돈 날짜 관리" text="월급, 부수입, 카드값, 자동결제를 날짜별로 정리합니다." />
-          <Step number="3" title="금고에 중요한 내용 보관" text="계좌, 계약, 보험 같은 민감한 메모를 기기 안에 저장합니다." />
+          <Step number="1" title="오늘의 주요 항목 확인" text="오늘의 수입·지출, 일정, 중요 메모를 먼저 봅니다." />
+          <Step number="2" title="흐름으로 날짜 관리" text="월급, 부수입, 카드 결제, 자동결제를 날짜별로 정리합니다." />
+          <Step number="3" title="금고에 중요 정보 보관" text="계좌, 계약, 보험 같은 민감한 메모를 기기 안에 저장합니다." />
         </div>
         <button
           onClick={handleClose}

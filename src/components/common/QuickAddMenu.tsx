@@ -16,14 +16,14 @@ interface Props {
 }
 
 const OPTIONS: { type: QuickAddType; label: string; sub: string; primary?: boolean }[] = [
-  { type: 'expense',       label: '나갈 돈', sub: '카드값, 생활비, 정산', primary: true },
-  { type: 'income',        label: '들어올 돈', sub: '월급, 부수입, 받을 돈', primary: true },
-  { type: 'schedule',      label: '중요 날짜', sub: '예약, 납부, 갱신일', primary: true },
-  { type: 'record',        label: '금고 메모', sub: '계좌, 계약, 중요 정보', primary: true },
-  { type: 'fixed_expense', label: '매달 나갈 돈',  sub: '월세, 보험, 관리비' },
+  { type: 'expense',       label: '지출 예정', sub: '카드 결제, 생활비, 정산', primary: true },
+  { type: 'income',        label: '수입 예정', sub: '월급, 부수입, 받을 금액', primary: true },
+  { type: 'schedule',      label: '중요 일정', sub: '예약, 납부, 갱신일', primary: true },
+  { type: 'record',        label: '보관 메모', sub: '계좌, 계약, 중요 정보', primary: true },
+  { type: 'fixed_expense', label: '정기 지출',  sub: '월세, 보험, 관리비' },
   { type: 'subscription',  label: '구독/자동결제', sub: '정기 결제 서비스' },
-  { type: 'shopping',      label: '살 것', sub: '필요할 때만 가볍게' },
-  { type: 'checklist',     label: '체크리스트', sub: '준비할 항목 정리' },
+  { type: 'shopping',      label: '구매 항목', sub: '필요한 물품을 간단히' },
+  { type: 'checklist',     label: '체크리스트', sub: '준비 항목 정리' },
 ]
 
 const primaryOptions = OPTIONS.filter((option) => option.primary)
@@ -41,8 +41,8 @@ export default function QuickAddMenu({ onSelect, onClose }: Props) {
         </div>
 
         <div className="px-5 pb-3">
-          <p className="text-2xl font-semibold text-[#222222]">무엇을 챙길까요?</p>
-          <p className="text-sm text-[#6a6a6a] mt-1">돈, 날짜, 중요한 메모를 빠르게 남기세요.</p>
+          <p className="text-2xl font-semibold text-[#222222]">무엇을 기록할까요?</p>
+          <p className="text-sm text-[#6a6a6a] mt-1">수입·지출, 일정, 보관 메모를 빠르게 남기세요.</p>
         </div>
 
         <div className="px-5 grid grid-cols-2 gap-3">

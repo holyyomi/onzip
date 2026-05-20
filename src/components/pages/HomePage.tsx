@@ -114,7 +114,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
     const upcomingMoneyItems = targetMonths.flatMap(({ year: targetYear, month: targetMonth }) => [
       ...recurringIncome.map((income) => ({
         id: `upcoming_income_${targetYear}_${targetMonth}_${income.id}`,
-        label: '받을 돈',
+        label: '수입 예정',
         date: dateInMonth(targetYear, targetMonth, income.income_day),
         title: income.title,
         amount: income.amount,
@@ -122,7 +122,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       })),
       ...fixedExpenses.map((expense) => ({
         id: `upcoming_fixed_${targetYear}_${targetMonth}_${expense.id}`,
-        label: expense.category === '카드' ? '카드값' : '나갈 돈',
+        label: expense.category === '카드' ? '카드 결제' : '지출 예정',
         date: dateInMonth(targetYear, targetMonth, expense.payment_day),
         title: expense.title,
         amount: expense.amount,
@@ -219,7 +219,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
     })),
     ...data.todayIncome.map((income) => ({
       id: `income_${income.id}`,
-      label: '들어올 돈',
+      label: '수입 예정',
       title: income.title,
       detail: displayAmount(income.amount, hideAmounts),
       tab: 'money' as TabId,
@@ -228,7 +228,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
     })),
     ...data.todayFixed.map((expense) => ({
       id: `fixed_${expense.id}`,
-      label: '나갈 돈',
+      label: '지출 예정',
       title: expense.title,
       detail: displayAmount(expense.amount, hideAmounts),
       tab: 'money' as TabId,
@@ -260,7 +260,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         <div className="mb-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs font-semibold text-[#8a8a8a]">{todayStr().replace(/-/g, '.')}</p>
-            <h2 className="mt-0.5 text-xl font-semibold text-[#222222]">오늘 중요한 것</h2>
+            <h2 className="mt-0.5 text-xl font-semibold text-[#222222]">오늘의 주요 항목</h2>
           </div>
           <button
             onClick={() => onTabChange('money')}
@@ -272,7 +272,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
 
         <div className="space-y-2">
           {todayItems.length === 0 && (
-            <EmptyLine title="오늘 챙길 돈과 일정이 없습니다" text="미수령, 미납, 자동결제 확인이 필요하면 여기서 먼저 보입니다." />
+            <EmptyLine title="오늘 확인할 항목이 없습니다" text="미수령, 미납, 자동결제 확인이 필요하면 여기서 먼저 보입니다." />
           )}
           {todayItems.slice(0, 5).map((item) => (
             <ImportantLine
@@ -297,10 +297,10 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       </section>
 
       <section className="grid grid-cols-2 gap-2">
-        <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="나갈 돈" onClick={() => onQuickAdd('expense')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.income} label="들어올 돈" onClick={() => onQuickAdd('income')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="중요 날짜" onClick={() => onQuickAdd('schedule')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="금고 메모" onClick={() => onQuickAdd('record')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="지출 예정" onClick={() => onQuickAdd('expense')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.income} label="수입 예정" onClick={() => onQuickAdd('income')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="중요 일정" onClick={() => onQuickAdd('schedule')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="보관 메모" onClick={() => onQuickAdd('record')} />
       </section>
 
       <section className="oz-card p-4">
@@ -311,22 +311,22 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <MiniStat label="남은 받을" value={displayAmount(data.remainingIn, hideAmounts)} />
-          <MiniStat label="남은 나갈" value={displayAmount(data.remainingOut, hideAmounts)} />
-          <MiniStat label="남은 차이" value={displayAmount(data.remainingIn - data.remainingOut, hideAmounts)} />
+          <MiniStat label="남은 수입" value={displayAmount(data.remainingIn, hideAmounts)} />
+          <MiniStat label="남은 지출" value={displayAmount(data.remainingOut, hideAmounts)} />
+          <MiniStat label="예상 차액" value={displayAmount(data.remainingIn - data.remainingOut, hideAmounts)} />
         </div>
       </section>
 
       <section className="oz-card p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-[#222222]">곧 챙길 것</h3>
+          <h3 className="text-lg font-semibold text-[#222222]">다가오는 항목</h3>
           <button onClick={() => onTabChange('calendar')} className="min-h-[34px] px-2 text-sm font-semibold text-[#ff385c]">
             일정
           </button>
         </div>
         <div className="divide-y divide-[#f0f0f0]">
           {data.upcomingMoneyItems.length === 0 && data.weekEvents.length === 0 && data.upcomingVaultRecords.length === 0 && data.importantRecords.length === 0 && (
-            <p className="py-3 text-sm text-[#8a8a8a]">곧 챙길 돈, 일정, 금고 메모가 없습니다.</p>
+            <p className="py-3 text-sm text-[#8a8a8a]">다가오는 수입·지출, 일정, 보관 메모가 없습니다.</p>
           )}
           {data.upcomingMoneyItems.slice(0, 4).map((item) => (
             <StatusRow
@@ -340,7 +340,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           {data.weekEvents.slice(0, Math.max(0, 4 - data.upcomingMoneyItems.length)).map((event) => (
             <StatusRow
               key={event.id}
-              label={event.type === 'anniversary' ? '기념일' : event.type === 'checklist' ? '할 일' : '일정'}
+              label={event.type === 'anniversary' ? '기념일' : event.type === 'checklist' ? '체크리스트' : '일정'}
               value={event.date.slice(5).replace('-', '.')}
               detail={event.title}
               onClick={() => onTabChange('calendar')}

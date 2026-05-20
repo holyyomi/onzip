@@ -63,7 +63,7 @@ export default function ChecklistTab({ refreshKey, onRefresh }: Props) {
         {checklists.length === 0 && (
           <EmptyState
             message="체크리스트가 비어 있습니다"
-            sub="여행 준비, 이사 준비, 가족 할 일을 목록으로 정리해보세요."
+            sub="여행 준비, 이사 준비, 가족 체크리스트를 목록으로 정리해보세요."
             actionLabel="체크리스트 만들기"
             onAction={() => { setEditingId(null); setShowModal(true) }}
           />

@@ -99,7 +99,7 @@ export default function AppLockGate() {
         </div>
         <h2 className="text-center text-2xl font-semibold text-[#222222]">온집 잠금</h2>
         <p className="mt-2 text-center text-sm leading-relaxed text-[#6a6a6a]">
-          돈 흐름과 금고 메모를 보려면 PIN을 입력하세요.
+          흐름 기록과 보관 메모를 보려면 PIN을 입력하세요.
         </p>
 
         <input

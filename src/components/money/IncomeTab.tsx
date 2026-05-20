@@ -63,7 +63,7 @@ export default function IncomeTab({ year, month, refreshKey, onRefresh }: Props)
     <div>
       <div className="px-4 py-3 bg-white border-b border-gray-100 flex justify-between items-center">
         <div>
-          <p className="text-xs text-gray-400">이번 달 남은 받을 돈</p>
+          <p className="text-xs text-gray-400">이번 달 남은 수입 예정</p>
           <p className="text-lg font-bold text-blue-600">{displayAmount(remainingTotal, hideAmounts)}</p>
           <p className="mt-0.5 text-xs text-gray-400">
             전체 {displayAmount(monthlyTotal, hideAmounts)} · 받음 {receivedCount}/{monthlyCount}건

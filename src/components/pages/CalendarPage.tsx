@@ -106,7 +106,7 @@ export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) 
         />
         <CalendarQuickButton
           iconSrc={QUICK_ADD_ICON.checklist}
-          label="할 일 목록"
+          label="체크리스트"
           sub="준비물과 진행 항목"
           onClick={() => onQuickAdd('checklist')}
         />
