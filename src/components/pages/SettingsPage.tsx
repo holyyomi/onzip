@@ -17,6 +17,7 @@ import StorageNoticeCard from '../common/StorageNoticeCard'
 import ShareAndSupportCard from '../common/ShareAndSupportCard'
 import UpdateNoticeCard from '../common/UpdateNoticeCard'
 import PwaUpdateCard from '../common/PwaUpdateCard'
+import InstallPromptCard from '../common/InstallPromptCard'
 import { useAmountPrivacy } from '../../utils/amountPrivacy'
 import { clearAppPin, hasAppPin, requestAppLock, setAppPin, verifyAppPin } from '../../utils/appLock'
 import { useVaultPrivacy } from '../../utils/vaultPrivacy'
@@ -97,6 +98,8 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
       </div>
 
       <StorageNoticeCard />
+
+      <InstallPromptCard />
 
       <div className="oz-card p-4">
         <div className="flex items-center justify-between gap-3">
