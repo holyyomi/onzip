@@ -36,6 +36,17 @@ function requireIncludes(label, text, values) {
   }
 }
 
+function extractAssetPaths(html) {
+  const paths = new Set()
+  for (const match of html.matchAll(/\b(?:href|src)="([^"]+)"/g)) {
+    const value = match[1]
+    if (value.startsWith('/assets/')) {
+      paths.add(`dist${value}`)
+    }
+  }
+  return [...paths]
+}
+
 const requiredFiles = [
   'index.html',
   'dist/index.html',
@@ -95,6 +106,18 @@ for (const path of ['index.html', 'dist/index.html']) {
     '보관 메모',
     'og-image.png',
   ])
+
+  if (path === 'dist/index.html') {
+    const assets = extractAssetPaths(html)
+    if (assets.length === 0) {
+      fail('dist/index.html does not reference built assets')
+    } else {
+      pass(`dist/index.html references ${assets.length} built asset(s)`)
+      for (const asset of assets) {
+        requireFile(asset)
+      }
+    }
+  }
 }
 
 const featureIcons = [

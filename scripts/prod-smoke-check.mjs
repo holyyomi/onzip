@@ -58,6 +58,17 @@ function requireIncludes(label, text, values) {
   }
 }
 
+function extractAssetPaths(html) {
+  const paths = new Set()
+  for (const match of html.matchAll(/\b(?:href|src)="([^"]+)"/g)) {
+    const value = match[1]
+    if (value.startsWith('/assets/')) {
+      paths.add(value)
+    }
+  }
+  return [...paths]
+}
+
 console.log(`Production smoke check: ${baseUrl}`)
 
 const html = await fetchText('/')
@@ -71,6 +82,14 @@ if (html) {
     'manifest.webmanifest',
     'og-image.png',
   ])
+
+  const assets = extractAssetPaths(html)
+  if (assets.length === 0) {
+    fail('homepage HTML does not reference built assets')
+  } else {
+    pass(`homepage HTML references ${assets.length} built asset(s)`)
+    await Promise.all(assets.map((path) => fetchHead(path)))
+  }
 }
 
 const manifestText = await fetchText('/manifest.webmanifest')
