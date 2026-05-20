@@ -15,6 +15,7 @@ import AppLockGate from '../components/common/AppLockGate'
 import { getLaunchMode, initGoogleAnalytics, trackEvent } from '../utils/analytics'
 
 export type TabId = 'home' | 'calendar' | 'money' | 'life' | 'records' | 'settings'
+export type LifeInitialTab = 'shopping' | 'checklist'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
@@ -22,6 +23,7 @@ export default function App() {
   const [quickAddType, setQuickAddType] = useState<QuickAddType | null>(null)
   const [appRefreshKey, setAppRefreshKey] = useState(0)
   const [savedMessage, setSavedMessage] = useState('')
+  const [lifeInitialTab, setLifeInitialTab] = useState<LifeInitialTab>('shopping')
   const savedTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
@@ -52,6 +54,14 @@ export default function App() {
     if (savedType === 'record') {
       setActiveTab('records')
     }
+    if (savedType === 'shopping') {
+      setLifeInitialTab('shopping')
+      setActiveTab('life')
+    }
+    if (savedType === 'checklist') {
+      setLifeInitialTab('checklist')
+      setActiveTab('life')
+    }
 
     if (savedTimerRef.current) {
       window.clearTimeout(savedTimerRef.current)
@@ -65,7 +75,7 @@ export default function App() {
         return <HomePage refreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} onTabChange={setActiveTab} />
       case 'calendar': return <CalendarPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
       case 'money':    return <MoneyPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
-      case 'life':     return <LifePage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
+      case 'life':     return <LifePage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} initialTab={lifeInitialTab} />
       case 'records':  return <RecordsPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
       case 'settings': return <SettingsPage onAppRefresh={() => setAppRefreshKey((key) => key + 1)} />
     }

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import type { LifeInitialTab } from '../../app/App'
 import type { QuickAddType } from '../common/QuickAddMenu'
 import ChecklistTab from '../life/ChecklistTab'
 import ShoppingTab from '../life/ShoppingTab'
@@ -14,6 +15,7 @@ type LifeManageSubTab = 'supplies' | 'chore' | 'template'
 interface Props {
   externalRefreshKey: number
   onQuickAdd: (type: QuickAddType) => void
+  initialTab: LifeInitialTab
 }
 
 const SUB_TABS: { value: LifeSubTab; label: string }[] = [
@@ -28,13 +30,17 @@ const MANAGE_TABS: { value: LifeManageSubTab; label: string }[] = [
   { value: 'template', label: '템플릿' },
 ]
 
-export default function LifePage({ externalRefreshKey, onQuickAdd }: Props) {
-  const [activeTab, setActiveTab] = useState<LifeSubTab>('shopping')
+export default function LifePage({ externalRefreshKey, onQuickAdd, initialTab }: Props) {
+  const [activeTab, setActiveTab] = useState<LifeSubTab>(initialTab)
   const [manageTab, setManageTab] = useState<LifeManageSubTab>('supplies')
   const [refreshKey, setRefreshKey] = useState(0)
 
   const onRefresh = () => setRefreshKey((k) => k + 1)
   const pageRefreshKey = refreshKey + externalRefreshKey
+
+  useEffect(() => {
+    setActiveTab(initialTab)
+  }, [initialTab])
 
   return (
     <div>
