@@ -35,6 +35,7 @@
 
 ```bash
 npm run dev
+npm run env:check
 npm run typecheck
 npm run build
 npm run smoke
@@ -113,7 +114,8 @@ npm run release:prod
 - 입력 폼 3차 정리: 정기 수입 폼도 핵심 입력을 먼저 보이고 입금일, 담당자, 반복, 메모는 `자세히` 안에 배치. 정기 지출, 구매 항목, 일정 폼 문구는 새 용어 체계에 맞춰 정리
 - 문구 4차 정리: 화면 라벨과 상태 배지를 `부가 수입`, `입금`, `입금 대기`, `정기 지출`, `용품명/구매 항목명` 기준으로 정리
 - 로컬 스모크 QA: 2026-05-20 기준 개발 서버 `http://127.0.0.1:3000` 응답 200, 아이콘 응답 200, 빌드 산출물 `manifest.webmanifest`와 `dist/index.html`의 PWA/OG 메타 확인 완료. Browser 자동화 인터페이스는 현재 세션에 노출되지 않아 DOM 기반 화면 조작 QA는 미실행
-- 반복 QA 명령: `npm run smoke`로 빌드 산출물, 빌드 asset 연결, PWA manifest, 필수 아이콘, OG 메타, 이전 용어 잔여 여부를 자동 확인. `npm run verify`는 typecheck, build, smoke를 순서대로 실행
+- 환경 검증 명령: `npm run env:check`로 `.env.example` 키, 실제 값 미포함, `.env`/`.env.local` git 제외 상태를 확인
+- 반복 QA 명령: `npm run smoke`로 빌드 산출물, 빌드 asset 연결, PWA manifest, 필수 아이콘, OG 메타, 이전 용어 잔여 여부를 자동 확인. `npm run verify`는 env:check, typecheck, build, smoke를 순서대로 실행
 - 배포 QA 명령: `npm run smoke:prod`로 `https://onzip.vercel.app`의 HTML, 빌드 asset 응답, manifest, service worker, 아이콘, OG/SEO 파일 응답을 확인. 다른 URL은 `ONZIP_PROD_URL` 환경변수나 명령 인자로 지정 가능
 - 배포 명령: `npm run deploy:prod`는 Vercel 프로덕션 배포만 실행. `npm run release:prod`는 `verify`, 프로덕션 배포, 운영 스모크를 순서대로 실행
 - 프로덕션 재배포: 2026-05-20 `vercel.cmd --prod --yes`로 최신 변경 배포 완료. 배포 ID `dpl_C7ZYqFs2cDLJ7XkqhprmApvv2iBY`, alias `https://onzip.vercel.app`, `npm run smoke:prod` 통과
