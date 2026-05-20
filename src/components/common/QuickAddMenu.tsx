@@ -17,7 +17,7 @@ interface Props {
 
 const OPTIONS: { type: QuickAddType; label: string; sub: string; primary?: boolean }[] = [
   { type: 'expense',       label: '지출 예정', sub: '카드 결제, 생활비, 정산', primary: true },
-  { type: 'income',        label: '수입 예정', sub: '월급, 부수입, 받을 금액', primary: true },
+  { type: 'income',        label: '수입 예정', sub: '월급, 부가 수입, 받을 금액', primary: true },
   { type: 'schedule',      label: '중요 일정', sub: '예약, 납부, 갱신일', primary: true },
   { type: 'record',        label: '보관 메모', sub: '계좌, 계약, 중요 정보', primary: true },
   { type: 'fixed_expense', label: '정기 지출',  sub: '월세, 보험, 관리비' },

@@ -100,7 +100,7 @@ class LedgerEntryRepository extends BaseRepository<LedgerEntry> {
 }
 
 // ─────────────────────────────────
-// FixedExpense (고정지출)
+// FixedExpense (정기 지출)
 // ─────────────────────────────────
 
 class FixedExpenseRepository extends BaseRepository<FixedExpense> {

@@ -174,7 +174,7 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
         <div className="grid grid-cols-2 gap-3">
           <StatCard label="흐름 기록" value={`${totalEntries}건`} />
           <StatCard label="활성 구성원" value={`${members}명`} />
-          <StatCard label="고정지출" value={`${fixedExpenseRepo.getActive().length}개`} />
+          <StatCard label="정기 지출" value={`${fixedExpenseRepo.getActive().length}개`} />
           <StatCard label="구독 서비스" value={`${subscriptionRepo.getActive().length}개`} />
         </div>
       </div>
@@ -489,7 +489,7 @@ function MemberFormModal({ memberId, onSaved, onClose }: {
 const CATEGORY_SECTIONS: { type: CategoryType; label: string }[] = [
   { type: 'expense', label: '지출 카테고리' },
   { type: 'income', label: '수입 카테고리' },
-  { type: 'fixed_expense', label: '고정지출 카테고리' },
+  { type: 'fixed_expense', label: '정기 지출 카테고리' },
 ]
 
 function CategoryTab() {

@@ -26,7 +26,7 @@ export default function OnboardingModal() {
         </p>
         <div className="mt-4 space-y-2">
           <Step number="1" title="오늘의 주요 항목 확인" text="오늘의 수입·지출, 일정, 중요 메모를 먼저 봅니다." />
-          <Step number="2" title="흐름으로 날짜 관리" text="월급, 부수입, 카드 결제, 자동결제를 날짜별로 정리합니다." />
+          <Step number="2" title="흐름으로 날짜 관리" text="월급, 부가 수입, 카드 결제, 자동결제를 날짜별로 정리합니다." />
           <Step number="3" title="금고에 중요 정보 보관" text="계좌, 계약, 보험 같은 민감한 메모를 기기 안에 저장합니다." />
         </div>
         <button

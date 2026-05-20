@@ -1,4 +1,4 @@
-// 이번 달 고정지출 납부 현황 카드 — MoneySummaryTab에서 사용
+// 이번 달 정기 지출 납부 현황 카드 — MoneySummaryTab에서 사용
 import { fixedExpenseRepo } from '../../data/repositories'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 

@@ -28,7 +28,7 @@ export default function DayEventPanel({
           onClick={onAddEvent}
           className="text-sm font-semibold text-[#ff385c]"
         >
-          + 일정 추가
+          + 중요 일정
         </button>
       </div>
 
@@ -37,7 +37,7 @@ export default function DayEventPanel({
         <EmptyState
           message="이 날 예정된 항목이 없습니다"
           sub="일정, 기념일, 납부일을 등록하면 캘린더에서 함께 볼 수 있습니다."
-          actionLabel="일정 등록"
+          actionLabel="중요 일정 등록"
           onAction={onAddEvent}
         />
       ) : (

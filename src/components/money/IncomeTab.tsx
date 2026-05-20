@@ -13,10 +13,10 @@ interface Props {
 }
 
 const INCOME_TYPE_LABEL: Record<string, string> = {
-  fixed: '고정수입',
-  side: '부수입',
-  one_time: '일회성',
-  other: '기타',
+  fixed: '정기 수입',
+  side: '부가 수입',
+  one_time: '일회성 수입',
+  other: '기타 수입',
 }
 
 const STATUS_BADGE: Record<string, string> = {
@@ -25,8 +25,8 @@ const STATUS_BADGE: Record<string, string> = {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  pending: '예정',
-  received: '받음',
+  pending: '입금 예정',
+  received: '입금 완료',
 }
 
 export default function IncomeTab({ year, month, refreshKey, onRefresh }: Props) {
@@ -66,7 +66,7 @@ export default function IncomeTab({ year, month, refreshKey, onRefresh }: Props)
           <p className="text-xs text-gray-400">이번 달 남은 수입 예정</p>
           <p className="text-lg font-bold text-blue-600">{displayAmount(remainingTotal, hideAmounts)}</p>
           <p className="mt-0.5 text-xs text-gray-400">
-            전체 {displayAmount(monthlyTotal, hideAmounts)} · 받음 {receivedCount}/{monthlyCount}건
+            전체 {displayAmount(monthlyTotal, hideAmounts)} · 입금 완료 {receivedCount}/{monthlyCount}건
           </p>
         </div>
         <button
@@ -80,9 +80,9 @@ export default function IncomeTab({ year, month, refreshKey, onRefresh }: Props)
       <div className="p-4 space-y-2">
         {incomes.length === 0 && (
           <EmptyState
-            message="수입 항목이 비어 있습니다"
-            sub="월급, 부수입, 일회성 수입을 정리해보세요."
-            actionLabel="수입 추가"
+            message="수입 예정이 비어 있습니다"
+            sub="월급, 부가 수입, 일회성 수입을 정리해보세요."
+            actionLabel="수입 예정 추가"
             onAction={() => { setEditingId(null); setShowModal(true) }}
           />
         )}

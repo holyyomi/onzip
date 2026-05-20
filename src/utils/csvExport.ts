@@ -51,7 +51,7 @@ export function exportShoppingCSV(
   items: { name: string; category: string; expected_amount: number | null; actual_amount: number | null; store: string; is_done: boolean }[],
 ): void {
   const rows: string[][] = [
-    ['품목명', '카테고리', '예상금액', '실제금액', '구매처', '구매완료'],
+    ['구매 항목명', '분류', '예상 금액', '실제 금액', '구매처', '구매 완료'],
     ...items.map((i) => [
       i.name, i.category,
       i.expected_amount != null ? String(i.expected_amount) : '',

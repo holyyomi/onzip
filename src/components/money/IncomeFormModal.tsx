@@ -12,10 +12,10 @@ interface Props {
 }
 
 const INCOME_TYPES: { value: IncomeType; label: string }[] = [
-  { value: 'fixed', label: '고정수입' },
-  { value: 'side', label: '부수입' },
-  { value: 'one_time', label: '일회성' },
-  { value: 'other', label: '기타' },
+  { value: 'fixed', label: '정기 수입' },
+  { value: 'side', label: '부가 수입' },
+  { value: 'one_time', label: '일회성 수입' },
+  { value: 'other', label: '기타 수입' },
 ]
 
 const REPEAT_OPTIONS: { value: RepeatRule; label: string }[] = [
@@ -63,7 +63,7 @@ export default function IncomeFormModal({ incomeId, onSaved, onClose }: Props) {
 
   function handleDelete() {
     if (!incomeId) return
-    if (!confirm('이 수입 항목을 삭제할까요?')) return
+    if (!confirm('이 수입 예정을 삭제할까요?')) return
     incomeRepo.delete(incomeId)
     onSaved()
   }

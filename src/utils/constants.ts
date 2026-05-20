@@ -6,7 +6,7 @@ export const EXPENSE_CATEGORIES = [
 ] as const
 
 export const INCOME_CATEGORIES = [
-  '월급', '부수입', '보너스', '제휴/광고수익', '기타',
+  '월급', '부가 수입', '보너스', '제휴/광고수익', '기타',
 ] as const
 
 export const FIXED_EXPENSE_CATEGORIES = [

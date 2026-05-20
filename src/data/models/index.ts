@@ -52,7 +52,7 @@ export interface Member {
 export type CalendarEventType =
   | 'schedule'        // 일반 일정
   | 'anniversary'     // 기념일
-  | 'fixed_expense'   // 고정지출 → 자동 생성
+  | 'fixed_expense'   // 정기 지출 → 자동 생성
   | 'subscription'    // 구독 → 자동 생성
   | 'utility'         // 공과금
   | 'checklist'       // 체크리스트 마감 → 자동 생성
@@ -102,7 +102,7 @@ export type ExpenseCategory =
 
 export type IncomeCategory =
   | '월급'
-  | '부수입'
+  | '부가 수입'
   | '보너스'
   | '제휴/광고수익'
   | '기타'
@@ -122,7 +122,7 @@ export interface LedgerEntry {
 }
 
 // ─────────────────────────────────
-// FixedExpense (고정지출)
+// FixedExpense (정기 지출)
 // ─────────────────────────────────
 
 export type FixedExpenseStatus = 'pending' | 'done' | 'overdue'

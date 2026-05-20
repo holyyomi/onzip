@@ -10,7 +10,7 @@ localStorage 기반 로컬 전용 데이터 구조.
 | members | `onzip_members` | 가족 구성원 |
 | calendar_events | `onzip_calendar_events` | 일정/기념일 |
 | ledger_entries | `onzip_ledger_entries` | 가계부 (수입/지출) |
-| fixed_expenses | `onzip_fixed_expenses` | 고정지출 |
+| fixed_expenses | `onzip_fixed_expenses` | 정기 지출 |
 | incomes | `onzip_incomes` | 수입 |
 | subscriptions | `onzip_subscriptions` | 구독 서비스 |
 | checklists | `onzip_checklists` | 체크리스트 |
@@ -52,6 +52,6 @@ localStorage 기반 로컬 전용 데이터 구조.
 
 calendar_events는 두 종류:
 1. 직접 추가 (일정, 기념일): source_type = null
-2. 자동 생성 (고정지출, 구독, 체크리스트): source_type = "fixed_expense" | "subscription" | "checklist", source_id = 원본 ID
+2. 자동 생성 (정기 지출, 구독, 체크리스트): source_type = "fixed_expense" | "subscription" | "checklist", source_id = 원본 ID
 
 자동 생성 이벤트는 원본 데이터에서 실시간 계산 (저장하지 않음).

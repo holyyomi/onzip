@@ -1,5 +1,5 @@
 // 캘린더 이벤트 집계
-// 원본 데이터(고정지출·구독·체크리스트·반복 일정)를 캘린더 표시용으로 변환
+// 원본 데이터(정기 지출·구독·체크리스트·반복 일정)를 캘린더 표시용으로 변환
 
 import type { CalendarEvent, CalendarEventType } from '../data/models'
 import {
@@ -117,7 +117,7 @@ export function getAggregatedEvents(year: number, month: number): AggregatedEven
     }
   })
 
-  // 2. 고정지출 → 납부일 자동 생성 (공과금 카테고리는 utility 타입으로 표시)
+  // 2. 정기 지출 → 납부일 자동 생성 (공과금 카테고리는 utility 타입으로 표시)
   fixedExpenseRepo
     .getActive()
     .filter((fe) => fe.calendar_visible)
@@ -199,7 +199,7 @@ export const EVENT_TYPE_DOT: Record<CalendarEventType, string> = {
 export const EVENT_TYPE_LABEL: Record<CalendarEventType, string> = {
   schedule: '일정',
   anniversary: '기념일',
-  fixed_expense: '고정지출',
+  fixed_expense: '정기 지출',
   subscription: '구독',
   utility: '공과금',
   checklist: '체크리스트',

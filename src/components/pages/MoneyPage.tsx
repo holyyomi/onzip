@@ -76,7 +76,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
         <MoneyQuickButton
           iconSrc={QUICK_ADD_ICON.income}
           label="수입 예정"
-          sub="월급, 부수입, 받을 금액"
+          sub="월급, 부가 수입, 받을 금액"
           onClick={() => onQuickAdd('income')}
         />
       </div>
@@ -364,7 +364,7 @@ function FlowSummary({
         )}
         {data.isCurrentMonthView && data.overdueIncomeCount > 0 && (
           <p className="mt-2 rounded-[16px] bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-600">
-            아직 받음 처리하지 않은 수입 예정 {data.overdueIncomeCount}건, {displayAmount(data.overdueIncome, hideAmounts)}이 있습니다.
+            아직 입금 완료하지 않은 수입 예정 {data.overdueIncomeCount}건, {displayAmount(data.overdueIncome, hideAmounts)}이 있습니다.
           </p>
         )}
         {data.isCurrentMonthView && data.overdueSubscriptionCount > 0 && (
@@ -384,8 +384,8 @@ function FlowSummary({
           title="수입 예정"
           tone="in"
           items={[
-            { label: '월급/고정', value: data.salaryIncome },
-            { label: '부수입', value: data.sideIncome },
+            { label: '월급/정기', value: data.salaryIncome },
+            { label: '부가 수입', value: data.sideIncome },
             { label: '기타 반복', value: data.otherRecurringIncome },
             { label: '이번 달 기록', value: data.entryIncome },
           ]}
@@ -396,7 +396,7 @@ function FlowSummary({
           tone="out"
           items={[
             { label: '카드 결제', value: data.cardOut },
-            { label: '고정지출', value: data.fixedOtherOut },
+            { label: '정기 지출', value: data.fixedOtherOut },
             { label: '자동결제', value: data.subOut },
             { label: '이번 달 기록', value: data.entryExpense },
           ]}
@@ -453,7 +453,7 @@ function FlowSummary({
                           : 'border-[#dddddd] bg-white text-[#222222]'
                       }`}
                     >
-                      {item.paymentState?.kind === 'received' ? '취소' : '받음'}
+                      {item.paymentState?.kind === 'received' ? '취소' : '입금'}
                     </button>
                   )}
                   {item.source === 'fixed' && (
@@ -526,8 +526,8 @@ function getIncomeReceiveState(
   isCurrentMonthView: boolean,
   todayDay: number,
 ): { kind: 'received' | 'overdue'; label: string; cls: string } | null {
-  if (status === 'received') return { kind: 'received', label: '받음', cls: 'bg-blue-100 text-blue-600' }
-  if (isCurrentMonthView && day < todayDay) return { kind: 'overdue', label: '미수령', cls: 'bg-blue-50 text-blue-600' }
+  if (status === 'received') return { kind: 'received', label: '입금 완료', cls: 'bg-blue-100 text-blue-600' }
+  if (isCurrentMonthView && day < todayDay) return { kind: 'overdue', label: '입금 대기', cls: 'bg-blue-50 text-blue-600' }
   return null
 }
 

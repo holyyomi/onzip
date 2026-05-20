@@ -147,7 +147,7 @@ function SupplyFormModal({
   const [error, setError] = useState('')
 
   function handleSave() {
-    if (!name.trim()) { setError('품목명을 입력해주세요'); return }
+    if (!name.trim()) { setError('용품명을 입력해주세요'); return }
     if (supplyId && existing) {
       householdSupplyRepo.update(supplyId, {
         name: name.trim(), category, status,
@@ -169,14 +169,14 @@ function SupplyFormModal({
 
   function handleDelete() {
     if (!supplyId) return
-    if (!confirm('삭제할까요?')) return
+    if (!confirm('이 생활용품을 삭제할까요?')) return
     householdSupplyRepo.delete(supplyId)
     onSaved()
   }
 
   return (
     <FormModal title={supplyId ? '생활용품 수정' : '생활용품 추가'} onClose={onClose}>
-      <Field label="품목명 (필수)">
+      <Field label="용품명">
         <input type="text" placeholder="예) 휴지" value={name}
           onChange={(e) => { setName(e.target.value); setError('') }} className={inputCls} />
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
@@ -204,7 +204,7 @@ function SupplyFormModal({
           onChange={(e) => setCycle(e.target.value)} className={inputCls} inputMode="numeric" />
       </Field>
 
-      <Field label="구매 링크 / 메모 (선택)">
+      <Field label="구매처/메모">
         <input type="text" placeholder="구매처 또는 링크" value={purchaseMemo}
           onChange={(e) => setPurchaseMemo(e.target.value)} className={inputCls} />
       </Field>

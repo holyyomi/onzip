@@ -192,11 +192,11 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
   const todayItems: ImportantItem[] = [
     ...data.overdueIncome.map((income) => ({
       id: `overdue_income_${income.id}`,
-      label: '미수령',
+      label: '입금 대기',
       title: income.title,
       detail: `${getEffectiveMonthDay(todayYear(), todayMonth(), income.income_day)}일 · ${displayAmount(income.amount, hideAmounts)}`,
       tab: 'money' as TabId,
-      actionLabel: '받음',
+      actionLabel: '입금',
       onAction: () => completeIncome(income.id),
     })),
     ...data.overdueFixed.map((expense) => ({
@@ -223,7 +223,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: income.title,
       detail: displayAmount(income.amount, hideAmounts),
       tab: 'money' as TabId,
-      actionLabel: '받음',
+      actionLabel: '입금',
       onAction: () => completeIncome(income.id),
     })),
     ...data.todayFixed.map((expense) => ({
@@ -272,7 +272,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
 
         <div className="space-y-2">
           {todayItems.length === 0 && (
-            <EmptyLine title="오늘 확인할 항목이 없습니다" text="미수령, 미납, 자동결제 확인이 필요하면 여기서 먼저 보입니다." />
+            <EmptyLine title="오늘 확인할 항목이 없습니다" text="입금 대기, 미납, 자동결제 확인이 필요하면 여기서 먼저 보입니다." />
           )}
           {todayItems.slice(0, 5).map((item) => (
             <ImportantLine

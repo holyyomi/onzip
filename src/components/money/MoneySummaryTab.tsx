@@ -69,7 +69,7 @@ export default function MoneySummaryTab({ year, month, refreshKey }: Props) {
       <div className="grid grid-cols-2 gap-3">
         <SummaryCard label="이번 달 수입" amount={data.income} hidden={hideAmounts} color="text-blue-600" />
         <SummaryCard label="이번 달 지출" amount={data.expense} hidden={hideAmounts} color="text-red-500" />
-        <SummaryCard label="고정지출 합계" amount={data.fixedTotal} hidden={hideAmounts} color="text-orange-500" />
+        <SummaryCard label="정기 지출 합계" amount={data.fixedTotal} hidden={hideAmounts} color="text-orange-500" />
         <SummaryCard label="구독료 합계" amount={data.subTotal} hidden={hideAmounts} color="text-purple-500" />
       </div>
 

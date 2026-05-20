@@ -65,7 +65,7 @@ VITE_GA_MEASUREMENT_ID=G-3206HZH0BS
 | `calendar_event_saved` | 일정 저장 완료 |
 | `shopping_saved` | 장보기 저장 완료 |
 | `checklist_saved` | 체크리스트 저장 완료 |
-| `fixed_expense_saved` | 고정지출 저장 완료 |
+| `fixed_expense_saved` | 정기 지출 저장 완료 |
 | `subscription_saved` | 구독 저장 완료 |
 | `record_saved` | 기록 저장 완료 |
 | `supply_saved` | 생활용품 저장 완료 |
