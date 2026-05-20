@@ -114,6 +114,7 @@ npm run verify
 - 반복 QA 명령: `npm run smoke`로 빌드 산출물, 빌드 asset 연결, PWA manifest, 필수 아이콘, OG 메타, 이전 용어 잔여 여부를 자동 확인. `npm run verify`는 typecheck, build, smoke를 순서대로 실행
 - 배포 QA 명령: `npm run smoke:prod`로 `https://onzip.vercel.app`의 HTML, 빌드 asset 응답, manifest, service worker, 아이콘, OG/SEO 파일 응답을 확인. 다른 URL은 `ONZIP_PROD_URL` 환경변수나 명령 인자로 지정 가능
 - 프로덕션 재배포: 2026-05-20 `vercel.cmd --prod --yes`로 최신 변경 배포 완료. 배포 ID `dpl_C7ZYqFs2cDLJ7XkqhprmApvv2iBY`, alias `https://onzip.vercel.app`, `npm run smoke:prod` 통과
+- CI 검증: `.github/workflows/verify.yml`에서 push/PR 시 Node 20, `npm ci`, `npm run verify`를 실행하도록 준비. 현재 로컬 저장소에는 git remote가 없어 GitHub에 올린 뒤부터 동작
 - 문구 체계: 하단 탭은 `홈`, `흐름`, `일정`, `금고`로 정리하고, 주요 추가 버튼은 흐름/일정/보관 메모 중심으로 통일
 - 빈 상태/목록 UI: 주요 생활·흐름·기록 화면의 빈 상태, 추가 버튼, 목록 카드를 앱 톤에 맞게 통일
 - QA 보완: 기록 탭에서 가족 회의록을 바로 추가하면 회의록 제목과 기본 템플릿이 자동 삽입됨
