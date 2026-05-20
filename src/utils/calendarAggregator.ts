@@ -9,6 +9,8 @@ import {
   checklistRepo,
 } from '../data/repositories'
 import { getDaysInMonth, getEffectiveMonthDay, todayStr, todayMonth, todayYear } from './date'
+import { getFixedExpenseMonthStatus } from './fixedExpenseMonthStatus'
+import { getSubscriptionMonthStatus } from './subscriptionMonthStatus'
 
 export interface AggregatedEvent {
   id: string
@@ -128,7 +130,7 @@ export function getAggregatedEvents(year: number, month: number): AggregatedEven
         date: `${prefix}-${day}`,
         type: isUtility ? 'utility' : 'fixed_expense',
         amount: fe.amount,
-        is_done: fe.status === 'done',
+        is_done: getFixedExpenseMonthStatus(fe, year, month) === 'done',
         member_id: fe.member_id,
         memo: fe.memo,
         source_type: 'fixed_expense',
@@ -148,7 +150,7 @@ export function getAggregatedEvents(year: number, month: number): AggregatedEven
         date: `${prefix}-${day}`,
         type: 'subscription',
         amount: s.amount,
-        is_done: false,
+        is_done: getSubscriptionMonthStatus(s, year, month) === 'paid',
         member_id: s.member_id,
         memo: s.memo,
         source_type: 'subscription',

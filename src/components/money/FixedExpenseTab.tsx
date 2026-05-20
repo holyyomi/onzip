@@ -6,7 +6,6 @@ import FixedExpenseFormModal from './FixedExpenseFormModal'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import {
   getFixedExpenseMonthStatus,
-  isCurrentFixedExpenseMonth,
   setFixedExpenseMonthStatus,
 } from '../../utils/fixedExpenseMonthStatus'
 
@@ -53,9 +52,6 @@ export default function FixedExpenseTab({ year, month, refreshKey, onRefresh }: 
   function toggleStatus(id: string, current: string) {
     const next = current === 'done' ? 'pending' : 'done'
     setFixedExpenseMonthStatus(id, year, month, next)
-    if (isCurrentFixedExpenseMonth(year, month)) {
-      fixedExpenseRepo.update(id, { status: next })
-    }
     onRefresh()
   }
 

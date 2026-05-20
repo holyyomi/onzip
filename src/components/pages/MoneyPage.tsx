@@ -12,7 +12,6 @@ import { fixedExpenseRepo, incomeRepo, ledgerEntryRepo, subscriptionRepo } from 
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import {
   getFixedExpenseMonthStatus,
-  isCurrentFixedExpenseMonth,
   setFixedExpenseMonthStatus,
 } from '../../utils/fixedExpenseMonthStatus'
 import { getIncomeMonthStatus, setIncomeMonthStatus } from '../../utils/incomeMonthStatus'
@@ -324,9 +323,6 @@ function FlowSummary({
   function handleSetFixedStatus(id: string, done: boolean) {
     const status = done ? 'done' : 'pending'
     setFixedExpenseMonthStatus(id, year, month, status)
-    if (isCurrentFixedExpenseMonth(year, month)) {
-      fixedExpenseRepo.update(id, { status })
-    }
     onRefresh()
   }
 

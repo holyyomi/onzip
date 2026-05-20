@@ -181,7 +181,6 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
 
   function completeFixedExpense(id: string) {
     setFixedExpenseMonthStatus(id, todayYear(), todayMonth(), 'done')
-    fixedExpenseRepo.update(id, { status: 'done' })
     setLocalRefreshKey((key) => key + 1)
   }
 
