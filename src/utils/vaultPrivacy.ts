@@ -20,11 +20,11 @@ export function setSensitiveHidden(hidden: boolean): void {
 }
 
 export function displayRecordTitle(record: Pick<LifeRecord, 'title' | 'tags'>, hidden: boolean): string {
-  return hidden && isSensitiveRecord(record) ? '민감 메모' : record.title
+  return hidden && isSensitiveRecord(record) ? '민감 보관 메모' : record.title
 }
 
 export function displayRecordContent(record: Pick<LifeRecord, 'content' | 'tags'>, hidden: boolean): string {
-  return hidden && isSensitiveRecord(record) ? '설정에서 민감 메모 숨김이 켜져 있습니다.' : record.content
+  return hidden && isSensitiveRecord(record) ? '민감 메모 숨김이 켜져 있습니다. 열람하려면 PIN 확인이 필요합니다.' : record.content
 }
 
 export function useVaultPrivacy() {
