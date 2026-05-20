@@ -17,7 +17,7 @@ export default function UpdateNoticeCard() {
         <div>
           <p className="text-base font-semibold text-[#222222]">최근 업데이트</p>
           <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-            홈을 오늘 중요한 것 중심으로 바꾸고, 흐름/일정/금고 구조로 정리했습니다.
+            홈을 오늘의 주요 항목 중심으로 바꾸고, 흐름/일정/금고 구조로 정리했습니다.
           </p>
         </div>
         <button

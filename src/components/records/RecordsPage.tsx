@@ -14,7 +14,7 @@ const RECORD_TYPE_CONFIG: Record<
   { label: string; dot: string }
 > = {
   life: { label: '중요 메모', dot: 'bg-blue-400' },
-  spending_note: { label: '돈 메모', dot: 'bg-orange-400' },
+  spending_note: { label: '재정 메모', dot: 'bg-orange-400' },
   family_meeting: { label: '계약/정리', dot: 'bg-purple-400' },
   anniversary: { label: '갱신/만료', dot: 'bg-pink-400' },
   home: { label: '집/차량', dot: 'bg-green-400' },

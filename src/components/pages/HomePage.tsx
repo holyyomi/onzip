@@ -290,7 +290,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
               onClick={() => onTabChange('money')}
               className="w-full rounded-[18px] border border-dashed border-[#ffd1da] bg-white px-3 py-3 text-sm font-semibold text-[#ff385c]"
             >
-              숨겨진 돈/일정 {hiddenTodayItemCount}건 더 보기
+              숨겨진 항목 {hiddenTodayItemCount}건 더 보기
             </button>
           )}
         </div>

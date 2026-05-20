@@ -364,7 +364,7 @@ function FlowSummary({
         )}
         {data.isCurrentMonthView && data.overdueIncomeCount > 0 && (
           <p className="mt-2 rounded-[16px] bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-600">
-            아직 받음 처리하지 않은 돈 {data.overdueIncomeCount}건, {displayAmount(data.overdueIncome, hideAmounts)}이 있습니다.
+            아직 받음 처리하지 않은 수입 예정 {data.overdueIncomeCount}건, {displayAmount(data.overdueIncome, hideAmounts)}이 있습니다.
           </p>
         )}
         {data.isCurrentMonthView && data.overdueSubscriptionCount > 0 && (

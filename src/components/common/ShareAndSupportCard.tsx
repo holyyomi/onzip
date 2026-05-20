@@ -113,7 +113,7 @@ export default function ShareAndSupportCard() {
       <section className="oz-card p-4">
         <p className="text-base font-semibold text-[#222222]">앱 링크 공유</p>
         <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-          온집 설치 링크만 전달합니다. 내 돈, 일정, 금고 데이터는 함께 전송되지 않습니다.
+          온집 설치 링크만 전달합니다. 내 흐름 기록, 일정, 금고 데이터는 함께 전송되지 않습니다.
         </p>
         <button
           onClick={handleShare}

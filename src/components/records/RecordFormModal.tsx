@@ -15,7 +15,7 @@ interface Props {
 
 const RECORD_TYPES: { value: RecordType; label: string }[] = [
   { value: 'life', label: '중요 메모' },
-  { value: 'spending_note', label: '돈 메모' },
+  { value: 'spending_note', label: '재정 메모' },
   { value: 'family_meeting', label: '계약/정리' },
   { value: 'anniversary', label: '갱신/만료' },
   { value: 'home', label: '집/차량' },
@@ -43,7 +43,7 @@ const VAULT_TEMPLATES: VaultTemplate[] = [
     label: '계좌 잔액',
     title: '계좌 잔액 메모',
     type: 'spending_note',
-    tags: '민감, 계좌, 돈',
+    tags: '민감, 계좌, 재정',
     content: `## 은행/계좌
 -
 
@@ -63,7 +63,7 @@ const VAULT_TEMPLATES: VaultTemplate[] = [
     label: '주식/코인',
     title: '투자 현황 메모',
     type: 'spending_note',
-    tags: '민감, 투자, 돈',
+    tags: '민감, 투자, 재정',
     content: `## 증권사/거래소
 -
 

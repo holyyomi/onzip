@@ -19,7 +19,7 @@ export function isDatedVaultRecord(record: Pick<LifeRecord, 'record_type' | 'tag
 export function getVaultRecordBadge(record: Pick<LifeRecord, 'record_type' | 'tags'>): string {
   const normalizedTags = record.tags.map(normalizeTag)
   if (normalizedTags.includes('갱신') || normalizedTags.includes('만료') || record.record_type === 'anniversary') return '갱신'
-  if (normalizedTags.includes('계좌') || normalizedTags.includes('투자') || normalizedTags.includes('대출') || normalizedTags.includes('카드')) return '돈'
+  if (normalizedTags.includes('계좌') || normalizedTags.includes('투자') || normalizedTags.includes('대출') || normalizedTags.includes('카드')) return '재정'
   if (normalizedTags.includes('계약') || normalizedTags.includes('보험')) return '계약'
   if (normalizedTags.includes('비상')) return '비상'
   return '중요'
