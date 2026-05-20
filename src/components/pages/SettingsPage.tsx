@@ -29,7 +29,11 @@ const SUB_TABS: { value: SettingsSubTab; label: string }[] = [
   { value: 'categories', label: '카테고리' },
 ]
 
-export default function SettingsPage() {
+interface SettingsPageProps {
+  onAppRefresh: () => void
+}
+
+export default function SettingsPage({ onAppRefresh }: SettingsPageProps) {
   const [activeTab, setActiveTab] = useState<SettingsSubTab>('home')
   const [refreshKey, setRefreshKey] = useState(0)
   const onRefresh = () => setRefreshKey((k) => k + 1)
@@ -47,7 +51,7 @@ export default function SettingsPage() {
         ))}
       </div>
 
-      {activeTab === 'home' && <HomeInfoTab onRefresh={onRefresh} />}
+      {activeTab === 'home' && <HomeInfoTab onRefresh={onRefresh} onAppRefresh={onAppRefresh} />}
       {activeTab === 'members' && <MembersTab refreshKey={refreshKey} onRefresh={onRefresh} />}
       {activeTab === 'categories' && <CategoryTab />}
 
@@ -62,7 +66,7 @@ export default function SettingsPage() {
 // 집 정보 (이름 변경)
 // ─────────────────────────────────
 
-function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
+function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onAppRefresh: () => void }) {
   const household = householdRepo.getDefault()
   const [name, setName] = useState(household.name)
   const [saved, setSaved] = useState(false)
@@ -74,6 +78,7 @@ function HomeInfoTab({ onRefresh }: { onRefresh: () => void }) {
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
     onRefresh()
+    onAppRefresh()
   }
 
   const totalEntries = ledgerEntryRepo.getAll().length
