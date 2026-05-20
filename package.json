@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "smoke": "node scripts/smoke-check.mjs",
     "smoke:prod": "node scripts/prod-smoke-check.mjs",
-    "verify": "npm run typecheck && npm run build && npm run smoke"
+    "verify": "npm run typecheck && npm run build && npm run smoke",
+    "deploy:prod": "vercel --prod --yes",
+    "release:prod": "npm run verify && npm run deploy:prod && npm run smoke:prod"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

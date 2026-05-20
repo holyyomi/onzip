@@ -40,6 +40,8 @@ npm run build
 npm run smoke
 npm run smoke:prod
 npm run verify
+npm run deploy:prod
+npm run release:prod
 ```
 
 작업 완료 기준:
@@ -113,6 +115,7 @@ npm run verify
 - 로컬 스모크 QA: 2026-05-20 기준 개발 서버 `http://127.0.0.1:3000` 응답 200, 아이콘 응답 200, 빌드 산출물 `manifest.webmanifest`와 `dist/index.html`의 PWA/OG 메타 확인 완료. Browser 자동화 인터페이스는 현재 세션에 노출되지 않아 DOM 기반 화면 조작 QA는 미실행
 - 반복 QA 명령: `npm run smoke`로 빌드 산출물, 빌드 asset 연결, PWA manifest, 필수 아이콘, OG 메타, 이전 용어 잔여 여부를 자동 확인. `npm run verify`는 typecheck, build, smoke를 순서대로 실행
 - 배포 QA 명령: `npm run smoke:prod`로 `https://onzip.vercel.app`의 HTML, 빌드 asset 응답, manifest, service worker, 아이콘, OG/SEO 파일 응답을 확인. 다른 URL은 `ONZIP_PROD_URL` 환경변수나 명령 인자로 지정 가능
+- 배포 명령: `npm run deploy:prod`는 Vercel 프로덕션 배포만 실행. `npm run release:prod`는 `verify`, 프로덕션 배포, 운영 스모크를 순서대로 실행
 - 프로덕션 재배포: 2026-05-20 `vercel.cmd --prod --yes`로 최신 변경 배포 완료. 배포 ID `dpl_C7ZYqFs2cDLJ7XkqhprmApvv2iBY`, alias `https://onzip.vercel.app`, `npm run smoke:prod` 통과
 - CI 검증: `.github/workflows/verify.yml`에서 push/PR 시 Node 20, `npm ci`, `npm run verify`를 실행하도록 준비. 현재 로컬 저장소에는 git remote가 없어 GitHub에 올린 뒤부터 동작
 - 문구 체계: 하단 탭은 `홈`, `흐름`, `일정`, `금고`로 정리하고, 주요 추가 버튼은 흐름/일정/보관 메모 중심으로 통일
