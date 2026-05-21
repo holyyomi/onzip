@@ -127,6 +127,7 @@ npm run release:prod
 - 릴리즈 문서: 프로덕션 배포 순서와 실패 시 처리 기준은 `docs/RELEASE.md`에 정리
 - 프로덕션 재배포: 2026-05-21 `npm run release:prod`로 최신 앱 변경 배포 완료. 배포 ID `dpl_AhyCc8B9Z5C96mtTQEFrkAnWvBM1`, alias `https://onzip.vercel.app`, `npm run smoke:prod` 통과
 - 운영 PWA 스모크: 2026-05-21 `npm run smoke:prod`로 `https://onzip.vercel.app`의 HTML, 빌드 asset, manifest, service worker, 아이콘, OG/SEO 파일 응답과 PWA 설치용 manifest 필드 확인 통과
+- 운영 상태 재점검: 2026-05-21 `npm run release:check`와 `npm run smoke:prod` 재실행 통과. 작업트리 clean, HEAD `75b3f51`, 운영 URL/PWA asset 응답 정상
 - CI 검증: `.github/workflows/verify.yml`에서 push/PR 시 Node 20, `npm ci`, `npm run verify`를 실행하도록 준비. 현재 로컬 저장소에는 git remote가 없어 GitHub에 올린 뒤부터 동작
 - 문구 체계: 하단 탭은 `홈`, `흐름`, `일정`, `금고`로 정리하고, 주요 추가 버튼은 흐름/일정/보관 메모 중심으로 통일
 - 빈 상태/목록 UI: 주요 생활·흐름·기록 화면의 빈 상태, 추가 버튼, 목록 카드를 앱 톤에 맞게 통일
