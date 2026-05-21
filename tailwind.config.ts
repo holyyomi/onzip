@@ -1,16 +1,13 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from "tailwindcss";
 
 export default {
-  content: [
-    './index.html',
-    './src/**/*.{js,ts,jsx,tsx}',
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
-        primary: '#3B82F6',
+        primary: "#3B82F6",
       },
     },
   },
   plugins: [],
-} satisfies Config
+} satisfies Config;
