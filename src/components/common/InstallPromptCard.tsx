@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { getLaunchMode, trackEvent } from '../../utils/analytics'
 
 const INSTALL_CARD_HIDDEN_KEY = 'onzip_install_card_hidden_v1'
+const INSTALL_CARD_HIDE_MS = 7 * 24 * 60 * 60 * 1000
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -17,11 +18,19 @@ function isSamsungInternet() {
   return navigator.userAgent.toLowerCase().includes('samsungbrowser')
 }
 
+function isInstallCardTemporarilyHidden() {
+  const savedValue = localStorage.getItem(INSTALL_CARD_HIDDEN_KEY)
+  if (savedValue === 'installed') return true
+
+  const hiddenAt = Number(savedValue)
+  return Number.isFinite(hiddenAt) && Date.now() - hiddenAt < INSTALL_CARD_HIDE_MS
+}
+
 export default function InstallPromptCard() {
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null)
   const [showGuide, setShowGuide] = useState(false)
   const [hidden, setHidden] = useState(() => (
-    getLaunchMode() === 'standalone' || localStorage.getItem(INSTALL_CARD_HIDDEN_KEY) === 'true'
+    getLaunchMode() === 'standalone' || isInstallCardTemporarilyHidden()
   ))
 
   useEffect(() => {
@@ -32,7 +41,7 @@ export default function InstallPromptCard() {
     }
 
     function handleInstalled() {
-      localStorage.setItem(INSTALL_CARD_HIDDEN_KEY, 'true')
+      localStorage.setItem(INSTALL_CARD_HIDDEN_KEY, 'installed')
       setHidden(true)
       trackEvent('install_success')
     }
@@ -68,7 +77,7 @@ export default function InstallPromptCard() {
   }
 
   function handleHide() {
-    localStorage.setItem(INSTALL_CARD_HIDDEN_KEY, 'true')
+    localStorage.setItem(INSTALL_CARD_HIDDEN_KEY, String(Date.now()))
     setHidden(true)
     trackEvent('install_card_hide')
   }
@@ -86,7 +95,7 @@ export default function InstallPromptCard() {
           <button
             onClick={handleHide}
             className="h-9 w-9 flex-shrink-0 rounded-full bg-[#f2f2f2] text-[#6a6a6a] text-lg"
-            aria-label="앱 설치 안내 닫기"
+            aria-label="앱 설치 안내 나중에 보기"
           >
             ×
           </button>
