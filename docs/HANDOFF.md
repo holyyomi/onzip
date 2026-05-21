@@ -295,7 +295,7 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
    - 설치 후 기존 localStorage 데이터 유지, 아이콘, 첫 로딩, 업데이트 안내 동작 확인
 
 2. 7일 실사용 관찰
-   - `docs/USAGE_QA_7D.md`와 `docs/TEST_CHECKLIST.md` 기준으로 입력 귀찮음, 화면 복잡도, 백업/설치 이해도 확인
+   - `docs/USAGE_QA_7D.md`의 매일 기록표와 우선순위 기준, `docs/TEST_CHECKLIST.md` 기준으로 입력 귀찮음, 화면 복잡도, 백업/설치 이해도 확인
    - 특히 `지출 예정`, `수입 예정`, `보관 메모`, `백업 파일로 교체하기`, `민감 메모 PIN` 흐름을 실제 사용자에게 설명 없이 맡겨보기
 
 3. 운영 관찰
