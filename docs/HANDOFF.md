@@ -136,6 +136,7 @@ npm run release:prod
 - 운영 PWA 스모크: 2026-05-21 `npm run smoke:prod`로 `https://onzip.vercel.app`의 HTML, 빌드 asset, manifest, service worker, 아이콘, OG/SEO 파일 응답과 PWA 설치용 manifest 필드 확인 통과
 - 운영 상태 재점검: 2026-05-21 `npm run release:check`와 `npm run smoke:prod` 재실행 통과. 작업트리 clean, HEAD `75b3f51`, 운영 URL/PWA asset 응답 정상
 - CI 검증: `.github/workflows/verify.yml`에서 push/PR 시 Node 20, `npm ci`, `npm run verify`를 실행하도록 준비. 현재 로컬 저장소에는 git remote가 없어 GitHub에 올린 뒤부터 동작
+- 검증 자동화: `npm run verify`가 환경, 문서 참조, localStorage 키 문서화, 백업 키 일치, Analytics 개인정보 파라미터, TypeScript, 빌드, 로컬 스모크를 한 번에 확인
 - 문구 체계: 하단 탭은 `홈`, `흐름`, `일정`, `금고`로 정리하고, 주요 추가 버튼은 흐름/일정/보관 메모 중심으로 통일
 - 빈 상태/목록 UI: 주요 생활·흐름·기록 화면의 빈 상태, 추가 버튼, 목록 카드를 앱 톤에 맞게 통일
 - QA 보완: 기록 탭에서 가족 회의록을 바로 추가하면 회의록 제목과 기본 템플릿이 자동 삽입됨
@@ -308,21 +309,21 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
 
 ## 8. 다음 추천 작업
 
-1. 실기기 QA
+1. GitHub remote 연결
+   - `docs/GITHUB_CI.md` 기준으로 GitHub 빈 저장소를 만들고 `origin` remote를 연결
+   - 첫 push 후 Actions의 `Verify` 워크플로가 `npm run verify`를 통과하는지 확인
+
+2. 실기기 QA
    - `docs/DEVICE_QA.md` 기준으로 `https://onzip.vercel.app`을 Android Chrome과 iPhone Safari에서 각각 열어 홈 화면 추가 확인
    - 설치 후 기존 localStorage 데이터 유지, 아이콘, 첫 로딩, 업데이트 안내 동작 확인
 
-2. 7일 실사용 관찰
+3. 7일 실사용 관찰
    - `docs/USAGE_QA_7D.md`의 매일 기록표와 우선순위 기준, `docs/TEST_CHECKLIST.md` 기준으로 입력 귀찮음, 화면 복잡도, 백업/설치 이해도 확인
    - 특히 `지출 예정`, `수입 예정`, `보관 메모`, `백업 파일로 교체하기`, `민감 메모 PIN` 흐름을 실제 사용자에게 설명 없이 맡겨보기
 
-3. 운영 관찰
+4. 운영 관찰
    - `docs/OPERATIONS_MONITORING.md` 기준으로 Vercel Analytics와 GA4에서 방문 수, 설치 안내 클릭, 빠른 추가 저장 이벤트를 확인
    - 분석 이벤트에는 제목, 금액, 메모, 태그, 구성원 이름 같은 사용자 입력값을 넣지 않음
-
-4. 저장소/CI 연결
-   - `docs/GITHUB_CI.md` 기준으로 GitHub remote를 연결하면 `.github/workflows/verify.yml`이 push/PR에서 `npm run verify`를 실행
-   - remote 연결 뒤 첫 push에서 Actions 통과 여부 확인
 
 ---
 
