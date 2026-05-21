@@ -64,7 +64,7 @@ export default function AppShell({ children, activeTab, onTabChange, onOpenQuick
 
       <div className="relative mx-auto flex h-full w-full max-w-lg flex-col overflow-hidden bg-[#f7f7f7] lg:max-w-none lg:flex-1">
         <Header activeTab={activeTab} onOpenQuickAdd={onOpenQuickAdd} onTabChange={onTabChange} />
-        <main className="flex-1 overflow-y-auto pb-[calc(9rem+env(safe-area-inset-bottom))] scroll-smooth-mobile lg:pb-10">
+        <main className="flex-1 overflow-y-auto pb-[calc(7rem+env(safe-area-inset-bottom))] scroll-smooth-mobile lg:pb-10">
           <div className="mx-auto w-full lg:max-w-[1180px] lg:px-6 xl:max-w-[1320px]">
             {children}
           </div>

@@ -21,22 +21,25 @@ interface Props {
 
 export default function BottomTabBar({ activeTab, onTabChange }: Props) {
   return (
-    <nav className="absolute bottom-0 left-0 right-0 bg-white/88 backdrop-blur-xl border-t border-[#ebebeb] safe-area-bottom lg:hidden">
+    <nav className="fixed bottom-0 left-1/2 z-40 w-full max-w-lg -translate-x-1/2 border-t border-[#ebebeb] bg-white/95 shadow-[0_-8px_24px_rgba(0,0,0,0.06)] backdrop-blur-xl safe-area-bottom lg:hidden">
       <div className="grid grid-cols-5 px-1 py-2">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className="min-h-[62px] rounded-[18px] text-xs font-semibold transition-colors flex flex-col items-center justify-center gap-1"
+            className="flex h-[66px] min-w-0 flex-col items-center justify-center gap-1 rounded-[18px] text-xs font-semibold transition-colors"
+            aria-label={`${tab.label} 탭으로 이동`}
           >
             <span
-              className={`h-9 w-9 rounded-[14px] flex items-center justify-center overflow-hidden ${
+              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[14px] ${
                 activeTab === tab.id ? 'bg-[#fff0f3]' : 'bg-[#f2f2f2]'
               }`}
             >
               <img src={TAB_ICON[tab.id]} alt="" className="h-8 w-8 object-contain" />
             </span>
-            <span className={activeTab === tab.id ? 'text-[#222222]' : 'text-[#6a6a6a]'}>{tab.label}</span>
+            <span className={`leading-none ${activeTab === tab.id ? 'text-[#222222]' : 'text-[#6a6a6a]'}`}>
+              {tab.label}
+            </span>
           </button>
         ))}
       </div>
