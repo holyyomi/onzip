@@ -195,6 +195,7 @@ src/
     csvExport.ts
 docs/
   ANALYTICS.md
+  DEVICE_QA.md
   RELEASE.md
   USAGE_QA_7D.md
 assets/
@@ -290,7 +291,7 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
 ## 8. 다음 추천 작업
 
 1. 실기기 QA
-   - `https://onzip.vercel.app`을 Android Chrome과 iPhone Safari에서 각각 열어 홈 화면 추가 확인
+   - `docs/DEVICE_QA.md` 기준으로 `https://onzip.vercel.app`을 Android Chrome과 iPhone Safari에서 각각 열어 홈 화면 추가 확인
    - 설치 후 기존 localStorage 데이터 유지, 아이콘, 첫 로딩, 업데이트 안내 동작 확인
 
 2. 7일 실사용 관찰

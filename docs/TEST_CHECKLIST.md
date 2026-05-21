@@ -9,6 +9,7 @@ npm run dev
 
 휴대폰에서 볼 때는 같은 Wi-Fi에서 `http://{PC IP}:3000`으로 접속한다.
 운영 배포본은 `https://onzip.vercel.app`에서 확인한다.
+설치와 실제 휴대폰 확인은 `docs/DEVICE_QA.md`를 함께 사용한다.
 
 ---
 
