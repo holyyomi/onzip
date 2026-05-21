@@ -124,7 +124,7 @@ npm run release:prod
 - 배포 전 검사: `npm run release:check`는 작업트리가 깨끗하고 HEAD 커밋이 있는지 확인. `npm run release:prod`는 `verify`, `release:check`, 프로덕션 배포, 운영 스모크를 순서대로 실행
 - 배포 명령: `npm run deploy:prod`는 Vercel 프로덕션 배포만 실행
 - 릴리즈 문서: 프로덕션 배포 순서와 실패 시 처리 기준은 `docs/RELEASE.md`에 정리
-- 프로덕션 재배포: 2026-05-20 `vercel.cmd --prod --yes`로 최신 변경 배포 완료. 배포 ID `dpl_C7ZYqFs2cDLJ7XkqhprmApvv2iBY`, alias `https://onzip.vercel.app`, `npm run smoke:prod` 통과
+- 프로덕션 재배포: 2026-05-21 `npm run release:prod`로 최신 앱 변경 배포 완료. 배포 ID `dpl_AhyCc8B9Z5C96mtTQEFrkAnWvBM1`, alias `https://onzip.vercel.app`, `npm run smoke:prod` 통과
 - 운영 PWA 스모크: 2026-05-21 `npm run smoke:prod`로 `https://onzip.vercel.app`의 HTML, 빌드 asset, manifest, service worker, 아이콘, OG/SEO 파일 응답과 PWA 설치용 manifest 필드 확인 통과
 - CI 검증: `.github/workflows/verify.yml`에서 push/PR 시 Node 20, `npm ci`, `npm run verify`를 실행하도록 준비. 현재 로컬 저장소에는 git remote가 없어 GitHub에 올린 뒤부터 동작
 - 문구 체계: 하단 탭은 `홈`, `흐름`, `일정`, `금고`로 정리하고, 주요 추가 버튼은 흐름/일정/보관 메모 중심으로 통일
