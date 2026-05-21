@@ -5,11 +5,14 @@
 ## 확인 위치
 
 - 운영 앱: `https://onzip.vercel.app`
+- 운영 상태 명령: `npm run ops:check`
 - Vercel Analytics: 방문 수, 페이지뷰, 기기/브라우저
 - GA4: 익명 이벤트, 빠른 추가/저장/설치 흐름
 - 이벤트 기준: `docs/ANALYTICS.md`
 
 ## 주간 체크
+
+먼저 `npm run ops:check`로 현재 커밋 상태와 운영 PWA 응답을 확인한다.
 
 | 항목 | 확인할 것 | 조치 기준 |
 |---|---|---|

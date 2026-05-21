@@ -18,6 +18,7 @@
     "smoke:prod": "node scripts/prod-smoke-check.mjs",
     "verify": "npm run env:check && npm run docs:check && npm run storage:check && npm run backup:check && npm run analytics:check && npm run typecheck && npm run build && npm run smoke",
     "release:check": "node scripts/release-check.mjs",
+    "ops:check": "npm run release:check && npm run smoke:prod",
     "deploy:prod": "vercel --prod --yes",
     "release:prod": "npm run verify && npm run release:check && npm run deploy:prod && npm run smoke:prod"
   },

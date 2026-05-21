@@ -23,6 +23,7 @@ npm run smoke
 npm run smoke:prod
 npm run verify
 npm run release:check
+npm run ops:check
 npm run release:prod
 # 주요 화면 수동 확인 (npm run dev)
 # docs/HANDOFF.md 업데이트
