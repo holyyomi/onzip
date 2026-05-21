@@ -97,7 +97,7 @@ export default function ShareAndSupportCard() {
     const file = event.target.files?.[0]
     event.target.value = ''
     if (!file) return
-    if (!confirm('현재 이 기기의 온집 데이터를 백업 파일 내용으로 교체합니다. 계속할까요?')) return
+    if (!confirm(`현재 이 기기의 온집 데이터를 "${file.name}" 파일 내용으로 교체합니다.\n\n현재 데이터도 필요하면 먼저 백업 파일을 내려받아 두세요.\n\n계속할까요?`)) return
 
     try {
       await importLocalDataFromFile(file)
@@ -126,9 +126,9 @@ export default function ShareAndSupportCard() {
       <section className="oz-card p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-base font-semibold text-[#222222]">내 데이터 백업</p>
+            <p className="text-base font-semibold text-[#222222]">백업과 불러오기</p>
             <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-              이 기기에 저장된 온집 데이터를 파일로 보관하거나, 이전에 받은 백업 파일로 복원합니다.
+              지금 데이터를 파일로 보관하거나, 이전 백업 파일 내용으로 이 기기 데이터를 교체합니다.
             </p>
           </div>
           <span className={`flex-shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -139,6 +139,9 @@ export default function ShareAndSupportCard() {
         </div>
         <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
           {backupStatus.detail}
+        </p>
+        <p className="mt-3 rounded-[16px] bg-[#f7f7f7] px-3 py-2 text-xs leading-relaxed text-[#8a8a8a]">
+          불러오기는 합치기가 아니라 교체입니다. 헷갈리면 먼저 백업 파일을 내려받아 두세요.
         </p>
         <input
           ref={fileInputRef}
@@ -157,7 +160,7 @@ export default function ShareAndSupportCard() {
           onClick={handleImportClick}
           className="mt-2 min-h-[48px] w-full rounded-full bg-[#222222] px-4 text-sm font-semibold text-white"
         >
-          백업 파일 불러오기
+          백업 파일로 교체하기
         </button>
       </section>
 
