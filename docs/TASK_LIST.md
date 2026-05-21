@@ -139,3 +139,4 @@
 | TASK-101 | 검증 자동화 이후 다음 추천 작업을 실제 남은 일 기준으로 재정리 | ✅ 완료 |
 | TASK-102 | GitHub remote/CI 연결 사전 점검 명령 추가 | ✅ 완료 |
 | TASK-103 | 배포 없이 운영 상태를 확인하는 ops:check 명령 추가 | ✅ 완료 |
+| TASK-104 | GitHub origin remote 연결 및 master 첫 push 완료 | ✅ 완료 |
