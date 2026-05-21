@@ -1,11 +1,16 @@
 import { useMemo, useState } from 'react'
-import type { TabId } from '../../app/App'
+import type { LifeInitialTab, TabId } from '../../app/App'
 import type { QuickAddType } from '../common/QuickAddMenu'
 import {
   fixedExpenseRepo,
+  checklistItemRepo,
+  checklistRepo,
+  choreRepo,
+  householdSupplyRepo,
   incomeRepo,
   ledgerEntryRepo,
   lifeRecordRepo,
+  shoppingItemRepo,
   subscriptionRepo,
 } from '../../data/repositories'
 import { getAggregatedEvents } from '../../utils/calendarAggregator'
@@ -22,6 +27,7 @@ interface Props {
   refreshKey: number
   onQuickAdd: (type: QuickAddType) => void
   onTabChange: (tab: TabId) => void
+  onOpenLife: (tab: LifeInitialTab) => void
 }
 
 interface ImportantItem {
@@ -32,6 +38,14 @@ interface ImportantItem {
   tab: TabId
   actionLabel?: string
   onAction?: () => void
+}
+
+interface LifeItem {
+  id: string
+  label: string
+  title: string
+  detail: string
+  initialTab: 'shopping' | 'checklist'
 }
 
 function addDays(dateStr: string, days: number): string {
@@ -47,7 +61,7 @@ function dateInMonth(year: number, month: number, day: number): string {
   return formatDate(new Date(year, month - 1, getEffectiveMonthDay(year, month, day)))
 }
 
-export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props) {
+export default function HomePage({ refreshKey, onQuickAdd, onTabChange, onOpenLife }: Props) {
   const { hidden: hideAmounts } = useAmountPrivacy()
   const { hidden: hideSensitive } = useVaultPrivacy()
   const [localRefreshKey, setLocalRefreshKey] = useState(0)
@@ -152,6 +166,32 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       .getAll()
       .filter((record) => isImportantVaultRecord(record) && !upcomingVaultRecordIds.has(record.id))
       .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+    const pendingShoppingItems = shoppingItemRepo.getPending('default').slice(0, 5)
+    const activeChecklists = checklistRepo
+      .getByHousehold('default')
+      .map((checklist) => ({
+        ...checklist,
+        completionRate: checklistItemRepo.completionRate(checklist.id),
+      }))
+      .filter((checklist) => checklist.completionRate < 100)
+      .sort((a, b) => {
+        if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date)
+        if (a.due_date) return -1
+        if (b.due_date) return 1
+        return b.updated_at.localeCompare(a.updated_at)
+      })
+      .slice(0, 4)
+    const suppliesToBuy = householdSupplyRepo.getNeedBuy('default').slice(0, 4)
+    const pendingChores = choreRepo
+      .getByHousehold('default')
+      .filter((chore) => !chore.is_done)
+      .sort((a, b) => {
+        if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date)
+        if (a.due_date) return -1
+        if (b.due_date) return 1
+        return b.updated_at.localeCompare(a.updated_at)
+      })
+      .slice(0, 4)
 
     return {
       monthIncome,
@@ -171,6 +211,10 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       weekEvents,
       upcomingVaultRecords,
       importantRecords,
+      pendingShoppingItems,
+      activeChecklists,
+      suppliesToBuy,
+      pendingChores,
     }
   }, [refreshKey, localRefreshKey])
 
@@ -253,6 +297,36 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
     })),
   ]
   const hiddenTodayItemCount = Math.max(0, todayItems.length - 5)
+  const lifeItems: LifeItem[] = [
+    ...data.pendingShoppingItems.map((item) => ({
+      id: `shopping_${item.id}`,
+      label: '구매 항목',
+      title: item.name,
+      detail: item.category,
+      initialTab: 'shopping' as const,
+    })),
+    ...data.activeChecklists.map((checklist) => ({
+      id: `checklist_${checklist.id}`,
+      label: '체크리스트',
+      title: checklist.title,
+      detail: checklist.due_date ? `${checklist.due_date.replace(/-/g, '.')} · ${checklist.completionRate}%` : `${checklist.completionRate}% 진행`,
+      initialTab: 'checklist' as const,
+    })),
+    ...data.suppliesToBuy.map((supply) => ({
+      id: `supply_${supply.id}`,
+      label: '생활용품',
+      title: supply.name,
+      detail: '구매 필요',
+      initialTab: 'shopping' as const,
+    })),
+    ...data.pendingChores.map((chore) => ({
+      id: `chore_${chore.id}`,
+      label: '집안일',
+      title: chore.title,
+      detail: chore.due_date ? chore.due_date.replace(/-/g, '.') : '미완료',
+      initialTab: 'checklist' as const,
+    })),
+  ].slice(0, 6)
 
   return (
     <div className="px-5 py-3 space-y-3 lg:grid lg:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.75fr)] lg:items-start lg:gap-4 lg:space-y-0 lg:px-8 lg:py-5">
@@ -296,11 +370,36 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-2 lg:col-start-2">
+      <section className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:col-start-2">
         <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="지출 예정" onClick={() => onQuickAdd('expense')} />
         <QuickButton iconSrc={QUICK_ADD_ICON.income} label="수입 예정" onClick={() => onQuickAdd('income')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.shopping} label="구매 항목" onClick={() => onQuickAdd('shopping')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.checklist} label="체크리스트" onClick={() => onQuickAdd('checklist')} />
         <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="중요 일정" onClick={() => onQuickAdd('schedule')} />
         <QuickButton iconSrc={QUICK_ADD_ICON.record} label="보관 메모" onClick={() => onQuickAdd('record')} />
+      </section>
+
+      <section className="oz-card p-4 lg:col-start-2">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-[#222222]">생활 할 일</h3>
+          <button onClick={() => onTabChange('life')} className="min-h-[34px] px-2 text-sm font-semibold text-[#ff385c]">
+            생활
+          </button>
+        </div>
+        <div className="divide-y divide-[#f0f0f0]">
+          {lifeItems.length === 0 && (
+            <p className="py-3 text-sm text-[#8a8a8a]">구매 항목, 체크리스트, 생활용품, 집안일이 없습니다.</p>
+          )}
+          {lifeItems.map((item) => (
+            <StatusRow
+              key={item.id}
+              label={item.label}
+              value={item.detail}
+              detail={item.title}
+              onClick={() => onOpenLife(item.initialTab)}
+            />
+          ))}
+        </div>
       </section>
 
       <section className="oz-card p-4 lg:col-start-2">

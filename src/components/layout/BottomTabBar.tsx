@@ -10,6 +10,7 @@ const TABS: Tab[] = [
   { id: 'home', label: '홈' },
   { id: 'money', label: '흐름' },
   { id: 'calendar', label: '일정' },
+  { id: 'life', label: '생활' },
   { id: 'records', label: '금고' },
 ]
 
@@ -21,7 +22,7 @@ interface Props {
 export default function BottomTabBar({ activeTab, onTabChange }: Props) {
   return (
     <nav className="absolute bottom-0 left-0 right-0 bg-white/88 backdrop-blur-xl border-t border-[#ebebeb] safe-area-bottom lg:hidden">
-      <div className="grid grid-cols-4 px-2 py-2">
+      <div className="grid grid-cols-5 px-1 py-2">
         {TABS.map((tab) => (
           <button
             key={tab.id}

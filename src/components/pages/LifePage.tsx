@@ -44,7 +44,7 @@ export default function LifePage({ externalRefreshKey, onQuickAdd, initialTab }:
 
   return (
     <div>
-      <div className="px-4 pt-3 grid grid-cols-2 gap-3">
+      <div className="px-4 pt-3 grid grid-cols-2 gap-3 lg:px-8 lg:pt-5">
         <LifeQuickButton
           iconSrc={QUICK_ADD_ICON.shopping}
           label="구매 항목"
@@ -59,7 +59,7 @@ export default function LifePage({ externalRefreshKey, onQuickAdd, initialTab }:
         />
       </div>
 
-      <div className="oz-tab-strip bg-[#f7f7f7]">
+      <div className="oz-tab-strip bg-[#f7f7f7] lg:px-8">
         {SUB_TABS.map((t) => (
           <button
             key={t.value}
@@ -83,7 +83,7 @@ export default function LifePage({ externalRefreshKey, onQuickAdd, initialTab }:
       )}
       {activeTab === 'manage' && (
         <>
-          <div className="mx-4 mb-2 grid grid-cols-3 gap-2 rounded-[18px] bg-white p-1.5 border border-[#ebebeb]">
+          <div className="mx-4 mb-2 grid grid-cols-3 gap-2 rounded-[18px] bg-white p-1.5 border border-[#ebebeb] lg:mx-8">
             {MANAGE_TABS.map((tab) => (
               <button
                 key={tab.value}
@@ -106,7 +106,7 @@ export default function LifePage({ externalRefreshKey, onQuickAdd, initialTab }:
         </>
       )}
 
-      <div className="px-5 py-5">
+      <div className="px-5 py-5 lg:px-8">
         <TabMemoCard tab="life" title="생활 메모" placeholder="구매 항목, 준비물, 집안일 관련 내용을 기록하세요." />
       </div>
     </div>

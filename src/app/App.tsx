@@ -73,7 +73,17 @@ export default function App() {
   const renderPage = () => {
     switch (activeTab) {
       case 'home':
-        return <HomePage refreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} onTabChange={setActiveTab} />
+        return (
+          <HomePage
+            refreshKey={appRefreshKey}
+            onQuickAdd={handleQuickSelect}
+            onTabChange={setActiveTab}
+            onOpenLife={(tab) => {
+              setLifeInitialTab(tab)
+              setActiveTab('life')
+            }}
+          />
+        )
       case 'calendar': return <CalendarPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
       case 'money':    return <MoneyPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
       case 'life':     return <LifePage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} initialTab={lifeInitialTab} />
