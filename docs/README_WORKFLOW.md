@@ -15,6 +15,7 @@
 npm run env:check
 npm run docs:check
 npm run storage:check
+npm run backup:check
 npm run analytics:check
 npm run typecheck
 npm run build

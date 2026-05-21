@@ -1,6 +1,7 @@
 # 온집 데이터 모델
 
 localStorage 기반 로컬 전용 데이터 구조.
+`npm run backup:check`는 백업 data 키가 아래 테이블 목록과 불러오기 로직에 맞는지 확인한다.
 
 ## 테이블 목록
 
