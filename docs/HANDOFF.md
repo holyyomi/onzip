@@ -37,6 +37,7 @@
 npm run dev
 npm run env:check
 npm run docs:check
+npm run storage:check
 npm run typecheck
 npm run build
 npm run smoke
@@ -121,8 +122,9 @@ npm run release:prod
 - 로컬 스모크 QA: 2026-05-20 기준 개발 서버 `http://127.0.0.1:3000` 응답 200, 아이콘 응답 200, 빌드 산출물 `manifest.webmanifest`와 `dist/index.html`의 PWA/OG 메타 확인 완료. Browser 자동화 인터페이스는 현재 세션에 노출되지 않아 DOM 기반 화면 조작 QA는 미실행
 - 환경 검증 명령: `npm run env:check`로 `.env.example` 키, 실제 값 미포함, `.env`/`.env.local` git 제외 상태를 확인
 - 문서 검증 명령: `npm run docs:check`로 문서에 적힌 `docs/...` 경로와 `npm run ...` 명령이 실제로 존재하는지 확인
+- 저장 키 검증 명령: `npm run storage:check`로 소스에서 쓰는 `onzip_` localStorage 키가 이 문서에 기록되어 있는지 확인
 - 분석 개인정보 검증: `npm run analytics:check`로 코드의 `trackEvent` 호출이 `docs/ANALYTICS.md`에 문서화된 이벤트명과 허용 파라미터만 쓰는지 확인
-- 반복 QA 명령: `npm run smoke`로 빌드 산출물, 빌드 asset 연결, PWA manifest, 필수 아이콘, OG 메타, 이전 용어 잔여 여부를 자동 확인. `npm run verify`는 env:check, docs:check, analytics:check, typecheck, build, smoke를 순서대로 실행
+- 반복 QA 명령: `npm run smoke`로 빌드 산출물, 빌드 asset 연결, PWA manifest, 필수 아이콘, OG 메타, 이전 용어 잔여 여부를 자동 확인. `npm run verify`는 env:check, docs:check, storage:check, analytics:check, typecheck, build, smoke를 순서대로 실행
 - 배포 QA 명령: `npm run smoke:prod`로 `https://onzip.vercel.app`의 HTML, 빌드 asset 응답, manifest, service worker, 아이콘, OG/SEO 파일 응답을 확인. 다른 URL은 `ONZIP_PROD_URL` 환경변수나 명령 인자로 지정 가능
 - PWA 설치 QA 보강: 로컬/운영 스모크에서 manifest의 `scope`, `orientation`, `theme_color`, `background_color`, 192/512/maskable 아이콘 구성을 함께 확인
 - 배포 전 검사: `npm run release:check`는 작업트리가 깨끗하고 HEAD 커밋이 있는지 확인. `npm run release:prod`는 `verify`, `release:check`, 프로덕션 배포, 운영 스모크를 순서대로 실행
@@ -226,6 +228,7 @@ scripts/
   docs-check.mjs
   generate-icons.mjs
   generate-og-image.mjs
+  storage-keys-check.mjs
 ```
 
 ---
@@ -254,6 +257,10 @@ onzip_fixed_expense_month_status
 onzip_income_month_status
 onzip_subscription_month_status
 onzip_seed_done_v1
+onzip_full_reset_done_20260516_v1
+onzip_install_card_hidden_v1
+onzip_onboarding_seen_v1
+onzip_storage_notice_seen_v1
 onzip_update_notice_20260519_flow_vault
 ```
 
