@@ -288,20 +288,21 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
 
 ## 8. 다음 추천 작업
 
-1. 모바일 실사용 흐름 다듬기
-   - 변경된 오늘/흐름/일정/금고 구조를 실제 사용자에게 다시 테스트
-   - 사용자가 `수입 예정`, `지출 예정`, `갱신일`, `보관 메모`를 막힘없이 추가하는지 확인
+1. 실기기 QA
+   - `https://onzip.vercel.app`을 Android Chrome과 iPhone Safari에서 각각 열어 홈 화면 추가 확인
+   - 설치 후 기존 localStorage 데이터 유지, 아이콘, 첫 로딩, 업데이트 안내 동작 확인
 
-2. 금고 PIN 사용성 확인
-   - 민감 메모 PIN이 과하지 않고 가볍게 느껴지는지 실사용 테스트
-   - PIN 없이 민감 메모 숨김을 켰을 때 설정 흐름이 자연스러운지 확인
+2. 7일 실사용 관찰
+   - `docs/USAGE_QA_7D.md`와 `docs/TEST_CHECKLIST.md` 기준으로 입력 귀찮음, 화면 복잡도, 백업/설치 이해도 확인
+   - 특히 `지출 예정`, `수입 예정`, `보관 메모`, `백업 파일로 교체하기`, `민감 메모 PIN` 흐름을 실제 사용자에게 설명 없이 맡겨보기
 
-3. 휴대폰 PWA 설치 확인
-   - `https://onzip.vercel.app` 접속 후 홈 화면 추가
-   - 설치 후 앱 아이콘, 첫 로딩, localStorage 데이터 유지 확인
+3. 운영 관찰
+   - Vercel Analytics와 GA4에서 방문 수, 설치 안내 클릭, 빠른 추가 저장 이벤트를 확인
+   - 분석 이벤트에는 제목, 금액, 메모, 태그, 구성원 이름 같은 사용자 입력값을 넣지 않음
 
-4. 사용성 QA
-   - `docs/USAGE_QA_7D.md` 기준으로 입력 귀찮음, 화면 복잡도 점검
+4. 저장소/CI 연결
+   - GitHub remote를 연결하면 `.github/workflows/verify.yml`이 push/PR에서 `npm run verify`를 실행
+   - remote 연결 뒤 첫 push에서 Actions 통과 여부 확인
 
 ---
 
