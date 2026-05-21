@@ -31,6 +31,7 @@ git status
 
 프로덕션 배포는 `docs/RELEASE.md`의 순서를 따른다.
 GitHub 연결과 CI 확인은 `docs/GITHUB_CI.md`의 순서를 따른다.
+GitHub remote 연결 후에는 `npm run github:check`로 origin/upstream 상태를 확인한다.
 
 ## 4. 커밋 메시지 규칙
 ```

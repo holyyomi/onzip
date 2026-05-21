@@ -136,6 +136,7 @@ npm run release:prod
 - 운영 PWA 스모크: 2026-05-21 `npm run smoke:prod`로 `https://onzip.vercel.app`의 HTML, 빌드 asset, manifest, service worker, 아이콘, OG/SEO 파일 응답과 PWA 설치용 manifest 필드 확인 통과
 - 운영 상태 재점검: 2026-05-21 `npm run release:check`와 `npm run smoke:prod` 재실행 통과. 작업트리 clean, HEAD `75b3f51`, 운영 URL/PWA asset 응답 정상
 - CI 검증: `.github/workflows/verify.yml`에서 push/PR 시 Node 20, `npm ci`, `npm run verify`를 실행하도록 준비. 현재 로컬 저장소에는 git remote가 없어 GitHub에 올린 뒤부터 동작
+- GitHub 연결 점검: `npm run github:check`로 `.github/workflows/verify.yml`, `origin` remote, 현재 브랜치 upstream 설정을 확인. 현재는 remote가 없어 실제 연결 전 실패하는 것이 정상
 - 검증 자동화: `npm run verify`가 환경, 문서 참조, localStorage 키 문서화, 백업 키 일치, Analytics 개인정보 파라미터, TypeScript, 빌드, 로컬 스모크를 한 번에 확인
 - 문구 체계: 하단 탭은 `홈`, `흐름`, `일정`, `금고`로 정리하고, 주요 추가 버튼은 흐름/일정/보관 메모 중심으로 통일
 - 빈 상태/목록 UI: 주요 생활·흐름·기록 화면의 빈 상태, 추가 버튼, 목록 카드를 앱 톤에 맞게 통일
@@ -232,6 +233,7 @@ scripts/
   docs-check.mjs
   generate-icons.mjs
   generate-og-image.mjs
+  github-ci-check.mjs
   storage-keys-check.mjs
 ```
 
@@ -311,7 +313,7 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
 
 1. GitHub remote 연결
    - `docs/GITHUB_CI.md` 기준으로 GitHub 빈 저장소를 만들고 `origin` remote를 연결
-   - 첫 push 후 Actions의 `Verify` 워크플로가 `npm run verify`를 통과하는지 확인
+   - 첫 push 후 `npm run github:check`와 Actions의 `Verify` 워크플로가 통과하는지 확인
 
 2. 실기기 QA
    - `docs/DEVICE_QA.md` 기준으로 `https://onzip.vercel.app`을 Android Chrome과 iPhone Safari에서 각각 열어 홈 화면 추가 확인

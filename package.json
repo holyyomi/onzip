@@ -12,6 +12,7 @@
     "storage:check": "node scripts/storage-keys-check.mjs",
     "backup:check": "node scripts/backup-check.mjs",
     "analytics:check": "node scripts/analytics-privacy-check.mjs",
+    "github:check": "node scripts/github-ci-check.mjs",
     "typecheck": "tsc --noEmit",
     "smoke": "node scripts/smoke-check.mjs",
     "smoke:prod": "node scripts/prod-smoke-check.mjs",
