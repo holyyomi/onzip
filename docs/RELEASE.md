@@ -31,7 +31,7 @@ npm run smoke:prod
 ## 각 명령의 역할
 
 - `npm run env:check`: `.env.example` 필수 키, 실제 값 미포함, `.env` git 제외 상태 확인
-- `npm run verify`: 환경 검증, 타입 체크, 프로덕션 빌드, 로컬 스모크 QA 실행
+- `npm run verify`: 환경/문서/분석 개인정보 검증, 타입 체크, 프로덕션 빌드, 로컬 스모크 QA 실행
 - `npm run release:check`: 작업트리가 깨끗하고 HEAD 커밋이 있는지 확인
 - `npm run deploy:prod`: Vercel 프로덕션 배포 실행
 - `npm run smoke:prod`: 운영 URL의 HTML, JS/CSS asset, manifest, service worker, 아이콘, OG/SEO 파일 응답 확인

@@ -8,11 +8,12 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "env:check": "node scripts/env-check.mjs",
+    "docs:check": "node scripts/docs-check.mjs",
     "analytics:check": "node scripts/analytics-privacy-check.mjs",
     "typecheck": "tsc --noEmit",
     "smoke": "node scripts/smoke-check.mjs",
     "smoke:prod": "node scripts/prod-smoke-check.mjs",
-    "verify": "npm run env:check && npm run analytics:check && npm run typecheck && npm run build && npm run smoke",
+    "verify": "npm run env:check && npm run docs:check && npm run analytics:check && npm run typecheck && npm run build && npm run smoke",
     "release:check": "node scripts/release-check.mjs",
     "deploy:prod": "vercel --prod --yes",
     "release:prod": "npm run verify && npm run release:check && npm run deploy:prod && npm run smoke:prod"

@@ -50,6 +50,8 @@ git push -u origin main
 |---|---|
 | `npm ci` | `package-lock.json`이 최신인지 확인 |
 | `npm run env:check` | `.env.example`, `.gitignore`, 추적 중인 env 파일 확인 |
+| `npm run docs:check` | 문서에 적힌 파일 경로와 npm script 이름 확인 |
+| `npm run analytics:check` | Analytics 이벤트명과 파라미터 개인정보 기준 확인 |
 | `npm run typecheck` | TypeScript 오류 수정 |
 | `npm run build` | Vite 빌드 오류와 asset 경로 확인 |
 | `npm run smoke` | PWA manifest, 아이콘, OG/SEO 파일 확인 |
