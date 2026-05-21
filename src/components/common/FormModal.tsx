@@ -9,8 +9,8 @@ interface Props {
 // 공통 바텀시트 모달 — 모든 form modal에서 재사용
 export default function FormModal({ title, onClose, children }: Props) {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/40">
-      <div className="bg-white rounded-t-[28px] px-5 pt-4 pb-3 max-h-[92dvh] overflow-y-auto scroll-smooth-mobile">
+    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/40 lg:items-center lg:justify-center lg:p-6">
+      <div className="bg-white rounded-t-[28px] px-5 pt-4 pb-3 max-h-[92dvh] overflow-y-auto scroll-smooth-mobile lg:w-full lg:max-w-2xl lg:rounded-[24px] lg:p-6">
         <div className="flex items-center justify-between mb-5 sticky top-0 z-10 bg-white pb-2">
           <h2 className="text-xl font-semibold text-[#222222]">{title}</h2>
           <button

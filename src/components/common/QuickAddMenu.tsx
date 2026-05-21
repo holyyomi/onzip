@@ -31,9 +31,9 @@ const secondaryOptions = OPTIONS.filter((option) => !option.primary)
 
 export default function QuickAddMenu({ onSelect, onClose }: Props) {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/30" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/30 lg:items-center lg:justify-center lg:p-6" onClick={onClose}>
       <div
-        className="bg-white rounded-t-[28px] border-t border-[#ebebeb] max-h-[88dvh] overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+24px)]"
+        className="bg-white rounded-t-[28px] border-t border-[#ebebeb] max-h-[88dvh] overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+24px)] lg:w-full lg:max-w-3xl lg:rounded-[24px] lg:border lg:pb-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-center pt-3 pb-2">

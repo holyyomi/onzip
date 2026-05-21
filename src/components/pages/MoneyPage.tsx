@@ -66,7 +66,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
 
   return (
     <div>
-      <div className="px-4 pt-3 grid grid-cols-2 gap-3">
+      <div className="px-4 pt-3 grid grid-cols-2 gap-3 lg:px-8 lg:pt-5">
         <MoneyQuickButton
           iconSrc={QUICK_ADD_ICON.expense}
           label="지출 예정"
@@ -81,7 +81,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
         />
       </div>
 
-      <div className="oz-tab-strip bg-[#f7f7f7]">
+      <div className="oz-tab-strip bg-[#f7f7f7] lg:px-8">
         {SUB_TABS.map((t) => (
           <button
             key={t.value}
@@ -98,7 +98,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       </div>
 
       {showMonthNav && (
-        <div className="flex items-center justify-between mx-4 mb-2 px-4 py-3 bg-white border border-[#ebebeb] rounded-full">
+        <div className="flex items-center justify-between mx-4 mb-2 px-4 py-3 bg-white border border-[#ebebeb] rounded-full lg:mx-8">
           <button onClick={handlePrev} className="w-9 h-9 flex items-center justify-center text-[#222222] rounded-full bg-[#f2f2f2]">
             ‹
           </button>
@@ -119,7 +119,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       )}
       {activeTab === 'manage' && (
         <>
-          <div className="mx-4 mb-2 grid grid-cols-3 gap-2 rounded-[18px] bg-white p-1.5 border border-[#ebebeb]">
+          <div className="mx-4 mb-2 grid grid-cols-3 gap-2 rounded-[18px] bg-white p-1.5 border border-[#ebebeb] lg:mx-8">
             {MANAGE_TABS.map((tab) => (
               <button
                 key={tab.value}
@@ -145,7 +145,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       )}
       {activeTab === 'calculator' && <CalculatorTab />}
 
-      <div className="px-5 py-5">
+      <div className="px-5 py-5 lg:px-8">
         <TabMemoCard tab="money" title="흐름 메모" placeholder="수입 예정, 지출 예정, 잔액 확인 내용을 기록하세요." />
       </div>
     </div>
@@ -337,8 +337,8 @@ function FlowSummary({
   }
 
   return (
-    <div className="p-4 space-y-3">
-      <div className="oz-card p-4">
+    <div className="p-4 space-y-3 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0 lg:px-8">
+      <div className="oz-card p-4 lg:col-span-2">
         <p className="text-xs font-semibold text-[#8a8a8a]">이번 달 예상 흐름</p>
         <p className={`mt-1 text-2xl font-bold ${data.inTotal - data.outTotal >= 0 ? 'text-[#222222]' : 'text-red-500'}`}>
           {displayAmount(data.inTotal - data.outTotal, hideAmounts)}
@@ -374,12 +374,12 @@ function FlowSummary({
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 lg:col-span-2">
         <FlowStat label="수입 예정" value={displayAmount(data.inTotal, hideAmounts)} tone="in" />
         <FlowStat label="지출 예정" value={displayAmount(data.outTotal, hideAmounts)} tone="out" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 lg:col-span-1">
         <FlowBreakdownCard
           title="수입 예정"
           tone="in"
@@ -404,7 +404,7 @@ function FlowSummary({
         />
       </div>
 
-      <div className="oz-card p-4">
+      <div className="oz-card p-4 lg:col-span-1">
         <div>
           <h3 className="text-base font-semibold text-[#222222]">날짜별 흐름</h3>
           {data.isCurrentMonthView && (

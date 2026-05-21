@@ -20,7 +20,7 @@ interface Props {
 
 export default function BottomTabBar({ activeTab, onTabChange }: Props) {
   return (
-    <nav className="absolute bottom-0 left-0 right-0 bg-white/88 backdrop-blur-xl border-t border-[#ebebeb] safe-area-bottom">
+    <nav className="absolute bottom-0 left-0 right-0 bg-white/88 backdrop-blur-xl border-t border-[#ebebeb] safe-area-bottom lg:hidden">
       <div className="grid grid-cols-4 px-2 py-2">
         {TABS.map((tab) => (
           <button

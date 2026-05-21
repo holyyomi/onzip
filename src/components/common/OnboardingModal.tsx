@@ -15,8 +15,8 @@ export default function OnboardingModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/35">
-      <div className="w-full max-w-lg rounded-t-[24px] bg-white p-5">
+    <div className="fixed inset-0 z-50 flex items-end bg-black/35 lg:items-center lg:justify-center lg:p-6">
+      <div className="w-full max-w-lg rounded-t-[24px] bg-white p-5 lg:rounded-[24px]">
         <div className="flex justify-center pb-3">
           <img src="/icons/icon-192.png" alt="" className="h-14 w-14 rounded-[20px]" />
         </div>

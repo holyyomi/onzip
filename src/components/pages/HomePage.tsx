@@ -255,8 +255,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
   const hiddenTodayItemCount = Math.max(0, todayItems.length - 5)
 
   return (
-    <div className="px-5 py-3 space-y-3">
-      <section className="oz-card bg-white p-4">
+    <div className="px-5 py-3 space-y-3 lg:grid lg:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.75fr)] lg:items-start lg:gap-4 lg:space-y-0 lg:px-8 lg:py-5">
+      <section className="oz-card bg-white p-4 lg:col-start-1 lg:row-span-2">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs font-semibold text-[#8a8a8a]">{todayStr().replace(/-/g, '.')}</p>
@@ -296,14 +296,14 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-2">
+      <section className="grid grid-cols-2 gap-2 lg:col-start-2">
         <QuickButton iconSrc={QUICK_ADD_ICON.expense} label="지출 예정" onClick={() => onQuickAdd('expense')} />
         <QuickButton iconSrc={QUICK_ADD_ICON.income} label="수입 예정" onClick={() => onQuickAdd('income')} />
         <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="중요 일정" onClick={() => onQuickAdd('schedule')} />
         <QuickButton iconSrc={QUICK_ADD_ICON.record} label="보관 메모" onClick={() => onQuickAdd('record')} />
       </section>
 
-      <section className="oz-card p-4">
+      <section className="oz-card p-4 lg:col-start-2">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-[#222222]">이번 달 흐름</h3>
           <button onClick={() => onTabChange('money')} className="min-h-[34px] px-2 text-sm font-semibold text-[#ff385c]">
@@ -317,7 +317,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         </div>
       </section>
 
-      <section className="oz-card p-4">
+      <section className="oz-card p-4 lg:col-span-2">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-[#222222]">다가오는 항목</h3>
           <button onClick={() => onTabChange('calendar')} className="min-h-[34px] px-2 text-sm font-semibold text-[#ff385c]">

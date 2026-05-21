@@ -141,3 +141,4 @@
 | TASK-103 | 배포 없이 운영 상태를 확인하는 ops:check 명령 추가 | ✅ 완료 |
 | TASK-104 | GitHub origin remote 연결 및 master 첫 push 완료 | ✅ 완료 |
 | TASK-105 | GitHub와 Vercel 프로덕션 최신 커밋 동기화 | ✅ 완료 |
+| TASK-106 | PC/태블릿/모바일 반응형 레이아웃 1차 개편 | ✅ 완료 |

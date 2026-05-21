@@ -97,7 +97,7 @@ export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) 
     <div>
       <TodaySummaryCard key={`${refreshKey}-${externalRefreshKey}`} />
 
-      <div className="px-4 grid grid-cols-2 gap-3">
+      <div className="px-4 grid grid-cols-2 gap-3 lg:px-8">
         <CalendarQuickButton
           iconSrc={QUICK_ADD_ICON.schedule}
           label="일정 넣기"
@@ -112,7 +112,7 @@ export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) 
         />
       </div>
 
-      <div className="flex px-4 py-3 gap-2 bg-[#f7f7f7]">
+      <div className="flex px-4 py-3 gap-2 bg-[#f7f7f7] lg:px-8">
         {(['month', 'week'] as const).map((mode) => (
           <button key={mode} onClick={() => setViewMode(mode)}
             className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
@@ -127,30 +127,36 @@ export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) 
         </button>
       </div>
 
-      {viewMode === 'month' ? (
-        <CalendarMonthView
-          year={year} month={month} events={events}
-          selectedDate={selectedDate}
-          onPrev={handlePrev} onNext={handleNext} onToday={handleToday}
-          onSelectDate={handleSelectDate}
-        />
-      ) : (
-        <CalendarWeekView
-          baseDate={selectedDate} events={events}
-          selectedDate={selectedDate}
-          onPrevWeek={handlePrev} onNextWeek={handleNext}
-          onSelectDate={handleSelectDate}
-        />
-      )}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-4 lg:px-8">
+        <div>
+          {viewMode === 'month' ? (
+            <CalendarMonthView
+              year={year} month={month} events={events}
+              selectedDate={selectedDate}
+              onPrev={handlePrev} onNext={handleNext} onToday={handleToday}
+              onSelectDate={handleSelectDate}
+            />
+          ) : (
+            <CalendarWeekView
+              baseDate={selectedDate} events={events}
+              selectedDate={selectedDate}
+              onPrevWeek={handlePrev} onNextWeek={handleNext}
+              onSelectDate={handleSelectDate}
+            />
+          )}
+        </div>
 
-      <div className="h-2 bg-[#f7f7f7]" />
+        <div>
+          <div className="h-2 bg-[#f7f7f7] lg:hidden" />
 
-      <DayEventPanel
-        date={selectedDate} events={selectedDateEvents}
-        onAddEvent={handleAddEvent} onEditEvent={handleEditEvent}
-      />
+          <DayEventPanel
+            date={selectedDate} events={selectedDateEvents}
+            onAddEvent={handleAddEvent} onEditEvent={handleEditEvent}
+          />
+        </div>
+      </div>
 
-      <div className="px-5 py-5">
+      <div className="px-5 py-5 lg:px-8">
         <TabMemoCard tab="calendar" title="일정 메모" placeholder="가족 일정, 예약, 준비물을 기록하세요." />
       </div>
 

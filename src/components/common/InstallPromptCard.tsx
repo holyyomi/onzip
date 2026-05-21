@@ -109,8 +109,8 @@ export default function InstallPromptCard() {
       </section>
 
       {showGuide && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/30" onClick={() => setShowGuide(false)}>
-          <div className="w-full max-w-lg rounded-t-[28px] bg-white p-5" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-end bg-black/30 lg:items-center lg:justify-center lg:p-6" onClick={() => setShowGuide(false)}>
+          <div className="w-full max-w-lg rounded-t-[28px] bg-white p-5 lg:rounded-[24px]" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-[#222222]">홈 화면에 추가</h2>
               <button

@@ -141,6 +141,7 @@ npm run release:prod
 - GitHub 연결: 2026-05-21 `origin`을 `https://github.com/holyyomi/onzip.git`으로 연결하고 `master`를 `origin/master`로 push 완료. `npm run github:check` 통과
 - 검증 자동화: `npm run verify`가 환경, 문서 참조, localStorage 키 문서화, 백업 키 일치, Analytics 개인정보 파라미터, TypeScript, 빌드, 로컬 스모크를 한 번에 확인
 - 최신 동기화: 2026-05-21 GitHub `master`와 Vercel 프로덕션을 같은 최신 커밋으로 맞추는 작업 진행. 배포는 `npm run release:prod` 기준으로 실행
+- 반응형 레이아웃 1차: PC에서는 좌측 사이드바와 넓은 콘텐츠 영역을 사용하고, 모바일에서는 기존 하단 탭 PWA 레이아웃 유지. 홈/흐름/일정 주요 화면은 데스크톱 그리드로 확장
 - 문구 체계: 하단 탭은 `홈`, `흐름`, `일정`, `금고`로 정리하고, 주요 추가 버튼은 흐름/일정/보관 메모 중심으로 통일
 - 빈 상태/목록 UI: 주요 생활·흐름·기록 화면의 빈 상태, 추가 버튼, 목록 카드를 앱 톤에 맞게 통일
 - QA 보완: 기록 탭에서 가족 회의록을 바로 추가하면 회의록 제목과 기본 템플릿이 자동 삽입됨
@@ -321,6 +322,7 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
 2. 실기기 QA
    - `docs/DEVICE_QA.md` 기준으로 `https://onzip.vercel.app`을 Android Chrome과 iPhone Safari에서 각각 열어 홈 화면 추가 확인
    - 설치 후 기존 localStorage 데이터 유지, 아이콘, 첫 로딩, 업데이트 안내 동작 확인
+   - PC 브라우저, 태블릿 가로/세로, 모바일에서 레이아웃 폭과 탭 위치 확인
 
 3. 7일 실사용 관찰
    - `docs/USAGE_QA_7D.md`의 매일 기록표와 우선순위 기준, `docs/TEST_CHECKLIST.md` 기준으로 입력 귀찮음, 화면 복잡도, 백업/설치 이해도 확인
