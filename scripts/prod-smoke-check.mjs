@@ -102,6 +102,10 @@ if (manifestText) {
       display: 'standalone',
       lang: 'ko',
       start_url: '/',
+      scope: '/',
+      orientation: 'portrait',
+      theme_color: '#ff385c',
+      background_color: '#f7f7f7',
     }
 
     for (const [key, value] of Object.entries(expected)) {
@@ -122,6 +126,25 @@ if (manifestText) {
       pass('manifest has at least 3 icons')
     } else {
       fail('manifest should include at least 3 icons')
+    }
+
+    const icons = Array.isArray(manifest.icons) ? manifest.icons : []
+    if (icons.some((icon) => icon.src === '/icons/icon-192.png' && icon.sizes === '192x192')) {
+      pass('manifest includes 192 icon')
+    } else {
+      fail('manifest should include /icons/icon-192.png at 192x192')
+    }
+
+    if (icons.some((icon) => icon.src === '/icons/icon-512.png' && icon.sizes === '512x512')) {
+      pass('manifest includes 512 icon')
+    } else {
+      fail('manifest should include /icons/icon-512.png at 512x512')
+    }
+
+    if (icons.some((icon) => icon.src === '/icons/icon-512-maskable.png' && icon.purpose === 'maskable')) {
+      pass('manifest includes maskable icon')
+    } else {
+      fail('manifest should include a maskable icon')
     }
   } catch (error) {
     fail(`manifest.webmanifest is not valid JSON: ${error.message}`)
