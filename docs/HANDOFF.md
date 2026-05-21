@@ -197,6 +197,7 @@ docs/
   ANALYTICS.md
   DEVICE_QA.md
   GITHUB_CI.md
+  OPERATIONS_MONITORING.md
   RELEASE.md
   USAGE_QA_7D.md
 assets/
@@ -300,7 +301,7 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
    - 특히 `지출 예정`, `수입 예정`, `보관 메모`, `백업 파일로 교체하기`, `민감 메모 PIN` 흐름을 실제 사용자에게 설명 없이 맡겨보기
 
 3. 운영 관찰
-   - Vercel Analytics와 GA4에서 방문 수, 설치 안내 클릭, 빠른 추가 저장 이벤트를 확인
+   - `docs/OPERATIONS_MONITORING.md` 기준으로 Vercel Analytics와 GA4에서 방문 수, 설치 안내 클릭, 빠른 추가 저장 이벤트를 확인
    - 분석 이벤트에는 제목, 금액, 메모, 태그, 구성원 이름 같은 사용자 입력값을 넣지 않음
 
 4. 저장소/CI 연결
