@@ -93,6 +93,9 @@ VITE_GA_MEASUREMENT_ID=G-3206HZH0BS
 이벤트 파라미터는 `type`, `mode`, `tab`, `platform`, `outcome`, `status`처럼 정해진 상태값만 사용한다.
 제목, 금액, 메모, 태그, 구성원 이름은 파라미터에 넣지 않는다.
 
+`npm run analytics:check`는 코드의 `trackEvent` 호출이 이 문서에 있는 이벤트명과 허용 파라미터만 쓰는지 확인한다.
+`npm run verify`에도 이 검사가 포함된다.
+
 ## 유료 전환 판단
 
 Vercel 사용량은 비용 위험을 보는 지표이고, GA4는 실제 사용 흐름을 보는 지표다.

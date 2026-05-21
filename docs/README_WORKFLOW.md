@@ -13,6 +13,7 @@
 ## 3. 작업 완료 후
 ```bash
 npm run env:check
+npm run analytics:check
 npm run typecheck
 npm run build
 npm run smoke
