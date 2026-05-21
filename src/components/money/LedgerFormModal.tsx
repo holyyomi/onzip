@@ -42,6 +42,9 @@ export default function LedgerFormModal({
   const [showDetails, setShowDetails] = useState(Boolean(entryId))
 
   const categories = entryType === 'expense' ? getCategories('expense') : getCategories('income')
+  const amountSuggestions = entryType === 'expense'
+    ? [5000, 10000, 20000, 50000]
+    : [100000, 500000, 1000000, 3000000]
 
   function handleSave() {
     const amt = Number(amount.replace(/,/g, ''))
@@ -116,6 +119,7 @@ export default function LedgerFormModal({
           placeholder="예) 12000"
           value={amount}
           onChange={(e) => { setAmount(e.target.value); setError('') }}
+          onKeyDown={(e) => e.key === 'Enter' && handleSave()}
           className={inputCls}
           inputMode="numeric"
           autoFocus
@@ -124,13 +128,13 @@ export default function LedgerFormModal({
       </Field>
 
       <div className="grid grid-cols-4 gap-2 mb-3">
-        {[5000, 10000, 20000, 50000].map((value) => (
+        {amountSuggestions.map((value) => (
           <button
             key={value}
             onClick={() => setAmount(String(value))}
             className="rounded-full border border-[#dddddd] bg-[#f7f7f7] py-2 text-xs font-semibold text-[#222222]"
           >
-            {value / 10000 >= 1 ? `${value / 10000}만` : `${value / 1000}천`}
+            {value >= 10000 ? `${value / 10000}만` : `${value / 1000}천`}
           </button>
         ))}
       </div>

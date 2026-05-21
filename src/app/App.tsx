@@ -51,14 +51,16 @@ export default function App() {
       trackEvent('quick_add_saved', { type: savedType })
     }
 
-    if (savedType === 'record') {
+    if (savedType === 'expense' || savedType === 'income' || savedType === 'fixed_expense' || savedType === 'subscription') {
+      setActiveTab('money')
+    } else if (savedType === 'schedule') {
+      setActiveTab('calendar')
+    } else if (savedType === 'record') {
       setActiveTab('records')
-    }
-    if (savedType === 'shopping') {
+    } else if (savedType === 'shopping') {
       setLifeInitialTab('shopping')
       setActiveTab('life')
-    }
-    if (savedType === 'checklist') {
+    } else if (savedType === 'checklist') {
       setLifeInitialTab('checklist')
       setActiveTab('life')
     }
