@@ -67,6 +67,7 @@ npm run release:prod
 - PWA: manifest, service worker, Vercel 설정
 - 배포: Vercel 프로덕션 배포 완료 (`https://onzip.vercel.app`)
 - 분석: Vercel Web Analytics 방문 분석 추가. GA4 측정 ID(`VITE_GA_MEASUREMENT_ID=G-3206HZH0BS`)로 익명 이벤트 분석 활성화
+- 분석 문서: `docs/ANALYTICS.md`에 실제 전송 이벤트 목록과 개인정보 금지 파라미터 기준을 정리
 - 저장 안내: 설정에 로컬 저장 안내 표시
 - 설치 UX: Android는 Chrome 설치를 권장하고, 삼성 인터넷에서는 자동 설치 팝업 대신 수동 설치 안내를 표시
 - 설치 안내 닫기: 사용자가 설치 안내를 닫아도 영구 숨김이 아니라 7일 동안만 숨김. 실제 설치가 완료된 경우에는 다시 표시하지 않음

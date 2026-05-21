@@ -18,6 +18,8 @@
 - 빠른 추가 열림/선택/저장
 - 주요 저장 완료 이벤트
 - 앱 설치 버튼 클릭/설치 결과
+- 온보딩 완료
+- 앱 링크 공유/문의/로컬 백업 내보내기/백업 파일 교체
 - 로컬 저장 안내 닫기
 
 ## 방문 분석
@@ -61,24 +63,35 @@ VITE_GA_MEASUREMENT_ID=G-3206HZH0BS
 | `quick_add_open` | 빠른 추가 메뉴 열림 |
 | `quick_add_select` | 빠른 추가 항목 선택 |
 | `quick_add_saved` | 빠른 추가 저장 완료 |
-| `ledger_saved` | 가계부 저장 완료 |
+| `ledger_saved` | 흐름 기록 저장 완료 |
 | `calendar_event_saved` | 일정 저장 완료 |
-| `shopping_saved` | 장보기 저장 완료 |
+| `shopping_saved` | 구매 항목 저장 완료 |
 | `checklist_saved` | 체크리스트 저장 완료 |
 | `fixed_expense_saved` | 정기 지출 저장 완료 |
 | `subscription_saved` | 구독 저장 완료 |
-| `record_saved` | 기록 저장 완료 |
+| `record_saved` | 보관 메모 저장 완료 |
 | `supply_saved` | 생활용품 저장 완료 |
 | `supply_status_changed` | 생활용품 상태 변경 |
-| `supply_sent_to_shopping` | 생활용품을 장보기로 추가 |
+| `supply_sent_to_shopping` | 생활용품을 구매 항목으로 추가 |
 | `template_copied` | 템플릿 복사 |
+| `onboarding_done` | 첫 실행 안내 완료 |
 | `install_cta_click` | 앱 설치 버튼 클릭 |
 | `install_prompt_available` | 브라우저 설치 프롬프트 사용 가능 |
 | `install_prompt_result` | 설치 프롬프트 결과 |
 | `install_success` | 앱 설치 완료 |
 | `install_guide_open` | 수동 설치 안내 열림 |
-| `install_card_hide` | 설치 카드 닫기 |
+| `install_card_hide` | 설치 안내 7일 숨김 |
 | `storage_notice_dismiss` | 로컬 저장 안내 닫기 |
+| `share_app_click` | 앱 링크 공유 버튼 클릭 |
+| `share_app_success` | 네이티브 공유 성공 |
+| `share_app_cancel` | 네이티브 공유 취소 |
+| `share_app_copy` | 공유 문구/링크 복사 |
+| `contact_click` | 문의 메일 열기 |
+| `local_data_export` | 로컬 백업 파일 내려받기 |
+| `local_data_import` | 백업 파일로 현재 데이터 교체 |
+
+이벤트 파라미터는 `type`, `mode`, `tab`, `platform`, `outcome`, `status`처럼 정해진 상태값만 사용한다.
+제목, 금액, 메모, 태그, 구성원 이름은 파라미터에 넣지 않는다.
 
 ## 유료 전환 판단
 
