@@ -129,3 +129,4 @@
 | TASK-091 | Analytics 문서를 실제 익명 이벤트와 최신 용어 기준으로 갱신 | ✅ 완료 |
 | TASK-092 | Android/iPhone 실기기 PWA QA 체크리스트 추가 | ✅ 완료 |
 | TASK-093 | 7일 실사용 관찰 기록표와 우선순위 기준 추가 | ✅ 완료 |
+| TASK-094 | GitHub remote/CI 연결 절차 문서화 | ✅ 완료 |

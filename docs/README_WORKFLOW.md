@@ -26,6 +26,7 @@ git status
 ```
 
 프로덕션 배포는 `docs/RELEASE.md`의 순서를 따른다.
+GitHub 연결과 CI 확인은 `docs/GITHUB_CI.md`의 순서를 따른다.
 
 ## 4. 커밋 메시지 규칙
 ```

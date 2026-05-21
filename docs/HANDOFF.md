@@ -196,6 +196,7 @@ src/
 docs/
   ANALYTICS.md
   DEVICE_QA.md
+  GITHUB_CI.md
   RELEASE.md
   USAGE_QA_7D.md
 assets/
@@ -303,7 +304,7 @@ const onRefresh = () => setRefreshKey((k) => k + 1)
    - 분석 이벤트에는 제목, 금액, 메모, 태그, 구성원 이름 같은 사용자 입력값을 넣지 않음
 
 4. 저장소/CI 연결
-   - GitHub remote를 연결하면 `.github/workflows/verify.yml`이 push/PR에서 `npm run verify`를 실행
+   - `docs/GITHUB_CI.md` 기준으로 GitHub remote를 연결하면 `.github/workflows/verify.yml`이 push/PR에서 `npm run verify`를 실행
    - remote 연결 뒤 첫 push에서 Actions 통과 여부 확인
 
 ---
