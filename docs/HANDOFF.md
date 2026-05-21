@@ -140,6 +140,7 @@ npm run release:prod
 - CI 검증: `.github/workflows/verify.yml`에서 push/PR 시 Node 20, `npm ci`, `npm run verify`를 실행
 - GitHub 연결: 2026-05-21 `origin`을 `https://github.com/holyyomi/onzip.git`으로 연결하고 `master`를 `origin/master`로 push 완료. `npm run github:check` 통과
 - 검증 자동화: `npm run verify`가 환경, 문서 참조, localStorage 키 문서화, 백업 키 일치, Analytics 개인정보 파라미터, TypeScript, 빌드, 로컬 스모크를 한 번에 확인
+- 최신 동기화: 2026-05-21 GitHub `master`와 Vercel 프로덕션을 같은 최신 커밋으로 맞추는 작업 진행. 배포는 `npm run release:prod` 기준으로 실행
 - 문구 체계: 하단 탭은 `홈`, `흐름`, `일정`, `금고`로 정리하고, 주요 추가 버튼은 흐름/일정/보관 메모 중심으로 통일
 - 빈 상태/목록 UI: 주요 생활·흐름·기록 화면의 빈 상태, 추가 버튼, 목록 카드를 앱 톤에 맞게 통일
 - QA 보완: 기록 탭에서 가족 회의록을 바로 추가하면 회의록 제목과 기본 템플릿이 자동 삽입됨
