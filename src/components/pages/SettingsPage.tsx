@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import FormModal, { Field, inputCls, FormActions } from '../common/FormModal'
 import { memberRepo, householdRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
@@ -71,8 +71,11 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
   const household = householdRepo.getDefault()
   const [name, setName] = useState(household.name)
   const [saved, setSaved] = useState(false)
+  const [pinRefreshKey, setPinRefreshKey] = useState(0)
+  const [forcePinExpandedKey, setForcePinExpandedKey] = useState(0)
   const { hidden: hideAmounts, setHidden: setHideAmounts } = useAmountPrivacy()
   const { hidden: hideSensitive, setHidden: setHideSensitive } = useVaultPrivacy()
+  const hasPin = useMemo(() => hasAppPin(), [pinRefreshKey])
 
   function handleSave() {
     householdRepo.update(household.id, { name: name.trim() || '우리집' })
@@ -84,6 +87,14 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
 
   const totalEntries = ledgerEntryRepo.getAll().length
   const members = memberRepo.getAll().filter((m) => m.is_active).length
+
+  function handleSensitiveToggle() {
+    const nextHidden = !hideSensitive
+    setHideSensitive(nextHidden)
+    if (nextHidden && !hasPin) {
+      setForcePinExpandedKey((key) => key + 1)
+    }
+  }
 
   return (
     <div className="p-4 space-y-4">
@@ -128,16 +139,24 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
             </p>
           </div>
           <button
-            onClick={() => setHideSensitive(!hideSensitive)}
+            onClick={handleSensitiveToggle}
             className={`h-8 w-14 flex-shrink-0 rounded-full p-1 transition-colors ${hideSensitive ? 'bg-[#ff385c]' : 'bg-gray-200'}`}
             aria-label="민감 메모 숨김"
           >
             <span className={`block h-6 w-6 rounded-full bg-white shadow transition-transform ${hideSensitive ? 'translate-x-6' : 'translate-x-0'}`} />
           </button>
         </div>
+        {hideSensitive && !hasPin && (
+          <p className="mt-3 rounded-[16px] bg-[#fff0f3] px-3 py-2 text-xs font-semibold leading-relaxed text-[#ff385c]">
+            민감 메모를 열람하려면 PIN이 필요합니다. 아래에서 앱 전체 잠금을 설정하세요.
+          </p>
+        )}
       </div>
 
-      <PinLockCard />
+      <PinLockCard
+        forceExpandedKey={forcePinExpandedKey}
+        onPinChanged={() => setPinRefreshKey((key) => key + 1)}
+      />
 
       <PwaUpdateCard />
 
@@ -188,7 +207,13 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
   )
 }
 
-function PinLockCard() {
+function PinLockCard({
+  forceExpandedKey,
+  onPinChanged,
+}: {
+  forceExpandedKey: number
+  onPinChanged: () => void
+}) {
   const [enabled, setEnabled] = useState(hasAppPin)
   const [expanded, setExpanded] = useState(hasAppPin)
   const [pin, setPin] = useState('')
@@ -199,6 +224,12 @@ function PinLockCard() {
   function cleanPin(value: string) {
     return value.replace(/\D/g, '').slice(0, 6)
   }
+
+  useEffect(() => {
+    if (forceExpandedKey > 0) {
+      setExpanded(true)
+    }
+  }, [forceExpandedKey])
 
   async function handleSetPin() {
     if (pin !== pinConfirm) {
@@ -212,6 +243,7 @@ function PinLockCard() {
       setEnabled(true)
       setPin('')
       setPinConfirm('')
+      onPinChanged()
     }
   }
 
@@ -234,6 +266,7 @@ function PinLockCard() {
       setCurrentPin('')
       setPin('')
       setPinConfirm('')
+      onPinChanged()
     }
   }
 
@@ -251,6 +284,7 @@ function PinLockCard() {
     setPin('')
     setPinConfirm('')
     setMessage('앱 잠금을 해제했습니다.')
+    onPinChanged()
   }
 
   return (
