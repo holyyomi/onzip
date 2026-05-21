@@ -19,7 +19,7 @@ import UpdateNoticeCard from '../common/UpdateNoticeCard'
 import PwaUpdateCard from '../common/PwaUpdateCard'
 import InstallPromptCard from '../common/InstallPromptCard'
 import { useAmountPrivacy } from '../../utils/amountPrivacy'
-import { clearAppPin, hasAppPin, requestAppLock, setAppPin, verifyAppPin } from '../../utils/appLock'
+import { clearAppPin, hasAppPin, setAppPin } from '../../utils/appLock'
 import { useVaultPrivacy } from '../../utils/vaultPrivacy'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
@@ -148,7 +148,7 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
         </div>
         {hideSensitive && !hasPin && (
           <p className="mt-3 rounded-[16px] bg-[#fff0f3] px-3 py-2 text-xs font-semibold leading-relaxed text-[#ff385c]">
-            민감 메모를 열람하려면 PIN이 필요합니다. 아래에서 앱 전체 잠금을 설정하세요.
+            민감 메모를 열 때만 확인할 4자리 PIN을 아래에서 정할 수 있습니다.
           </p>
         )}
       </div>
@@ -217,12 +217,10 @@ function PinLockCard({
   const [enabled, setEnabled] = useState(hasAppPin)
   const [expanded, setExpanded] = useState(hasAppPin)
   const [pin, setPin] = useState('')
-  const [pinConfirm, setPinConfirm] = useState('')
-  const [currentPin, setCurrentPin] = useState('')
   const [message, setMessage] = useState('')
 
   function cleanPin(value: string) {
-    return value.replace(/\D/g, '').slice(0, 6)
+    return value.replace(/\D/g, '').slice(0, 4)
   }
 
   useEffect(() => {
@@ -231,59 +229,21 @@ function PinLockCard({
     }
   }, [forceExpandedKey])
 
-  async function handleSetPin() {
-    if (pin !== pinConfirm) {
-      setMessage('PIN 확인이 다릅니다.')
-      return
-    }
-
+  async function handleSavePin() {
     const result = await setAppPin(pin)
     setMessage(result.message)
     if (result.ok) {
       setEnabled(true)
       setPin('')
-      setPinConfirm('')
       onPinChanged()
     }
   }
 
-  async function handleChangePin() {
-    const ok = await verifyAppPin(currentPin)
-    if (!ok) {
-      setMessage('현재 PIN이 맞지 않습니다.')
-      setCurrentPin('')
-      return
-    }
-
-    if (pin !== pinConfirm) {
-      setMessage('새 PIN 확인이 다릅니다.')
-      return
-    }
-
-    const result = await setAppPin(pin)
-    setMessage(result.message)
-    if (result.ok) {
-      setCurrentPin('')
-      setPin('')
-      setPinConfirm('')
-      onPinChanged()
-    }
-  }
-
-  async function handleDisablePin() {
-    const ok = await verifyAppPin(currentPin)
-    if (!ok) {
-      setMessage('현재 PIN이 맞지 않습니다.')
-      setCurrentPin('')
-      return
-    }
-
+  function handleDisablePin() {
     clearAppPin()
     setEnabled(false)
-    setCurrentPin('')
     setPin('')
-    setPinConfirm('')
-    setMessage('앱 잠금을 해제했습니다.')
+    setMessage('민감 메모 PIN을 껐습니다.')
     onPinChanged()
   }
 
@@ -292,15 +252,15 @@ function PinLockCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-base font-semibold text-[#222222]">앱 전체 잠금</p>
+            <p className="text-base font-semibold text-[#222222]">민감 메모 PIN</p>
             <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
               enabled ? 'bg-[#fff0f3] text-[#ff385c]' : 'bg-[#f7f7f7] text-[#8a8a8a]'
             }`}>
-              {enabled ? '켜짐' : '선택'}
+              {enabled ? '사용 중' : '선택'}
             </span>
           </div>
           <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-            혼자 쓰면 꺼둬도 됩니다. 휴대폰을 자주 빌려주거나 금고 내용을 더 강하게 막고 싶을 때만 켜세요.
+            앱 전체를 잠그지 않고, 민감 보관 메모를 열 때만 4자리 PIN을 확인합니다.
           </p>
         </div>
         <button
@@ -311,65 +271,40 @@ function PinLockCard({
         </button>
       </div>
 
-      {enabled && !expanded && (
-        <button
-          onClick={requestAppLock}
-          className="mt-3 min-h-[42px] w-full rounded-full bg-[#222222] text-sm font-semibold text-white"
-        >
-          지금 잠그기
-        </button>
-      )}
-
       {expanded && (
         <>
           <div className="mt-4 space-y-2">
-            {enabled && (
-              <input
-                type="password"
-                inputMode="numeric"
-                placeholder="현재 PIN"
-                value={currentPin}
-                onChange={(e) => { setCurrentPin(cleanPin(e.target.value)); setMessage('') }}
-                className={inputCls}
-              />
-            )}
             <input
               type="password"
               inputMode="numeric"
-              placeholder={enabled ? '새 PIN (숫자 4~6자리)' : 'PIN 설정 (숫자 4~6자리)'}
+              placeholder={enabled ? '새 PIN 4자리' : 'PIN 4자리'}
               value={pin}
               onChange={(e) => { setPin(cleanPin(e.target.value)); setMessage('') }}
-              className={inputCls}
-            />
-            <input
-              type="password"
-              inputMode="numeric"
-              placeholder="PIN 확인"
-              value={pinConfirm}
-              onChange={(e) => { setPinConfirm(cleanPin(e.target.value)); setMessage('') }}
+              onKeyDown={(e) => e.key === 'Enter' && pin.length === 4 && void handleSavePin()}
               className={inputCls}
             />
           </div>
 
           <p className="mt-3 rounded-[16px] bg-[#f7f7f7] px-3 py-2 text-xs leading-relaxed text-[#8a8a8a]">
-            PIN을 켜면 앱 시작, 5분 미사용, 1분 이상 백그라운드 복귀 시 잠깁니다. PIN을 잊으면 앱을 우회해서 열 수 없으니 백업 파일을 보관하세요.
+            PIN은 민감 태그가 붙은 보관 메모를 열 때만 사용합니다. 잊어버리면 여기서 새 PIN으로 다시 정하면 됩니다.
           </p>
 
           {message && <p className="mt-2 text-xs font-semibold text-[#ff385c]">{message}</p>}
 
           <div className="mt-4 flex gap-2">
             <button
-              onClick={() => void (enabled ? handleChangePin() : handleSetPin())}
-              className="min-h-[46px] flex-1 rounded-full bg-[#ff385c] text-sm font-semibold text-white"
+              onClick={() => void handleSavePin()}
+              disabled={pin.length !== 4}
+              className="min-h-[46px] flex-1 rounded-full bg-[#ff385c] text-sm font-semibold text-white disabled:opacity-40"
             >
-              {enabled ? 'PIN 변경' : '잠금 설정'}
+              {enabled ? 'PIN 바꾸기' : 'PIN 켜기'}
             </button>
             {enabled && (
               <button
-                onClick={() => void handleDisablePin()}
+                onClick={handleDisablePin}
                 className="min-h-[46px] flex-1 rounded-full border border-[#dddddd] bg-white text-sm font-semibold text-[#222222]"
               >
-                잠금 해제
+                PIN 끄기
               </button>
             )}
           </div>

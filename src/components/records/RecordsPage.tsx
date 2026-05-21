@@ -252,7 +252,7 @@ function SensitiveUnlockSheet({
   const hasPin = hasAppPin()
 
   function cleanPin(value: string) {
-    return value.replace(/\D/g, '').slice(0, 6)
+    return value.replace(/\D/g, '').slice(0, 4)
   }
 
   async function handleUnlock() {
@@ -273,7 +273,7 @@ function SensitiveUnlockSheet({
           <div>
             <p className="text-lg font-semibold text-[#222222]">민감 보관 메모</p>
             <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-              {record.record_date.replace(/-/g, '. ')} · 내용을 열람하려면 PIN 확인이 필요합니다.
+              {record.record_date.replace(/-/g, '. ')} · 4자리 PIN으로 한 번 확인합니다.
             </p>
           </div>
           <button
@@ -294,13 +294,13 @@ function SensitiveUnlockSheet({
               placeholder="PIN"
               value={pin}
               onChange={(e) => { setPin(cleanPin(e.target.value)); setError('') }}
-              onKeyDown={(e) => e.key === 'Enter' && pin.length >= 4 && void handleUnlock()}
+              onKeyDown={(e) => e.key === 'Enter' && pin.length === 4 && void handleUnlock()}
               className="mt-4 w-full min-h-[52px] rounded-[18px] border border-[#dddddd] bg-white px-4 py-3 text-base text-[#222222] focus:border-[#222222] focus:outline-none"
             />
             {error && <p className="mt-2 text-xs font-semibold text-[#ff385c]">{error}</p>}
             <button
               onClick={() => void handleUnlock()}
-              disabled={pin.length < 4}
+              disabled={pin.length !== 4}
               className="mt-4 min-h-[50px] w-full rounded-full bg-[#ff385c] text-sm font-semibold text-white disabled:opacity-40"
             >
               열람하기
@@ -309,7 +309,7 @@ function SensitiveUnlockSheet({
         ) : (
           <div className="mt-4 rounded-[18px] bg-[#f7f7f7] p-4">
             <p className="text-sm leading-relaxed text-[#6a6a6a]">
-              아직 PIN이 설정되어 있지 않습니다. 설정에서 앱 전체 잠금을 먼저 설정하면 민감 보관 메모를 PIN으로 열람할 수 있습니다.
+              아직 PIN이 없습니다. 설정에서 민감 메모 PIN을 정하면 이 메모를 열 수 있습니다.
             </p>
           </div>
         )}

@@ -2,7 +2,6 @@ import { appSettingsRepo } from '../data/repositories'
 
 const PIN_HASH_KEY = 'app_lock_pin_hash'
 const PIN_SALT_KEY = 'app_lock_pin_salt'
-export const APP_LOCK_EVENT = 'onzip_app_lock_requested'
 
 function makeSalt(): string {
   const bytes = new Uint8Array(16)
@@ -18,7 +17,7 @@ async function sha256(text: string): Promise<string> {
 }
 
 function isValidPin(pin: string): boolean {
-  return /^\d{4,6}$/.test(pin)
+  return /^\d{4}$/.test(pin)
 }
 
 export function hasAppPin(): boolean {
@@ -27,14 +26,14 @@ export function hasAppPin(): boolean {
 
 export async function setAppPin(pin: string): Promise<{ ok: boolean; message: string }> {
   if (!isValidPin(pin)) {
-    return { ok: false, message: 'PIN은 숫자 4~6자리로 입력해주세요.' }
+    return { ok: false, message: 'PIN은 숫자 4자리로 입력해주세요.' }
   }
 
   const salt = makeSalt()
   const hash = await sha256(`${salt}:${pin}`)
   appSettingsRepo.set('default', PIN_SALT_KEY, salt)
   appSettingsRepo.set('default', PIN_HASH_KEY, hash)
-  return { ok: true, message: '앱 잠금을 설정했습니다.' }
+  return { ok: true, message: '민감 메모 PIN을 저장했습니다.' }
 }
 
 export async function verifyAppPin(pin: string): Promise<boolean> {
@@ -49,8 +48,4 @@ export async function verifyAppPin(pin: string): Promise<boolean> {
 export function clearAppPin(): void {
   appSettingsRepo.set('default', PIN_SALT_KEY, '')
   appSettingsRepo.set('default', PIN_HASH_KEY, '')
-}
-
-export function requestAppLock(): void {
-  window.dispatchEvent(new Event(APP_LOCK_EVENT))
 }

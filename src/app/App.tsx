@@ -11,7 +11,6 @@ import QuickAddMenu, { type QuickAddType } from '../components/common/QuickAddMe
 import QuickAddModal from '../components/common/QuickAddModal'
 import OnboardingModal from '../components/common/OnboardingModal'
 import PwaUpdatePrompt from '../components/common/PwaUpdatePrompt'
-import AppLockGate from '../components/common/AppLockGate'
 import { getLaunchMode, initGoogleAnalytics, trackEvent } from '../utils/analytics'
 
 export type TabId = 'home' | 'calendar' | 'money' | 'life' | 'records' | 'settings'
@@ -121,7 +120,6 @@ export default function App() {
 
       <OnboardingModal />
       <PwaUpdatePrompt />
-      <AppLockGate />
 
       <Analytics />
     </>
