@@ -134,14 +134,15 @@ npm run release:prod
 - 배포 전 검사: `npm run release:check`는 작업트리가 깨끗하고 HEAD 커밋이 있는지 확인. `npm run release:prod`는 `verify`, `release:check`, 프로덕션 배포, 운영 스모크를 순서대로 실행
 - 배포 명령: `npm run deploy:prod`는 Vercel 프로덕션 배포만 실행
 - 릴리즈 문서: 프로덕션 배포 순서와 실패 시 처리 기준은 `docs/RELEASE.md`에 정리
-- 프로덕션 재배포: 2026-05-21 `npm run release:prod`로 최신 앱 변경 배포 완료. 배포 ID `dpl_AhyCc8B9Z5C96mtTQEFrkAnWvBM1`, alias `https://onzip.vercel.app`, `npm run smoke:prod` 통과
+- 프로덕션 재배포: 2026-05-21 `npm run release:prod`로 최신 앱 변경 배포 완료. alias `https://onzip.vercel.app`, `npm run smoke:prod` 통과
 - 운영 PWA 스모크: 2026-05-21 `npm run smoke:prod`로 `https://onzip.vercel.app`의 HTML, 빌드 asset, manifest, service worker, 아이콘, OG/SEO 파일 응답과 PWA 설치용 manifest 필드 확인 통과
 - 운영 상태 재점검: 2026-05-21 `npm run release:check`와 `npm run smoke:prod` 재실행 통과. 작업트리 clean, HEAD `75b3f51`, 운영 URL/PWA asset 응답 정상
 - CI 검증: `.github/workflows/verify.yml`에서 push/PR 시 Node 20, `npm ci`, `npm run verify`를 실행
 - GitHub 연결: 2026-05-21 `origin`을 `https://github.com/holyyomi/onzip.git`으로 연결하고 `master`를 `origin/master`로 push 완료. `npm run github:check` 통과
 - 검증 자동화: `npm run verify`가 환경, 문서 참조, localStorage 키 문서화, 백업 키 일치, Analytics 개인정보 파라미터, TypeScript, 빌드, 로컬 스모크를 한 번에 확인
-- 최신 동기화: 2026-05-21 GitHub `master`와 Vercel 프로덕션을 같은 최신 커밋으로 맞추는 작업 진행. 배포는 `npm run release:prod` 기준으로 실행
+- 최신 동기화: 2026-05-21 GitHub `master`와 Vercel 프로덕션을 최신 커밋 기준으로 맞춤. 배포는 `npm run release:prod` 기준으로 실행
 - 반응형 레이아웃 1차: PC에서는 좌측 사이드바와 넓은 콘텐츠 영역을 사용하고, 모바일에서는 기존 하단 탭 PWA 레이아웃 유지. 홈/흐름/일정 주요 화면은 데스크톱 그리드로 확장
+- 생활 중심 재균형: 하단 `생활` 탭을 다시 노출하고, 홈에 `생활 할 일` 섹션을 추가해 구매 항목/체크리스트/생활용품/집안일을 흐름 요약보다 먼저 확인할 수 있음. 홈 빠른 추가와 빠른 추가 메뉴도 돈/생활/일정/금고가 함께 보이도록 조정
 - 문구 체계: 하단 탭은 `홈`, `흐름`, `일정`, `생활`, `금고`로 정리하고, 주요 추가 버튼은 흐름/생활/일정/보관 메모가 균형 있게 보이도록 조정
 - 빈 상태/목록 UI: 주요 생활·흐름·기록 화면의 빈 상태, 추가 버튼, 목록 카드를 앱 톤에 맞게 통일
 - QA 보완: 기록 탭에서 가족 회의록을 바로 추가하면 회의록 제목과 기본 템플릿이 자동 삽입됨
