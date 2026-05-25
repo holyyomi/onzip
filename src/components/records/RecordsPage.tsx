@@ -36,7 +36,6 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
   const [searchQuery, setSearchQuery] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [defaultType, setDefaultType] = useState<RecordType>('life')
   const [refreshKey, setRefreshKey] = useState(0)
   const [unlockRecord, setUnlockRecord] = useState<LifeRecord | null>(null)
 
@@ -64,12 +63,6 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
     return list.sort((a, b) => b.record_date.localeCompare(a.record_date))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, searchQuery, refreshKey, externalRefreshKey])
-
-  function handleAdd(type: RecordType) {
-    setDefaultType(type)
-    setEditingId(null)
-    setShowModal(true)
-  }
 
   function openRecord(record: LifeRecord) {
     if (hideSensitive && isSensitiveRecord(record)) {
@@ -130,19 +123,6 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
           ([type, cfg]) => (
             <FilterChip key={type} value={type} label={cfg.label}
               active={filter === type} onClick={() => setFilter(type)} />
-          ),
-        )}
-      </div>
-
-      {/* 빠른 추가 버튼 */}
-      <div className="flex gap-2 px-4 py-3 overflow-x-auto">
-        {(Object.entries(RECORD_TYPE_CONFIG) as [RecordType, { label: string; dot: string }][]).map(
-          ([type, cfg]) => (
-            <button key={type} onClick={() => handleAdd(type)}
-              className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs text-gray-600">
-              <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-              {cfg.label}
-            </button>
           ),
         )}
       </div>
@@ -217,7 +197,7 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       {showModal && (
         <RecordFormModal
           recordId={editingId}
-          defaultType={defaultType}
+          defaultType="life"
           onSaved={() => { setShowModal(false); setRefreshKey((k) => k + 1) }}
           onClose={() => setShowModal(false)}
         />
