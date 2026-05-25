@@ -171,7 +171,6 @@ const sourceChecks = [
 ]
 const oldTerms = [
   '품목명',
-  '수입 추가',
   '수입 항목',
   '고정수입',
   '부수입',

@@ -63,13 +63,13 @@ export default function IncomeFormModal({ incomeId, onSaved, onClose }: Props) {
 
   function handleDelete() {
     if (!incomeId) return
-    if (!confirm('이 수입 예정을 삭제할까요?')) return
+    if (!confirm('이 수입을 삭제할까요?')) return
     incomeRepo.delete(incomeId)
     onSaved()
   }
 
   return (
-    <FormModal title={incomeId ? '수입 예정 수정' : '수입 예정 추가'} onClose={onClose}>
+    <FormModal title={incomeId ? '수입 수정' : '수입 추가'} onClose={onClose}>
       <Field label="수입명">
         <input type="text" placeholder="예) 월급" value={title}
           onChange={(e) => { setTitle(e.target.value); setError('') }}

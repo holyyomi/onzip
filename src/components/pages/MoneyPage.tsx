@@ -30,14 +30,14 @@ interface Props {
 
 const SUB_TABS: { value: MoneySubTab; label: string }[] = [
   { value: 'summary', label: '요약' },
-  { value: 'ledger', label: '기록' },
+  { value: 'ledger', label: '상세내역' },
   { value: 'manage', label: '입출금' },
   { value: 'calculator', label: '계산기' },
 ]
 
 const MANAGE_TABS: { value: MoneyManageSubTab; label: string }[] = [
-  { value: 'income', label: '수입 예정' },
-  { value: 'fixed', label: '지출 예정' },
+  { value: 'income', label: '수입' },
+  { value: 'fixed', label: '지출' },
   { value: 'subscription', label: '자동결제' },
 ]
 
@@ -69,13 +69,13 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 pt-3 grid grid-cols-2 gap-3 lg:px-8 lg:pt-5">
         <MoneyQuickButton
           iconSrc={QUICK_ADD_ICON.expense}
-          label="지출 예정"
+          label="지출"
           sub="카드 결제, 정산, 생활비"
           onClick={() => onQuickAdd('expense')}
         />
         <MoneyQuickButton
           iconSrc={QUICK_ADD_ICON.income}
-          label="수입 예정"
+          label="수입"
           sub="월급, 부가 수입, 받을 금액"
           onClick={() => onQuickAdd('income')}
         />
@@ -146,7 +146,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       {activeTab === 'calculator' && <CalculatorTab />}
 
       <div className="px-5 py-5 lg:px-8">
-        <TabMemoCard tab="money" title="가계부 메모" placeholder="수입 예정, 지출 예정, 잔액 확인 내용을 기록하세요." />
+        <TabMemoCard tab="money" title="가계부 메모" placeholder="수입, 지출, 잔액 확인 내용을 기록하세요." />
       </div>
     </div>
   )
@@ -247,7 +247,7 @@ function FlowSummary({
           type: 'in' as const,
           source: 'income' as const,
           sourceId: income.id,
-          label: '수입 예정',
+          label: '수입',
           paymentState,
           priority: paymentState?.kind === 'overdue' ? -2 : getMoneyDayDistance(effectiveDay, todayDay),
           title: income.title,
@@ -263,7 +263,7 @@ function FlowSummary({
           type: 'out' as const,
           source: 'fixed' as const,
           sourceId: expense.id,
-          label: expense.category === '카드' ? '카드 결제' : '지출 예정',
+          label: expense.category === '카드' ? '카드 결제' : '지출',
           paymentState,
           priority: paymentState?.kind === 'overdue' ? -1 : getMoneyDayDistance(effectiveDay, todayDay),
           title: expense.title,
@@ -344,7 +344,7 @@ function FlowSummary({
           {displayAmount(data.inTotal - data.outTotal, hideAmounts)}
         </p>
         <p className="mt-1 text-xs text-[#8a8a8a]">
-          수입 예정 {displayAmount(data.inTotal, hideAmounts)} - 지출 예정 {displayAmount(data.outTotal, hideAmounts)}
+          수입 {displayAmount(data.inTotal, hideAmounts)} - 지출 {displayAmount(data.outTotal, hideAmounts)}
         </p>
         {data.isCurrentMonthView && (
           <div className="mt-4 grid grid-cols-3 gap-2">
@@ -359,12 +359,12 @@ function FlowSummary({
         )}
         {data.isCurrentMonthView && data.overdueFixedCount > 0 && (
           <p className="mt-3 rounded-[16px] bg-[#fff0f3] px-3 py-2 text-xs font-semibold text-[#ff385c]">
-            아직 완료하지 않은 지출 예정 {data.overdueFixedCount}건, {displayAmount(data.overdueFixedOut, hideAmounts)}이 있습니다.
+            아직 완료하지 않은 지출 {data.overdueFixedCount}건, {displayAmount(data.overdueFixedOut, hideAmounts)}이 있습니다.
           </p>
         )}
         {data.isCurrentMonthView && data.overdueIncomeCount > 0 && (
           <p className="mt-2 rounded-[16px] bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-600">
-            아직 입금 완료하지 않은 수입 예정 {data.overdueIncomeCount}건, {displayAmount(data.overdueIncome, hideAmounts)}이 있습니다.
+            아직 입금 완료하지 않은 수입 {data.overdueIncomeCount}건, {displayAmount(data.overdueIncome, hideAmounts)}이 있습니다.
           </p>
         )}
         {data.isCurrentMonthView && data.overdueSubscriptionCount > 0 && (
@@ -375,30 +375,30 @@ function FlowSummary({
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:col-span-2">
-        <FlowStat label="수입 예정" value={displayAmount(data.inTotal, hideAmounts)} tone="in" />
-        <FlowStat label="지출 예정" value={displayAmount(data.outTotal, hideAmounts)} tone="out" />
+        <FlowStat label="수입" value={displayAmount(data.inTotal, hideAmounts)} tone="in" />
+        <FlowStat label="지출" value={displayAmount(data.outTotal, hideAmounts)} tone="out" />
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:col-span-1">
         <FlowBreakdownCard
-          title="수입 예정"
+          title="수입"
           tone="in"
           items={[
             { label: '월급/정기', value: data.salaryIncome },
             { label: '부가 수입', value: data.sideIncome },
             { label: '기타 반복', value: data.otherRecurringIncome },
-            { label: '이번 달 기록', value: data.entryIncome },
+            { label: '이번 달 상세내역', value: data.entryIncome },
           ]}
           hideAmounts={hideAmounts}
         />
         <FlowBreakdownCard
-          title="지출 예정"
+          title="지출"
           tone="out"
           items={[
             { label: '카드 결제', value: data.cardOut },
             { label: '정기 지출', value: data.fixedOtherOut },
             { label: '자동결제', value: data.subOut },
-            { label: '이번 달 기록', value: data.entryExpense },
+            { label: '이번 달 상세내역', value: data.entryExpense },
           ]}
           hideAmounts={hideAmounts}
         />

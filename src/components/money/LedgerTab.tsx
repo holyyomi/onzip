@@ -150,7 +150,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
           <EmptyState
             message="이번 달 가계 내역이 비어 있습니다"
             sub="지출이나 수입을 기록하면 월간 가계부를 바로 확인할 수 있습니다."
-            actionLabel="지출 기록 추가"
+            actionLabel="지출 추가"
             onAction={() => openAdd('expense')}
           />
         )}

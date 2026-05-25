@@ -63,7 +63,7 @@ export default function IncomeTab({ year, month, refreshKey, onRefresh }: Props)
     <div>
       <div className="px-4 py-3 bg-white border-b border-gray-100 flex justify-between items-center">
         <div>
-          <p className="text-xs text-gray-400">이번 달 남은 수입 예정</p>
+          <p className="text-xs text-gray-400">이번 달 남은 수입</p>
           <p className="text-lg font-bold text-blue-600">{displayAmount(remainingTotal, hideAmounts)}</p>
           <p className="mt-0.5 text-xs text-gray-400">
             전체 {displayAmount(monthlyTotal, hideAmounts)} · 입금 완료 {receivedCount}/{monthlyCount}건
@@ -80,9 +80,9 @@ export default function IncomeTab({ year, month, refreshKey, onRefresh }: Props)
       <div className="p-4 space-y-2">
         {incomes.length === 0 && (
           <EmptyState
-            message="수입 예정이 비어 있습니다"
+            message="수입이 비어 있습니다"
             sub="월급, 부가 수입, 일회성 수입을 정리해보세요."
-            actionLabel="수입 예정 추가"
+            actionLabel="수입 추가"
             onAction={() => { setEditingId(null); setShowModal(true) }}
           />
         )}
