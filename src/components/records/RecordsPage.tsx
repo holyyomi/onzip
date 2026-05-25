@@ -22,8 +22,6 @@ const RECORD_TYPE_CONFIG: Record<
   home: { label: '집/차량', dot: 'bg-green-400' },
 }
 
-type FilterType = 'all' | 'important' | 'sensitive' | RecordType
-
 interface Props {
   externalRefreshKey: number
   onQuickAdd: (type: QuickAddType) => void
@@ -32,23 +30,15 @@ interface Props {
 export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
   const { hidden: hideAmounts } = useAmountPrivacy()
   const { hidden: hideSensitive } = useVaultPrivacy()
-  const [filter, setFilter] = useState<FilterType>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [defaultType, setDefaultType] = useState<RecordType>('life')
   const [refreshKey, setRefreshKey] = useState(0)
   const [unlockRecord, setUnlockRecord] = useState<LifeRecord | null>(null)
 
   const records = useMemo(() => {
     let list = lifeRecordRepo.getAll()
-
-    if (filter === 'important') {
-      list = list.filter(isImportantVaultRecord)
-    } else if (filter === 'sensitive') {
-      list = list.filter(isSensitiveRecord)
-    } else if (filter !== 'all') {
-      list = list.filter((r) => r.record_type === filter)
-    }
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
@@ -62,7 +52,13 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
 
     return list.sort((a, b) => b.record_date.localeCompare(a.record_date))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, searchQuery, refreshKey, externalRefreshKey])
+  }, [searchQuery, refreshKey, externalRefreshKey])
+
+  function handleAdd(type: RecordType) {
+    setDefaultType(type)
+    setEditingId(null)
+    setShowModal(true)
+  }
 
   function openRecord(record: LifeRecord) {
     if (hideSensitive && isSensitiveRecord(record)) {
@@ -86,7 +82,7 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       .reverse()
       .map((date) => ({ date, items: map[date] }))
   }, [records])
-  const hasActiveFilter = filter !== 'all' || Boolean(searchQuery.trim())
+  const hasSearch = Boolean(searchQuery.trim())
 
   return (
     <div>
@@ -114,15 +110,15 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
         />
       </div>
 
-      {/* 유형 필터 */}
-      <div className="flex overflow-x-auto gap-2 px-4 py-2 bg-white border-b border-gray-100">
-        <FilterChip value="all" label="전체" active={filter === 'all'} onClick={() => setFilter('all')} />
-        <FilterChip value="important" label="중요만" active={filter === 'important'} onClick={() => setFilter('important')} />
-        <FilterChip value="sensitive" label="민감만" active={filter === 'sensitive'} onClick={() => setFilter('sensitive')} />
+      {/* 빠른 추가 버튼 */}
+      <div className="flex gap-2 px-4 py-3 overflow-x-auto bg-white border-b border-gray-100">
         {(Object.entries(RECORD_TYPE_CONFIG) as [RecordType, { label: string; dot: string }][]).map(
           ([type, cfg]) => (
-            <FilterChip key={type} value={type} label={cfg.label}
-              active={filter === type} onClick={() => setFilter(type)} />
+            <button key={type} onClick={() => handleAdd(type)}
+              className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs text-gray-600">
+              <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
+              {cfg.label}
+            </button>
           ),
         )}
       </div>
@@ -131,8 +127,8 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 pb-6 space-y-4">
         {grouped.length === 0 && (
           <EmptyState
-            message={hasActiveFilter ? '조건에 맞는 메모가 없습니다' : '메모장이 비어 있습니다'}
-            sub={hasActiveFilter ? '검색어나 필터를 바꿔보세요.' : '꼭 필요한 내용을 간단히 메모하세요.'}
+            message={hasSearch ? '조건에 맞는 메모가 없습니다' : '메모장이 비어 있습니다'}
+            sub={hasSearch ? '검색어를 바꿔보세요.' : '꼭 필요한 내용을 간단히 메모하세요.'}
             actionLabel="메모 남기기"
             onAction={() => onQuickAdd('record')}
           />
@@ -197,7 +193,7 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       {showModal && (
         <RecordFormModal
           recordId={editingId}
-          defaultType="life"
+          defaultType={defaultType}
           onSaved={() => { setShowModal(false); setRefreshKey((k) => k + 1) }}
           onClose={() => setShowModal(false)}
         />
@@ -295,20 +291,5 @@ function SensitiveUnlockSheet({
         )}
       </div>
     </div>
-  )
-}
-
-function FilterChip({
-  label, active, onClick,
-}: {
-  value: string; label: string; active: boolean; onClick: () => void
-}) {
-  return (
-    <button onClick={onClick}
-      className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium ${
-        active ? 'bg-gray-800 text-white' : 'text-gray-400 border border-gray-200'
-      }`}>
-      {label}
-    </button>
   )
 }
