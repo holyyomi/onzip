@@ -333,7 +333,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         <QuickButton iconSrc={QUICK_ADD_ICON.income} label="수입 예정" onClick={() => onQuickAdd('income')} />
         <QuickButton iconSrc={QUICK_ADD_ICON.checklist} label="체크리스트" onClick={() => onQuickAdd('checklist')} />
         <QuickButton iconSrc={QUICK_ADD_ICON.schedule} label="중요 일정" onClick={() => onQuickAdd('schedule')} />
-        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="보관 메모" onClick={() => onQuickAdd('record')} />
+        <QuickButton iconSrc={QUICK_ADD_ICON.record} label="메모장" onClick={() => onQuickAdd('record')} />
       </section>
 
       <section className="oz-card p-4 lg:col-start-2">
@@ -382,7 +382,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         </div>
         <div className="divide-y divide-[#f0f0f0]">
           {data.upcomingMoneyItems.length === 0 && data.weekEvents.length === 0 && data.upcomingVaultRecords.length === 0 && data.importantRecords.length === 0 && (
-            <p className="py-3 text-sm text-[#8a8a8a]">다가오는 수입·지출, 일정, 보관 메모가 없습니다.</p>
+            <p className="py-3 text-sm text-[#8a8a8a]">다가오는 수입·지출, 일정, 메모장 항목이 없습니다.</p>
           )}
           {data.upcomingMoneyItems.slice(0, 4).map((item) => (
             <StatusRow
@@ -405,7 +405,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           {data.upcomingVaultRecords.slice(0, 3).map((record) => (
             <StatusRow
               key={record.id}
-              label="금고"
+              label="메모장"
               value={record.record_date.slice(5).replace('-', '.')}
               detail={`${getVaultRecordBadge(record)} · ${displayRecordTitle(record, hideSensitive)}`}
               onClick={() => onTabChange('records')}
@@ -414,7 +414,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           {data.importantRecords.slice(0, 2).map((record) => (
             <StatusRow
               key={record.id}
-              label="금고"
+              label="메모장"
               value={getVaultRecordBadge(record)}
               detail={displayRecordTitle(record, hideSensitive)}
               onClick={() => onTabChange('records')}

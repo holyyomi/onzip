@@ -104,8 +104,8 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
         >
           <img src={QUICK_ADD_ICON.record} alt="" className="h-12 w-12 rounded-[18px] object-contain flex-shrink-0" />
           <span className="min-w-0">
-          <span className="block text-lg font-semibold text-[#222222]">보관 메모 남기기</span>
-          <span className="block text-sm text-[#6a6a6a] mt-1">계좌, 계약, 보험, 중요한 내용을 보관합니다</span>
+          <span className="block text-lg font-semibold text-[#222222]">메모 남기기</span>
+          <span className="block text-sm text-[#6a6a6a] mt-1">계좌, 계약, 보험, 중요한 내용을 메모합니다</span>
           </span>
         </button>
       </div>
@@ -151,9 +151,9 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       <div className="px-4 pb-6 space-y-4">
         {grouped.length === 0 && (
           <EmptyState
-            message={hasActiveFilter ? '조건에 맞는 메모가 없습니다' : '금고가 비어 있습니다'}
-            sub={hasActiveFilter ? '검색어나 필터를 바꿔보세요.' : '남에게 보이기 싫지만 꼭 필요한 내용을 보관하세요.'}
-            actionLabel="보관 메모 남기기"
+            message={hasActiveFilter ? '조건에 맞는 메모가 없습니다' : '메모장이 비어 있습니다'}
+            sub={hasActiveFilter ? '검색어나 필터를 바꿔보세요.' : '꼭 필요한 내용을 간단히 메모하세요.'}
+            actionLabel="메모 남기기"
             onAction={() => onQuickAdd('record')}
           />
         )}
@@ -271,7 +271,7 @@ function SensitiveUnlockSheet({
       <div className="w-full max-w-lg rounded-t-[28px] bg-white p-5" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-lg font-semibold text-[#222222]">민감 보관 메모</p>
+            <p className="text-lg font-semibold text-[#222222]">민감 메모</p>
             <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
               {record.record_date.replace(/-/g, '. ')} · 4자리 PIN으로 한 번 확인합니다.
             </p>

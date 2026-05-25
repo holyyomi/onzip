@@ -249,7 +249,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
   }
 
   return (
-    <FormModal title={recordId ? '금고 수정' : '보관 메모'} onClose={onClose}>
+    <FormModal title={recordId ? '메모 수정' : '메모'} onClose={onClose}>
       {/* 유형 선택 */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {RECORD_TYPES.map((t) => (

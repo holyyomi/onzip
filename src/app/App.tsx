@@ -143,6 +143,6 @@ function getSavedMessage(type: QuickAddType): string {
     case 'checklist':
       return '체크리스트가 저장되었습니다'
     case 'record':
-      return '보관 메모가 저장되었습니다'
+      return '메모가 저장되었습니다'
   }
 }

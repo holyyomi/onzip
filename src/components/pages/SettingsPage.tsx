@@ -117,7 +117,7 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
           <div>
             <p className="text-base font-semibold text-[#222222]">금액 가리기</p>
             <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-              홈, 가계부, 일정, 금고에서 금액을 ***원으로 표시합니다.
+              홈, 가계부, 일정, 메모장에서 금액을 ***원으로 표시합니다.
             </p>
           </div>
           <button
@@ -135,7 +135,7 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
           <div>
             <p className="text-base font-semibold text-[#222222]">민감 메모 숨김</p>
             <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-              민감, 비밀, 숨김 태그가 붙은 보관 메모의 제목과 내용을 가립니다.
+              민감, 비밀, 숨김 태그가 붙은 메모의 제목과 내용을 가립니다.
             </p>
           </div>
           <button
@@ -260,7 +260,7 @@ function PinLockCard({
             </span>
           </div>
           <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-            앱 전체를 잠그지 않고, 민감 보관 메모를 열 때만 4자리 PIN을 확인합니다.
+            앱 전체를 잠그지 않고, 민감 메모를 열 때만 4자리 PIN을 확인합니다.
           </p>
         </div>
         <button
@@ -286,7 +286,7 @@ function PinLockCard({
           </div>
 
           <p className="mt-3 rounded-[16px] bg-[#f7f7f7] px-3 py-2 text-xs leading-relaxed text-[#8a8a8a]">
-            PIN은 민감 태그가 붙은 보관 메모를 열 때만 사용합니다. 잊어버리면 여기서 새 PIN으로 다시 정하면 됩니다.
+            PIN은 민감 태그가 붙은 메모를 열 때만 사용합니다. 잊어버리면 여기서 새 PIN으로 다시 정하면 됩니다.
           </p>
 
           {message && <p className="mt-2 text-xs font-semibold text-[#ff385c]">{message}</p>}

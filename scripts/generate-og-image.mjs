@@ -81,13 +81,13 @@ async function main() {
 
   ctx.fillStyle = '#3f3f3f'
   ctx.font = '400 34px "Malgun Gothic", "Segoe UI", Arial, sans-serif'
-  ctx.fillText('가계부, 일정, 체크리스트, 보관 메모를', 142, 374)
+  ctx.fillText('가계부, 일정, 체크리스트, 메모장을', 142, 374)
   ctx.fillText('휴대폰에 설치해서 가볍게 관리하세요.', 142, 420)
 
   drawFeature(ctx, 142, 470, '가계부')
   drawFeature(ctx, 296, 470, '일정')
   drawFeature(ctx, 450, 470, '체크리스트')
-  drawFeature(ctx, 604, 470, '금고')
+  drawFeature(ctx, 604, 470, '메모장')
 
   ctx.fillStyle = '#6a6a6a'
   ctx.font = '500 22px "Malgun Gothic", "Segoe UI", Arial, sans-serif'

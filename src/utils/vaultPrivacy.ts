@@ -20,7 +20,7 @@ export function setSensitiveHidden(hidden: boolean): void {
 }
 
 export function displayRecordTitle(record: Pick<LifeRecord, 'title' | 'tags'>, hidden: boolean): string {
-  return hidden && isSensitiveRecord(record) ? '민감 보관 메모' : record.title
+  return hidden && isSensitiveRecord(record) ? '민감 메모' : record.title
 }
 
 export function displayRecordContent(record: Pick<LifeRecord, 'content' | 'tags'>, hidden: boolean): string {

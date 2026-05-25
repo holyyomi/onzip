@@ -14,7 +14,7 @@ const TAB_TITLE: Record<TabId, string> = {
   calendar: '일정',
   money: '가계부',
   life: '체크리스트',
-  records: '금고',
+  records: '메모장',
   settings: '설정',
 }
 

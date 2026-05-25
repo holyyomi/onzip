@@ -22,12 +22,12 @@ export default function OnboardingModal() {
         </div>
         <h2 className="text-center text-2xl font-semibold text-[#222222]">중요한 항목부터 정리해요</h2>
         <p className="mt-2 text-center text-sm leading-relaxed text-[#6a6a6a]">
-          수입 예정, 지출 예정, 중요한 일정과 보관 메모를 한곳에 정리합니다.
+          수입 예정, 지출 예정, 중요한 일정과 메모를 한곳에 정리합니다.
         </p>
         <div className="mt-4 space-y-2">
           <Step number="1" title="오늘의 주요 항목 확인" text="오늘의 수입·지출, 일정, 중요 메모를 먼저 봅니다." />
           <Step number="2" title="가계부로 날짜 관리" text="월급, 부가 수입, 카드 결제, 자동결제를 날짜별로 정리합니다." />
-          <Step number="3" title="금고에 중요 정보 보관" text="계좌, 계약, 보험 같은 민감한 메모를 기기 안에 저장합니다." />
+          <Step number="3" title="메모장에 중요 정보 정리" text="계좌, 계약, 보험 같은 민감한 메모를 기기 안에 저장합니다." />
         </div>
         <button
           onClick={handleClose}

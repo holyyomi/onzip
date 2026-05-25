@@ -12,7 +12,7 @@ export default defineConfig({
       manifest: {
         name: '온집',
         short_name: '온집',
-        description: '우리 집 생활을 한곳에. 가계부, 일정, 체크리스트, 보관 메모를 한 앱에서.',
+        description: '우리 집 생활을 한곳에. 가계부, 일정, 체크리스트, 메모장을 한 앱에서.',
         theme_color: '#ff385c',
         background_color: '#f7f7f7',
         display: 'standalone',
