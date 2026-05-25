@@ -8,20 +8,15 @@ import {
   formatDate,
 } from '../../utils/date'
 import { getAggregatedEvents } from '../../utils/calendarAggregator'
-import type { QuickAddType } from '../common/QuickAddMenu'
 import CalendarMonthView from '../calendar/CalendarMonthView'
 import CalendarWeekView from '../calendar/CalendarWeekView'
-import TodaySummaryCard from '../calendar/TodaySummaryCard'
 import DayEventPanel from '../calendar/DayEventPanel'
 import EventFormModal from '../calendar/EventFormModal'
-import TabMemoCard from '../common/TabMemoCard'
-import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 
 type ViewMode = 'month' | 'week'
 
 interface Props {
   externalRefreshKey: number
-  onQuickAdd: (type: QuickAddType) => void
 }
 
 function addDays(dateStr: string, days: number): string {
@@ -30,7 +25,7 @@ function addDays(dateStr: string, days: number): string {
   return formatDate(result)
 }
 
-export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) {
+export default function CalendarPage({ externalRefreshKey }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('month')
   const [year, setYear] = useState(todayYear())
   const [month, setMonth] = useState(todayMonth())
@@ -95,24 +90,7 @@ export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) 
 
   return (
     <div>
-      <TodaySummaryCard key={`${refreshKey}-${externalRefreshKey}`} />
-
-      <div className="px-4 grid grid-cols-2 gap-3 lg:px-8">
-        <CalendarQuickButton
-          iconSrc={QUICK_ADD_ICON.schedule}
-          label="일정 넣기"
-          sub="약속, 병원, 학교"
-          onClick={() => onQuickAdd('schedule')}
-        />
-        <CalendarQuickButton
-          iconSrc={QUICK_ADD_ICON.checklist}
-          label="체크리스트"
-          sub="준비물과 진행 항목"
-          onClick={() => onQuickAdd('checklist')}
-        />
-      </div>
-
-      <div className="flex px-4 py-3 gap-2 bg-[#f7f7f7] lg:px-8">
+      <div className="flex flex-wrap px-4 py-3 gap-2 bg-[#f7f7f7] lg:px-8 lg:pt-5">
         {(['month', 'week'] as const).map((mode) => (
           <button key={mode} onClick={() => setViewMode(mode)}
             className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
@@ -125,9 +103,13 @@ export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) 
           className="ml-auto px-4 py-2 text-sm font-semibold text-[#ff385c] border border-[#ffd1da] bg-white rounded-full">
           오늘
         </button>
+        <button onClick={handleAddEvent}
+          className="px-4 py-2 text-sm font-semibold text-white bg-[#ff385c] rounded-full">
+          일정 추가
+        </button>
       </div>
 
-      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-4 lg:px-8">
+      <div className="lg:px-8">
         <div>
           {viewMode === 'month' ? (
             <CalendarMonthView
@@ -156,10 +138,6 @@ export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) 
         </div>
       </div>
 
-      <div className="px-5 py-5 lg:px-8">
-        <TabMemoCard tab="calendar" title="일정 메모" placeholder="가족 일정, 예약, 준비물을 기록하세요." />
-      </div>
-
       {showModal && (
         <EventFormModal
           eventId={editingEventId} defaultDate={selectedDate}
@@ -167,27 +145,5 @@ export default function CalendarPage({ externalRefreshKey, onQuickAdd }: Props) 
         />
       )}
     </div>
-  )
-}
-
-function CalendarQuickButton({
-  iconSrc,
-  label,
-  sub,
-  onClick,
-}: {
-  iconSrc: string
-  label: string
-  sub: string
-  onClick: () => void
-}) {
-  return (
-    <button onClick={onClick} className="oz-card min-h-[82px] p-3 text-left active:scale-[0.98] transition flex items-center gap-3">
-      <img src={iconSrc} alt="" className="h-10 w-10 rounded-[15px] object-contain flex-shrink-0" />
-      <span className="min-w-0">
-        <span className="block text-base font-semibold text-[#222222]">{label}</span>
-        <span className="block text-xs text-[#6a6a6a] mt-1 leading-snug">{sub}</span>
-      </span>
-    </button>
   )
 }

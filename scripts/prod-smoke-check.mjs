@@ -77,7 +77,8 @@ if (html) {
     '<html lang="ko">',
     '온집',
     '우리 집 생활을 한곳에',
-    '구매 항목',
+    '가계부',
+    '체크리스트',
     '보관 메모',
     'manifest.webmanifest',
     'og-image.png',
@@ -117,8 +118,8 @@ if (manifestText) {
     }
 
     requireIncludes('manifest.description', manifest.description ?? '', [
-      '흐름',
-      '구매 항목',
+      '가계부',
+      '체크리스트',
       '보관 메모',
     ])
 

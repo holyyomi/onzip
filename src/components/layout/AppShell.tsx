@@ -14,10 +14,10 @@ interface Props {
 
 const DESKTOP_TABS: { id: TabId; label: string }[] = [
   { id: 'home', label: '홈' },
-  { id: 'money', label: '흐름' },
+  { id: 'money', label: '가계부' },
   { id: 'calendar', label: '일정' },
   { id: 'records', label: '금고' },
-  { id: 'life', label: '생활' },
+  { id: 'life', label: '체크리스트' },
   { id: 'settings', label: '설정' },
 ]
 

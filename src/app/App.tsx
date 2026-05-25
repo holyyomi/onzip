@@ -14,7 +14,6 @@ import PwaUpdatePrompt from '../components/common/PwaUpdatePrompt'
 import { getLaunchMode, initGoogleAnalytics, trackEvent } from '../utils/analytics'
 
 export type TabId = 'home' | 'calendar' | 'money' | 'life' | 'records' | 'settings'
-export type LifeInitialTab = 'shopping' | 'checklist'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
@@ -22,7 +21,6 @@ export default function App() {
   const [quickAddType, setQuickAddType] = useState<QuickAddType | null>(null)
   const [appRefreshKey, setAppRefreshKey] = useState(0)
   const [savedMessage, setSavedMessage] = useState('')
-  const [lifeInitialTab, setLifeInitialTab] = useState<LifeInitialTab>('shopping')
   const savedTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
@@ -56,11 +54,7 @@ export default function App() {
       setActiveTab('calendar')
     } else if (savedType === 'record') {
       setActiveTab('records')
-    } else if (savedType === 'shopping') {
-      setLifeInitialTab('shopping')
-      setActiveTab('life')
-    } else if (savedType === 'checklist') {
-      setLifeInitialTab('checklist')
+    } else if (savedType === 'shopping' || savedType === 'checklist') {
       setActiveTab('life')
     }
 
@@ -78,15 +72,11 @@ export default function App() {
             refreshKey={appRefreshKey}
             onQuickAdd={handleQuickSelect}
             onTabChange={setActiveTab}
-            onOpenLife={(tab) => {
-              setLifeInitialTab(tab)
-              setActiveTab('life')
-            }}
           />
         )
-      case 'calendar': return <CalendarPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
+      case 'calendar': return <CalendarPage externalRefreshKey={appRefreshKey} />
       case 'money':    return <MoneyPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
-      case 'life':     return <LifePage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} initialTab={lifeInitialTab} />
+      case 'life':     return <LifePage externalRefreshKey={appRefreshKey} />
       case 'records':  return <RecordsPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
       case 'settings': return <SettingsPage onAppRefresh={() => setAppRefreshKey((key) => key + 1)} />
     }

@@ -20,7 +20,7 @@ function getBackupStatus(lastBackupAt: string | null) {
     return {
       label: '아직 백업 없음',
       tone: 'warn',
-      detail: '금고나 흐름 기록을 쓰기 시작했다면 한 번 내려받아 두는 게 좋습니다.',
+      detail: '금고나 가계부 기록을 쓰기 시작했다면 한 번 내려받아 두는 게 좋습니다.',
     }
   }
 
@@ -113,7 +113,7 @@ export default function ShareAndSupportCard() {
       <section className="oz-card p-4">
         <p className="text-base font-semibold text-[#222222]">앱 링크 공유</p>
         <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-          온집 설치 링크만 전달합니다. 내 흐름 기록, 일정, 금고 데이터는 함께 전송되지 않습니다.
+          온집 설치 링크만 전달합니다. 내 가계부 기록, 일정, 금고 데이터는 함께 전송되지 않습니다.
         </p>
         <button
           onClick={handleShare}

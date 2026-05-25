@@ -1,5 +1,4 @@
 import type { AggregatedEvent } from '../../utils/calendarAggregator'
-import { EVENT_TYPE_DOT } from '../../utils/calendarAggregator'
 import { isCurrentMonth, isTodayDate } from '../../utils/date'
 
 interface Props {
@@ -21,22 +20,24 @@ export default function CalendarDayCell({
 }: Props) {
   const inMonth = isCurrentMonth(date, year, month)
   const isToday = isTodayDate(date)
-  const dots = events.slice(0, 3)
+  const visibleEvents = events.slice(0, 2)
+  const hiddenCount = Math.max(0, events.length - visibleEvents.length)
 
   return (
     <button
       onClick={onSelect}
-      className={`flex flex-col items-center py-1 rounded-lg transition-colors w-full ${
-        isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
+      className={`flex min-h-[82px] w-full flex-col items-stretch bg-white p-1.5 text-left transition-colors lg:min-h-[112px] ${
+        isSelected ? 'bg-[#fff7f9]' : 'hover:bg-gray-50'
       }`}
+      aria-label={`${date.getDate()}일${events.length ? `, 일정 ${events.length}개` : ''}`}
     >
       {/* 날짜 숫자 */}
       <span
-        className={`w-7 h-7 flex items-center justify-center text-sm rounded-full font-medium ${
+        className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold ${
           isToday
-            ? 'bg-blue-500 text-white'
+            ? 'bg-[#ff385c] text-white'
             : isSelected
-              ? 'text-blue-600'
+              ? 'text-[#ff385c]'
               : inMonth
                 ? date.getDay() === 0
                   ? 'text-red-500'
@@ -49,15 +50,40 @@ export default function CalendarDayCell({
         {date.getDate()}
       </span>
 
-      {/* 이벤트 dot */}
-      <div className="flex gap-0.5 mt-0.5 h-2 items-center">
-        {dots.map((e) => (
+      <span className="mt-1 flex min-h-[38px] flex-col gap-0.5">
+        {visibleEvents.map((event) => (
           <span
-            key={e.id}
-            className={`w-1.5 h-1.5 rounded-full ${EVENT_TYPE_DOT[e.type]}`}
-          />
+            key={event.id}
+            className={`truncate rounded-[6px] px-1.5 py-0.5 text-[10px] font-semibold leading-tight ${
+              inMonth ? getPreviewClass(event.type) : 'bg-gray-50 text-gray-300'
+            }`}
+          >
+            {event.title}
+          </span>
         ))}
-      </div>
+        {hiddenCount > 0 && (
+          <span className="truncate px-1.5 text-[10px] font-semibold leading-tight text-[#8a8a8a]">
+            +{hiddenCount}개
+          </span>
+        )}
+      </span>
     </button>
   )
+}
+
+function getPreviewClass(type: AggregatedEvent['type']): string {
+  switch (type) {
+    case 'anniversary':
+      return 'bg-pink-50 text-pink-600'
+    case 'fixed_expense':
+      return 'bg-red-50 text-red-500'
+    case 'subscription':
+      return 'bg-purple-50 text-purple-600'
+    case 'utility':
+      return 'bg-orange-50 text-orange-600'
+    case 'checklist':
+      return 'bg-green-50 text-green-600'
+    default:
+      return 'bg-blue-50 text-blue-600'
+  }
 }

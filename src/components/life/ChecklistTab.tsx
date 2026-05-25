@@ -1,177 +1,162 @@
-import { useState, useMemo } from 'react'
-import { checklistRepo, checklistItemRepo } from '../../data/repositories'
+import { useMemo, useState } from 'react'
+import { checklistItemRepo, checklistRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
-import EmptyState from '../common/EmptyState'
-import ChecklistFormModal from './ChecklistFormModal'
+import { getOrCreateSimpleChecklistId } from '../../utils/simpleChecklist'
+import ChecklistItemFormModal from './ChecklistItemFormModal'
 
 interface Props {
   refreshKey: number
   onRefresh: () => void
 }
 
+interface ChecklistRow {
+  id: string
+  content: string
+  isDone: boolean
+  createdAt: string
+}
+
 export default function ChecklistTab({ refreshKey, onRefresh }: Props) {
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [newItemTexts, setNewItemTexts] = useState<Record<string, string>>({})
-  const [showModal, setShowModal] = useState(false)
+  const [newText, setNewText] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [localRefresh, setLocalRefresh] = useState(0)
 
-  const checklists = useMemo(
-    () => checklistRepo.getByHousehold('default'),
+  const rows = useMemo<ChecklistRow[]>(() => {
+    const checklists = checklistRepo.getByHousehold('default')
+    return checklists
+      .flatMap((checklist) =>
+        checklistItemRepo.getByChecklist(checklist.id).map((item) => ({
+          id: item.id,
+          content: item.content,
+          isDone: item.is_done,
+          createdAt: item.created_at,
+        })),
+      )
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [refreshKey, localRefresh],
-  )
+  }, [refreshKey, localRefresh])
 
-  function localReload() { setLocalRefresh((k) => k + 1) }
+  const doneCount = rows.filter((row) => row.isDone).length
+  const remainingCount = rows.length - doneCount
 
-  function toggleItem(itemId: string, current: boolean) {
-    checklistItemRepo.update(itemId, { is_done: !current })
-    localReload()
+  function reload() {
+    setLocalRefresh((key) => key + 1)
+    onRefresh()
   }
 
-  function addItem(checklistId: string) {
-    const text = (newItemTexts[checklistId] ?? '').trim()
-    if (!text) return
+  function addItem() {
+    const content = newText.trim()
+    if (!content) return
+
+    const checklistId = getOrCreateSimpleChecklistId()
     const items = checklistItemRepo.getByChecklist(checklistId)
     checklistItemRepo.create({
-      id: newId(), checklist_id: checklistId, content: text,
-      is_done: false, sort_order: items.length,
-      created_at: now(), updated_at: now(),
+      id: newId(),
+      checklist_id: checklistId,
+      content,
+      is_done: false,
+      sort_order: items.length,
+      created_at: now(),
+      updated_at: now(),
     })
-    setNewItemTexts((prev) => ({ ...prev, [checklistId]: '' }))
-    localReload()
+    setNewText('')
+    reload()
+  }
+
+  function toggleItem(itemId: string, isDone: boolean) {
+    checklistItemRepo.update(itemId, { is_done: !isDone })
+    reload()
   }
 
   function deleteItem(itemId: string) {
     checklistItemRepo.delete(itemId)
-    localReload()
+    reload()
   }
 
   return (
-    <div>
-      <div className="px-4 py-3 flex justify-between items-center bg-white border-b border-gray-100">
-        <span className="text-sm font-semibold text-gray-700">체크리스트</span>
-        <button
-          onClick={() => { setEditingId(null); setShowModal(true) }}
-          className="min-h-[36px] rounded-full border border-[#ffd1da] bg-white px-3 text-sm font-semibold text-[#ff385c]"
-        >
-          + 새 목록
-        </button>
-      </div>
+    <div className="px-4 py-3 lg:px-8 lg:py-5">
+      <section className="oz-card p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold text-[#222222]">체크리스트</h2>
+            <p className="mt-0.5 text-xs text-[#8a8a8a]">
+              남은 항목 {remainingCount}개
+            </p>
+          </div>
+          <span className="rounded-full bg-[#f7f7f7] px-3 py-1.5 text-xs font-semibold text-[#6a6a6a]">
+            완료 {doneCount}/{rows.length}
+          </span>
+        </div>
 
-      <div className="p-4 space-y-3">
-        {checklists.length === 0 && (
-          <EmptyState
-            message="체크리스트가 비어 있습니다"
-            sub="여행 준비, 이사 준비, 가족 체크리스트를 목록으로 정리해보세요."
-            actionLabel="체크리스트 만들기"
-            onAction={() => { setEditingId(null); setShowModal(true) }}
+        <div className="mt-4 flex gap-2">
+          <input
+            type="text"
+            placeholder="할 일을 입력하세요"
+            value={newText}
+            onChange={(event) => setNewText(event.target.value)}
+            onKeyDown={(event) => event.key === 'Enter' && addItem()}
+            className="min-h-[48px] min-w-0 flex-1 rounded-[16px] border border-[#dddddd] bg-white px-4 text-base text-[#222222] focus:border-[#222222] focus:outline-none"
           />
-        )}
+          <button
+            onClick={addItem}
+            className="min-h-[48px] flex-shrink-0 rounded-full bg-[#ff385c] px-5 text-sm font-semibold text-white active:bg-[#e00b41]"
+          >
+            추가
+          </button>
+        </div>
+      </section>
 
-        {checklists.map((cl) => {
-          const items = checklistItemRepo.getByChecklist(cl.id)
-          const doneCount = items.filter((i) => i.is_done).length
-          const rate = items.length ? Math.round((doneCount / items.length) * 100) : 0
-          const isExpanded = expandedId === cl.id
-
-          return (
-            <div key={cl.id} className="oz-card overflow-hidden">
-              {/* 헤더 */}
-              <div className="px-4 py-3">
-                <div className="flex items-center justify-between mb-2">
-                  <button
-                    onClick={() => setExpandedId(isExpanded ? null : cl.id)}
-                    className="flex-1 text-left"
-                  >
-                    <p className="text-sm font-semibold text-gray-800">{cl.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {doneCount}/{items.length} 완료
-                      {cl.due_date ? ` · 마감 ${cl.due_date}` : ''}
-                    </p>
-                  </button>
-                  <button
-                    onClick={() => { setEditingId(cl.id); setShowModal(true) }}
-                    className="text-xs text-gray-400 border border-gray-200 rounded px-2 py-1 ml-2"
-                  >
-                    수정
-                  </button>
-                </div>
-
-                {/* 진행률 바 */}
-                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[#ff385c] rounded-full transition-all"
-                    style={{ width: `${rate}%` }}
-                  />
-                </div>
+      <section className="mt-3 overflow-hidden rounded-[22px] border border-[#ebebeb] bg-white">
+        {rows.length === 0 ? (
+          <div className="px-5 py-10 text-center">
+            <p className="text-sm font-semibold text-[#222222]">아직 체크리스트가 없습니다</p>
+            <p className="mt-1 text-xs text-[#8a8a8a]">위 입력창에 할 일을 하나씩 추가하세요.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-[#f0f0f0]">
+            {rows.map((row) => (
+              <div key={row.id} className="flex items-center gap-3 px-4 py-3">
+                <input
+                  type="checkbox"
+                  checked={row.isDone}
+                  onChange={() => toggleItem(row.id, row.isDone)}
+                  className="h-5 w-5 flex-shrink-0 accent-[#ff385c]"
+                  aria-label={`${row.content} 완료 여부`}
+                />
+                <button
+                  onClick={() => toggleItem(row.id, row.isDone)}
+                  className={`min-w-0 flex-1 text-left text-sm font-medium ${
+                    row.isDone ? 'text-[#b0b0b0] line-through' : 'text-[#222222]'
+                  }`}
+                >
+                  <span className="block truncate">{row.content}</span>
+                </button>
+                <button
+                  onClick={() => setEditingId(row.id)}
+                  className="min-h-[34px] flex-shrink-0 rounded-full border border-[#dddddd] bg-white px-3 text-xs font-semibold text-[#6a6a6a]"
+                >
+                  수정
+                </button>
+                <button
+                  onClick={() => deleteItem(row.id)}
+                  className="min-h-[34px] flex-shrink-0 rounded-full border border-red-100 bg-white px-3 text-xs font-semibold text-red-500"
+                >
+                  삭제
+                </button>
               </div>
+            ))}
+          </div>
+        )}
+      </section>
 
-              {/* 항목 (펼침) */}
-              {isExpanded && (
-                <div className="border-t border-gray-100">
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-50"
-                    >
-                      <button
-                        onClick={() => toggleItem(item.id, item.is_done)}
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                          item.is_done
-                            ? 'bg-[#ff385c] border-[#ff385c] text-white'
-                            : 'border-gray-300'
-                        }`}
-                      >
-                        {item.is_done && <span className="text-xs leading-none">✓</span>}
-                      </button>
-                      <span
-                        className={`flex-1 text-sm ${
-                          item.is_done ? 'line-through text-gray-300' : 'text-gray-700'
-                        }`}
-                      >
-                        {item.content}
-                      </span>
-                      <button
-                        onClick={() => deleteItem(item.id)}
-                        className="text-gray-300 text-sm px-1"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-
-                  {/* 항목 추가 인라인 */}
-                  <div className="flex items-center gap-2 px-4 py-2">
-                    <input
-                      type="text"
-                      placeholder="항목 추가..."
-                      value={newItemTexts[cl.id] ?? ''}
-                      onChange={(e) =>
-                        setNewItemTexts((prev) => ({ ...prev, [cl.id]: e.target.value }))
-                      }
-                      onKeyDown={(e) => e.key === 'Enter' && addItem(cl.id)}
-                      className="flex-1 text-sm text-gray-700 focus:outline-none placeholder-gray-300"
-                    />
-                    <button
-                      onClick={() => addItem(cl.id)}
-                      className="text-xs font-semibold text-[#ff385c]"
-                    >
-                      추가
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-
-      {showModal && (
-        <ChecklistFormModal
-          checklistId={editingId}
-          onSaved={() => { setShowModal(false); localReload(); onRefresh() }}
-          onClose={() => setShowModal(false)}
+      {editingId && (
+        <ChecklistItemFormModal
+          itemId={editingId}
+          onSaved={() => {
+            setEditingId(null)
+            reload()
+          }}
+          onClose={() => setEditingId(null)}
         />
       )}
     </div>

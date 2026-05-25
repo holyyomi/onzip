@@ -7,7 +7,7 @@ import LedgerFormModal from '../money/LedgerFormModal'
 import FixedExpenseFormModal from '../money/FixedExpenseFormModal'
 import SubscriptionFormModal from '../money/SubscriptionFormModal'
 import ShoppingFormModal from '../life/ShoppingFormModal'
-import ChecklistFormModal from '../life/ChecklistFormModal'
+import ChecklistItemFormModal from '../life/ChecklistItemFormModal'
 import RecordFormModal from '../records/RecordFormModal'
 
 interface Props {
@@ -45,7 +45,7 @@ export default function QuickAddModal({ type, onSaved, onClose }: Props) {
     case 'shopping':
       return <ShoppingFormModal itemId={null} onSaved={onSaved} onClose={onClose} />
     case 'checklist':
-      return <ChecklistFormModal checklistId={null} onSaved={onSaved} onClose={onClose} />
+      return <ChecklistItemFormModal itemId={null} onSaved={onSaved} onClose={onClose} />
     case 'record':
       return (
         <RecordFormModal recordId={null} defaultType="life" onSaved={onSaved} onClose={onClose} />

@@ -8,9 +8,9 @@ interface Tab {
 
 const TABS: Tab[] = [
   { id: 'home', label: '홈' },
-  { id: 'money', label: '흐름' },
+  { id: 'money', label: '가계부' },
   { id: 'calendar', label: '일정' },
-  { id: 'life', label: '생활' },
+  { id: 'life', label: '체크리스트' },
   { id: 'records', label: '금고' },
 ]
 

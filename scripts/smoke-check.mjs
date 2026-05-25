@@ -87,8 +87,8 @@ if (existsSync(join(root, 'dist/manifest.webmanifest'))) {
   }
 
   requireIncludes('manifest.description', manifest.description ?? '', [
-    '흐름',
-    '구매 항목',
+    '가계부',
+    '체크리스트',
     '보관 메모',
   ])
 
@@ -125,7 +125,8 @@ for (const path of ['index.html', 'dist/index.html']) {
     '<html lang="ko">',
     '온집',
     '우리 집 생활을 한곳에',
-    '구매 항목',
+    '가계부',
+    '체크리스트',
     '보관 메모',
     'og-image.png',
   ])

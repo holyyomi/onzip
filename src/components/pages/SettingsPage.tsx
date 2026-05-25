@@ -117,7 +117,7 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
           <div>
             <p className="text-base font-semibold text-[#222222]">금액 가리기</p>
             <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-              홈, 흐름, 일정, 금고에서 금액을 ***원으로 표시합니다.
+              홈, 가계부, 일정, 금고에서 금액을 ***원으로 표시합니다.
             </p>
           </div>
           <button
@@ -191,7 +191,7 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
       <div className="oz-card p-4">
         <p className="text-xs text-gray-400 font-medium mb-3">앱 현황</p>
         <div className="grid grid-cols-2 gap-3">
-          <StatCard label="흐름 기록" value={`${totalEntries}건`} />
+          <StatCard label="가계부 기록" value={`${totalEntries}건`} />
           <StatCard label="활성 구성원" value={`${members}명`} />
           <StatCard label="정기 지출" value={`${fixedExpenseRepo.getActive().length}개`} />
           <StatCard label="구독 서비스" value={`${subscriptionRepo.getActive().length}개`} />

@@ -29,9 +29,9 @@ interface Props {
 }
 
 const SUB_TABS: { value: MoneySubTab; label: string }[] = [
-  { value: 'summary', label: '흐름' },
+  { value: 'summary', label: '요약' },
   { value: 'ledger', label: '기록' },
-  { value: 'manage', label: '정기 항목' },
+  { value: 'manage', label: '입출금' },
   { value: 'calculator', label: '계산기' },
 ]
 
@@ -146,7 +146,7 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
       {activeTab === 'calculator' && <CalculatorTab />}
 
       <div className="px-5 py-5 lg:px-8">
-        <TabMemoCard tab="money" title="흐름 메모" placeholder="수입 예정, 지출 예정, 잔액 확인 내용을 기록하세요." />
+        <TabMemoCard tab="money" title="가계부 메모" placeholder="수입 예정, 지출 예정, 잔액 확인 내용을 기록하세요." />
       </div>
     </div>
   )
@@ -339,7 +339,7 @@ function FlowSummary({
   return (
     <div className="p-4 space-y-3 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0 lg:px-8">
       <div className="oz-card p-4 lg:col-span-2">
-        <p className="text-xs font-semibold text-[#8a8a8a]">이번 달 예상 흐름</p>
+        <p className="text-xs font-semibold text-[#8a8a8a]">이번 달 가계부 요약</p>
         <p className={`mt-1 text-2xl font-bold ${data.inTotal - data.outTotal >= 0 ? 'text-[#222222]' : 'text-red-500'}`}>
           {displayAmount(data.inTotal - data.outTotal, hideAmounts)}
         </p>
@@ -406,7 +406,7 @@ function FlowSummary({
 
       <div className="oz-card p-4 lg:col-span-1">
         <div>
-          <h3 className="text-base font-semibold text-[#222222]">날짜별 흐름</h3>
+          <h3 className="text-base font-semibold text-[#222222]">날짜별 입출금</h3>
           {data.isCurrentMonthView && (
             <p className="mt-0.5 text-xs text-[#8a8a8a]">오늘 이후 확인할 항목이 먼저 보입니다.</p>
           )}

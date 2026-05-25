@@ -42,7 +42,7 @@ export default function CalendarMonthView({
   })
 
   return (
-    <div className="bg-white">
+    <div className="mx-4 overflow-hidden rounded-[22px] border border-[#ebebeb] bg-white lg:mx-0">
       {/* 월 헤더 */}
       <div className="flex items-center justify-between px-4 py-3">
         <button
@@ -91,7 +91,7 @@ export default function CalendarMonthView({
       </div>
 
       {/* 날짜 그리드 */}
-      <div className="grid grid-cols-7 border-t border-gray-100 px-1 pb-2">
+      <div className="grid grid-cols-7 gap-px border-t border-gray-100 bg-gray-100">
         {grid.map((date) => {
           const dateStr = formatDate(date)
           return (

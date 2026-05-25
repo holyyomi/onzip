@@ -68,7 +68,7 @@ export default function CalendarWeekView({
 
           return (
             <button key={dateStr} onClick={() => onSelectDate(dateStr)}
-              className={`flex flex-col items-center py-2 rounded-lg transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'}`}>
+              className={`flex min-h-[104px] flex-col items-center rounded-lg px-1.5 py-2 transition-colors ${isSelected ? 'bg-[#fff7f9]' : 'hover:bg-gray-50'}`}>
               <span className={`text-xs mb-1 font-medium ${
                 i === 0 ? 'text-red-400' : i === 6 ? 'text-blue-400' : 'text-gray-400'
               }`}>
@@ -81,11 +81,17 @@ export default function CalendarWeekView({
               }`}>
                 {day.getDate()}
               </span>
-              {/* 이벤트 dots */}
-              <div className="flex gap-0.5 mt-1 h-2 items-center">
-                {dayEvents.slice(0, 3).map((e) => (
-                  <span key={e.id} className={`w-1.5 h-1.5 rounded-full ${EVENT_TYPE_DOT[e.type]}`} />
+              <div className="mt-2 flex w-full min-w-0 flex-col gap-0.5">
+                {dayEvents.slice(0, 2).map((e) => (
+                  <span key={e.id} className="truncate rounded-[6px] bg-blue-50 px-1.5 py-0.5 text-left text-[10px] font-semibold leading-tight text-blue-600">
+                    {e.title}
+                  </span>
                 ))}
+                {dayEvents.length > 2 && (
+                  <span className="truncate px-1.5 text-left text-[10px] font-semibold leading-tight text-[#8a8a8a]">
+                    +{dayEvents.length - 2}개
+                  </span>
+                )}
               </div>
             </button>
           )

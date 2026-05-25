@@ -5,7 +5,7 @@ export default function PrivacyInfoCard() {
       <div className="mt-2 space-y-2 text-sm leading-relaxed text-[#6a6a6a]">
         <p>
           온집은 회원가입을 받지 않고, 입력한 생활 데이터는 서버로 전송하지 않습니다.
-          흐름 기록, 일정, 보관 메모는 이 기기의 브라우저 저장소에만 저장됩니다.
+          가계부 기록, 일정, 보관 메모는 이 기기의 브라우저 저장소에만 저장됩니다.
         </p>
         <p>
           방문 수와 기능 사용 흐름을 보기 위해 GA4와 Vercel Analytics를 사용합니다.
