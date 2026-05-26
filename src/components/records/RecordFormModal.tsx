@@ -16,6 +16,7 @@ interface Props {
 const RECORD_TYPES: { value: RecordType; label: string }[] = [
   { value: 'life', label: '중요 메모' },
   { value: 'spending_note', label: '재정 메모' },
+  { value: 'investment_note', label: '투자 메모' },
   { value: 'family_meeting', label: '계약/정리' },
   { value: 'anniversary', label: '갱신/만료' },
   { value: 'home', label: '집/차량' },

@@ -299,6 +299,7 @@ export interface Chore {
 export type RecordType =
   | 'life'            // 생활 기록
   | 'spending_note'   // 소비 메모
+  | 'investment_note' // 투자 메모
   | 'family_meeting'  // 가족 회의록
   | 'anniversary'     // 기념일 기록
   | 'home'            // 집 관련 기록

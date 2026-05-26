@@ -129,7 +129,7 @@ export default function ChecklistTab({ refreshKey, onRefresh }: Props) {
                     row.isDone ? 'text-[#b0b0b0] line-through' : 'text-[#222222]'
                   }`}
                 >
-                  <span className="block truncate">{row.content}</span>
+                  <span className="block whitespace-pre-wrap break-words leading-relaxed">{row.content}</span>
                 </button>
                 <button
                   onClick={() => setEditingId(row.id)}

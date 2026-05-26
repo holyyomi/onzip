@@ -75,7 +75,7 @@ export default function App() {
           />
         )
       case 'calendar': return <CalendarPage externalRefreshKey={appRefreshKey} />
-      case 'money':    return <MoneyPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
+      case 'money':    return <MoneyPage externalRefreshKey={appRefreshKey} />
       case 'life':     return <LifePage externalRefreshKey={appRefreshKey} />
       case 'records':  return <RecordsPage externalRefreshKey={appRefreshKey} onQuickAdd={handleQuickSelect} />
       case 'settings': return <SettingsPage onAppRefresh={() => setAppRefreshKey((key) => key + 1)} />

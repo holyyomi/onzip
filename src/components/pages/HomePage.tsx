@@ -3,8 +3,6 @@ import type { TabId } from '../../app/App'
 import type { QuickAddType } from '../common/QuickAddMenu'
 import {
   fixedExpenseRepo,
-  checklistItemRepo,
-  checklistRepo,
   incomeRepo,
   ledgerEntryRepo,
   lifeRecordRepo,
@@ -34,13 +32,6 @@ interface ImportantItem {
   tab: TabId
   actionLabel?: string
   onAction?: () => void
-}
-
-interface LifeItem {
-  id: string
-  label: string
-  title: string
-  detail: string
 }
 
 function addDays(dateStr: string, days: number): string {
@@ -149,7 +140,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       .filter((item) => !item.isDone && item.date > today && item.date <= weekEnd)
       .sort((a, b) => a.date.localeCompare(b.date))
     const weekEvents = getAggregatedEvents(year, month)
-      .filter((event) => event.date > today && event.date <= weekEnd && event.type !== 'fixed_expense' && event.type !== 'subscription')
+      .filter((event) => event.date > today && event.date <= weekEnd && event.type !== 'fixed_expense' && event.type !== 'subscription' && event.type !== 'checklist')
       .sort((a, b) => a.date.localeCompare(b.date))
     const upcomingVaultRecords = lifeRecordRepo
       .getAll()
@@ -161,21 +152,6 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       .getAll()
       .filter((record) => isImportantVaultRecord(record) && !upcomingVaultRecordIds.has(record.id))
       .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
-    const activeChecklists = checklistRepo
-      .getByHousehold('default')
-      .map((checklist) => ({
-        ...checklist,
-        completionRate: checklistItemRepo.completionRate(checklist.id),
-      }))
-      .filter((checklist) => checklist.completionRate < 100)
-      .sort((a, b) => {
-        if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date)
-        if (a.due_date) return -1
-        if (b.due_date) return 1
-        return b.updated_at.localeCompare(a.updated_at)
-      })
-      .slice(0, 4)
-
     return {
       monthIncome,
       monthExpense,
@@ -194,7 +170,6 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       weekEvents,
       upcomingVaultRecords,
       importantRecords,
-      activeChecklists,
     }
   }, [refreshKey, localRefreshKey])
 
@@ -277,15 +252,6 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
     })),
   ]
   const hiddenTodayItemCount = Math.max(0, todayItems.length - 5)
-  const lifeItems: LifeItem[] = [
-    ...data.activeChecklists.map((checklist) => ({
-      id: `checklist_${checklist.id}`,
-      label: '체크리스트',
-      title: checklist.title,
-      detail: checklist.due_date ? `${checklist.due_date.replace(/-/g, '.')} · ${checklist.completionRate}%` : `${checklist.completionRate}% 진행`,
-    })),
-  ].slice(0, 6)
-
   return (
     <div className="px-5 py-3 space-y-3 lg:grid lg:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.75fr)] lg:items-start lg:gap-4 lg:space-y-0 lg:px-8 lg:py-5">
       <section className="oz-card bg-white p-4 lg:col-start-1 lg:row-span-2">
@@ -338,29 +304,6 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
 
       <section className="oz-card p-4 lg:col-start-2">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-[#222222]">체크리스트</h3>
-          <button onClick={() => onTabChange('life')} className="min-h-[34px] px-2 text-sm font-semibold text-[#ff385c]">
-            전체 보기
-          </button>
-        </div>
-        <div className="divide-y divide-[#f0f0f0]">
-          {lifeItems.length === 0 && (
-            <p className="py-3 text-sm text-[#8a8a8a]">아직 체크리스트가 없습니다.</p>
-          )}
-          {lifeItems.map((item) => (
-            <StatusRow
-              key={item.id}
-              label={item.label}
-              value={item.detail}
-              detail={item.title}
-              onClick={() => onTabChange('life')}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="oz-card p-4 lg:col-start-2">
-        <div className="mb-3 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-[#222222]">이번 달 가계부</h3>
           <button onClick={() => onTabChange('money')} className="min-h-[34px] px-2 text-sm font-semibold text-[#ff385c]">
             자세히
@@ -396,7 +339,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           {data.weekEvents.slice(0, Math.max(0, 4 - data.upcomingMoneyItems.length)).map((event) => (
             <StatusRow
               key={event.id}
-              label={event.type === 'anniversary' ? '기념일' : event.type === 'checklist' ? '체크리스트' : '일정'}
+              label={event.type === 'anniversary' ? '기념일' : '일정'}
               value={event.date.slice(5).replace('-', '.')}
               detail={event.title}
               onClick={() => onTabChange('calendar')}
