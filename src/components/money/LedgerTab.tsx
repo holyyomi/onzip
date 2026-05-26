@@ -6,6 +6,12 @@ import EmptyState from '../common/EmptyState'
 import LedgerFormModal from './LedgerFormModal'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
+interface CategoryBar {
+  category: string
+  amount: number
+  percent: number
+}
+
 interface Props {
   year: number
   month: number
@@ -20,11 +26,15 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [defaultType, setDefaultType] = useState<LedgerEntryType>('expense')
 
-  const entries = useMemo(() => {
-    const all = ledgerEntryRepo.getByMonth(year, month)
-    return filter === 'all' ? all : all.filter((e) => e.entry_type === filter)
+  const monthEntries = useMemo(
+    () => ledgerEntryRepo.getByMonth(year, month),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year, month, filter, refreshKey])
+    [year, month, refreshKey],
+  )
+
+  const entries = useMemo(() => {
+    return filter === 'all' ? monthEntries : monthEntries.filter((e) => e.entry_type === filter)
+  }, [filter, monthEntries])
 
   const memberNames = useMemo(
     () =>
@@ -37,22 +47,26 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
 
   const totalIncome = useMemo(
     () =>
-      ledgerEntryRepo
-        .getByMonth(year, month)
-        .filter((e) => e.entry_type === 'income')
-        .reduce((s, e) => s + e.amount, 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [year, month, refreshKey],
+      monthEntries
+        .filter((entry) => entry.entry_type === 'income')
+        .reduce((sum, entry) => sum + entry.amount, 0),
+    [monthEntries],
   )
 
   const totalExpense = useMemo(
     () =>
-      ledgerEntryRepo
-        .getByMonth(year, month)
-        .filter((e) => e.entry_type === 'expense')
-        .reduce((s, e) => s + e.amount, 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [year, month, refreshKey],
+      monthEntries
+        .filter((entry) => entry.entry_type === 'expense')
+        .reduce((sum, entry) => sum + entry.amount, 0),
+    [monthEntries],
+  )
+
+  const categoryChart = useMemo(
+    () => ({
+      expense: buildCategoryBars(monthEntries, 'expense'),
+      income: buildCategoryBars(monthEntries, 'income'),
+    }),
+    [monthEntries],
   )
 
   // 날짜 내림차순 그룹
@@ -99,6 +113,12 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
           </p>
         </div>
       </div>
+
+      <LedgerCategoryChart
+        expenseBars={categoryChart.expense}
+        incomeBars={categoryChart.income}
+        hideAmounts={hideAmounts}
+      />
 
       {/* 필터 */}
       <div className="flex items-center px-4 py-2 bg-white border-b border-gray-100">
@@ -185,6 +205,101 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
           onClose={() => setShowModal(false)}
         />
       )}
+    </div>
+  )
+}
+
+function buildCategoryBars(entries: ReturnType<typeof ledgerEntryRepo.getByMonth>, type: LedgerEntryType): CategoryBar[] {
+  const totals = entries
+    .filter((entry) => entry.entry_type === type)
+    .reduce<Record<string, number>>((acc, entry) => {
+      const category = entry.category || '기타'
+      acc[category] = (acc[category] ?? 0) + entry.amount
+      return acc
+    }, {})
+
+  const rows = Object.entries(totals)
+    .map(([category, amount]) => ({ category, amount }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 6)
+  const maxAmount = rows[0]?.amount ?? 0
+
+  return rows.map((row) => ({
+    ...row,
+    percent: maxAmount > 0 ? Math.max(8, Math.round((row.amount / maxAmount) * 100)) : 0,
+  }))
+}
+
+function LedgerCategoryChart({
+  expenseBars,
+  incomeBars,
+  hideAmounts,
+}: {
+  expenseBars: CategoryBar[]
+  incomeBars: CategoryBar[]
+  hideAmounts: boolean
+}) {
+  return (
+    <section className="border-b border-gray-100 bg-white px-4 py-4">
+      <div className="mb-3 flex items-end justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-base font-semibold text-[#222222]">카테고리 한눈에</h3>
+          <p className="mt-0.5 text-xs text-[#8a8a8a]">이번 달 상세내역 상위 항목</p>
+        </div>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <CategoryBarGroup
+          title="지출"
+          bars={expenseBars}
+          hideAmounts={hideAmounts}
+          tone="expense"
+        />
+        <CategoryBarGroup
+          title="수입"
+          bars={incomeBars}
+          hideAmounts={hideAmounts}
+          tone="income"
+        />
+      </div>
+    </section>
+  )
+}
+
+function CategoryBarGroup({
+  title,
+  bars,
+  hideAmounts,
+  tone,
+}: {
+  title: string
+  bars: CategoryBar[]
+  hideAmounts: boolean
+  tone: LedgerEntryType
+}) {
+  const barColor = tone === 'expense' ? 'bg-[#ff385c]' : 'bg-blue-500'
+  const titleColor = tone === 'expense' ? 'text-[#ff385c]' : 'text-blue-600'
+
+  return (
+    <div>
+      <p className={`text-sm font-semibold ${titleColor}`}>{title}</p>
+      <div className="mt-3 space-y-3">
+        {bars.length === 0 && (
+          <p className="rounded-lg bg-[#f7f7f7] px-3 py-3 text-xs text-[#8a8a8a]">등록된 항목이 없습니다.</p>
+        )}
+        {bars.map((bar) => (
+          <div key={bar.category}>
+            <div className="flex items-center justify-between gap-2">
+              <span className="min-w-0 truncate text-sm font-medium text-[#222222]">{bar.category}</span>
+              <span className="flex-shrink-0 text-xs font-semibold text-[#6a6a6a]">
+                {displayAmount(bar.amount, hideAmounts)}
+              </span>
+            </div>
+            <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-[#f2f2f2]">
+              <div className={`h-full rounded-full ${barColor}`} style={{ width: `${bar.percent}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
