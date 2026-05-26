@@ -67,16 +67,16 @@ export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
     <div>
       <div className="px-4 pt-3 grid grid-cols-2 gap-3 lg:px-8 lg:pt-5">
         <MoneyQuickButton
-          iconSrc={QUICK_ADD_ICON.expense}
-          label="지출기록"
-          sub="카드 결제, 정산, 생활비"
-          onClick={() => onQuickAdd('expense')}
-        />
-        <MoneyQuickButton
           iconSrc={QUICK_ADD_ICON.income}
           label="수입기록"
           sub="월급, 부가 수입, 받을 금액"
           onClick={() => onQuickAdd('income')}
+        />
+        <MoneyQuickButton
+          iconSrc={QUICK_ADD_ICON.expense}
+          label="지출기록"
+          sub="카드 결제, 정산, 생활비"
+          onClick={() => onQuickAdd('expense')}
         />
       </div>
 
