@@ -1,11 +1,10 @@
 import { useState, useMemo } from 'react'
 import { ledgerEntryRepo, memberRepo } from '../../data/repositories'
 import { PAYMENT_METHOD_LABEL } from '../../utils/constants'
-import { exportLedgerCSV } from '../../utils/csvExport'
 import type { LedgerEntryType } from '../../data/models'
 import EmptyState from '../common/EmptyState'
 import LedgerFormModal from './LedgerFormModal'
-import { displayAmount, isAmountHidden, useAmountPrivacy } from '../../utils/amountPrivacy'
+import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 
 interface Props {
   year: number
@@ -75,17 +74,6 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
     setShowModal(true)
   }
 
-  function handleExportCSV() {
-    if (
-      isAmountHidden() &&
-      !confirm('CSV 파일에는 실제 금액이 그대로 포함됩니다. 내려받을까요?')
-    ) {
-      return
-    }
-
-    exportLedgerCSV(ledgerEntryRepo.getByMonth(year, month), `${year}${String(month).padStart(2, '0')}`)
-  }
-
   return (
     <div>
       {/* 월 합계 바 */}
@@ -112,8 +100,8 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
         </div>
       </div>
 
-      {/* 필터 + 추가 버튼 */}
-      <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-100">
+      {/* 필터 */}
+      <div className="flex items-center px-4 py-2 bg-white border-b border-gray-100">
         <div className="flex gap-1">
           {(['all', 'expense', 'income'] as const).map((f) => (
             <button
@@ -128,19 +116,6 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
               {f === 'all' ? '전체' : f === 'expense' ? '지출' : '수입'}
             </button>
           ))}
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={handleExportCSV}
-            className="text-xs text-gray-400 border border-gray-200 rounded-lg px-2 py-1">
-            CSV↓
-          </button>
-          <button onClick={() => openAdd('expense')} className="text-xs text-red-500 border border-red-200 rounded-lg px-2 py-1">
-            + 지출
-          </button>
-          <button onClick={() => openAdd('income')} className="text-xs text-[#ff385c] border border-[#ffd1da] rounded-lg px-2 py-1">
-            + 수입
-          </button>
         </div>
       </div>
 

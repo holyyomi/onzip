@@ -6,6 +6,7 @@ import IncomeTab from '../money/IncomeTab'
 import SubscriptionTab from '../money/SubscriptionTab'
 import CalculatorTab from '../money/CalculatorTab'
 import TabMemoCard from '../common/TabMemoCard'
+import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import { fixedExpenseRepo, incomeRepo, ledgerEntryRepo, subscriptionRepo } from '../../data/repositories'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import {
@@ -23,6 +24,7 @@ type MoneyManageSubTab = 'fixed' | 'income' | 'subscription'
 
 interface Props {
   externalRefreshKey: number
+  onQuickAdd: (type: 'expense' | 'income') => void
 }
 
 const SUB_TABS: { value: MoneySubTab; label: string }[] = [
@@ -38,7 +40,7 @@ const MANAGE_TABS: { value: MoneyManageSubTab; label: string }[] = [
   { value: 'subscription', label: '자동결제' },
 ]
 
-export default function MoneyPage({ externalRefreshKey }: Props) {
+export default function MoneyPage({ externalRefreshKey, onQuickAdd }: Props) {
   const [activeTab, setActiveTab] = useState<MoneySubTab>('summary')
   const [manageTab, setManageTab] = useState<MoneyManageSubTab>('income')
   const [year, setYear] = useState(todayYear())
@@ -63,6 +65,21 @@ export default function MoneyPage({ externalRefreshKey }: Props) {
 
   return (
     <div>
+      <div className="px-4 pt-3 grid grid-cols-2 gap-3 lg:px-8 lg:pt-5">
+        <MoneyQuickButton
+          iconSrc={QUICK_ADD_ICON.expense}
+          label="지출기록"
+          sub="카드 결제, 정산, 생활비"
+          onClick={() => onQuickAdd('expense')}
+        />
+        <MoneyQuickButton
+          iconSrc={QUICK_ADD_ICON.income}
+          label="수입기록"
+          sub="월급, 부가 수입, 받을 금액"
+          onClick={() => onQuickAdd('income')}
+        />
+      </div>
+
       <div className="oz-tab-strip bg-[#f7f7f7] lg:px-8">
         {SUB_TABS.map((t) => (
           <button
@@ -574,5 +591,27 @@ function FlowBreakdownCard({
         ))}
       </div>
     </div>
+  )
+}
+
+function MoneyQuickButton({
+  iconSrc,
+  label,
+  sub,
+  onClick,
+}: {
+  iconSrc: string
+  label: string
+  sub: string
+  onClick: () => void
+}) {
+  return (
+    <button onClick={onClick} className="oz-card min-h-[86px] p-3 text-left active:scale-[0.98] transition flex items-center gap-3">
+      <img src={iconSrc} alt="" className="h-11 w-11 rounded-[16px] object-contain flex-shrink-0" />
+      <span className="min-w-0">
+        <span className="block text-base font-semibold text-[#222222]">{label}</span>
+        <span className="block text-xs text-[#6a6a6a] mt-1 leading-snug">{sub}</span>
+      </span>
+    </button>
   )
 }
