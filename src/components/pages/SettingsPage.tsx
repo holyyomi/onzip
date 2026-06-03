@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import FormModal, { Field, inputCls, FormActions } from '../common/FormModal'
 import { memberRepo, householdRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
@@ -19,7 +19,6 @@ import UpdateNoticeCard from '../common/UpdateNoticeCard'
 import PwaUpdateCard from '../common/PwaUpdateCard'
 import InstallPromptCard from '../common/InstallPromptCard'
 import { useAmountPrivacy } from '../../utils/amountPrivacy'
-import { clearAppPin, hasAppPin, setAppPin } from '../../utils/appLock'
 import { useVaultPrivacy } from '../../utils/vaultPrivacy'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
@@ -71,11 +70,8 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
   const household = householdRepo.getDefault()
   const [name, setName] = useState(household.name)
   const [saved, setSaved] = useState(false)
-  const [pinRefreshKey, setPinRefreshKey] = useState(0)
-  const [forcePinExpandedKey, setForcePinExpandedKey] = useState(0)
   const { hidden: hideAmounts, setHidden: setHideAmounts } = useAmountPrivacy()
   const { hidden: hideSensitive, setHidden: setHideSensitive } = useVaultPrivacy()
-  const hasPin = useMemo(() => hasAppPin(), [pinRefreshKey])
 
   function handleSave() {
     householdRepo.update(household.id, { name: name.trim() || '우리집' })
@@ -89,11 +85,7 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
   const members = memberRepo.getAll().filter((m) => m.is_active).length
 
   function handleSensitiveToggle() {
-    const nextHidden = !hideSensitive
-    setHideSensitive(nextHidden)
-    if (nextHidden && !hasPin) {
-      setForcePinExpandedKey((key) => key + 1)
-    }
+    setHideSensitive(!hideSensitive)
   }
 
   return (
@@ -135,7 +127,7 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
           <div>
             <p className="text-base font-semibold text-[#222222]">비밀 내용 숨김</p>
             <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-              각 입력칸의 비밀 버튼을 켠 내용만 가립니다. 제목은 그대로 보입니다.
+              각 입력칸의 비밀을 선택한 내용만 가립니다. 제목은 그대로 보입니다.
             </p>
           </div>
           <button
@@ -146,17 +138,7 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
             <span className={`block h-6 w-6 rounded-full bg-white shadow transition-transform ${hideSensitive ? 'translate-x-6' : 'translate-x-0'}`} />
           </button>
         </div>
-        {hideSensitive && !hasPin && (
-          <p className="mt-3 rounded-[16px] bg-[#fff0f3] px-3 py-2 text-xs font-semibold leading-relaxed text-[#ff385c]">
-            비밀 메모를 열 때만 확인할 4자리 PIN을 아래에서 정할 수 있습니다.
-          </p>
-        )}
       </div>
-
-      <PinLockCard
-        forceExpandedKey={forcePinExpandedKey}
-        onPinChanged={() => setPinRefreshKey((key) => key + 1)}
-      />
 
       <PwaUpdateCard />
 
@@ -204,113 +186,6 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
         <span className="text-sm text-gray-400">v1.0.0</span>
       </div>
     </div>
-  )
-}
-
-function PinLockCard({
-  forceExpandedKey,
-  onPinChanged,
-}: {
-  forceExpandedKey: number
-  onPinChanged: () => void
-}) {
-  const [enabled, setEnabled] = useState(hasAppPin)
-  const [expanded, setExpanded] = useState(hasAppPin)
-  const [pin, setPin] = useState('')
-  const [message, setMessage] = useState('')
-
-  function cleanPin(value: string) {
-    return value.replace(/\D/g, '').slice(0, 4)
-  }
-
-  useEffect(() => {
-    if (forceExpandedKey > 0) {
-      setExpanded(true)
-    }
-  }, [forceExpandedKey])
-
-  async function handleSavePin() {
-    const result = await setAppPin(pin)
-    setMessage(result.message)
-    if (result.ok) {
-      setEnabled(true)
-      setPin('')
-      onPinChanged()
-    }
-  }
-
-  function handleDisablePin() {
-    clearAppPin()
-    setEnabled(false)
-    setPin('')
-    setMessage('비밀 메모 PIN을 껐습니다.')
-    onPinChanged()
-  }
-
-  return (
-    <section className="oz-card p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-base font-semibold text-[#222222]">비밀 메모 PIN</p>
-            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-              enabled ? 'bg-[#fff0f3] text-[#ff385c]' : 'bg-[#f7f7f7] text-[#8a8a8a]'
-            }`}>
-              {enabled ? '사용 중' : '선택'}
-            </span>
-          </div>
-          <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-            앱 전체를 잠그지 않고, 비밀 메모를 열 때만 4자리 PIN을 확인합니다.
-          </p>
-        </div>
-        <button
-          onClick={() => setExpanded((value) => !value)}
-          className="min-h-[38px] flex-shrink-0 rounded-full border border-[#dddddd] bg-white px-3 text-xs font-semibold text-[#222222]"
-        >
-          {expanded ? '닫기' : enabled ? '관리' : '설정'}
-        </button>
-      </div>
-
-      {expanded && (
-        <>
-          <div className="mt-4 space-y-2">
-            <input
-              type="password"
-              inputMode="numeric"
-              placeholder={enabled ? '새 PIN 4자리' : 'PIN 4자리'}
-              value={pin}
-              onChange={(e) => { setPin(cleanPin(e.target.value)); setMessage('') }}
-              onKeyDown={(e) => e.key === 'Enter' && pin.length === 4 && void handleSavePin()}
-              className={inputCls}
-            />
-          </div>
-
-          <p className="mt-3 rounded-[16px] bg-[#f7f7f7] px-3 py-2 text-xs leading-relaxed text-[#8a8a8a]">
-            PIN은 비밀 내용으로 표시한 메모를 열 때만 사용합니다. 잊어버리면 여기서 새 PIN으로 다시 정하면 됩니다.
-          </p>
-
-          {message && <p className="mt-2 text-xs font-semibold text-[#ff385c]">{message}</p>}
-
-          <div className="mt-4 flex gap-2">
-            <button
-              onClick={() => void handleSavePin()}
-              disabled={pin.length !== 4}
-              className="min-h-[46px] flex-1 rounded-full bg-[#ff385c] text-sm font-semibold text-white disabled:opacity-40"
-            >
-              {enabled ? 'PIN 바꾸기' : 'PIN 켜기'}
-            </button>
-            {enabled && (
-              <button
-                onClick={handleDisablePin}
-                className="min-h-[46px] flex-1 rounded-full border border-[#dddddd] bg-white text-sm font-semibold text-[#222222]"
-              >
-                PIN 끄기
-              </button>
-            )}
-          </div>
-        </>
-      )}
-    </section>
   )
 }
 

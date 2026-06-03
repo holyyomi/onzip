@@ -8,7 +8,6 @@ import EmptyState from '../common/EmptyState'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import { displayRecordContent, displayRecordTitle, isSecretRecord, useVaultPrivacy } from '../../utils/vaultPrivacy'
 import { getVaultRecordBadge, isImportantVaultRecord } from '../../utils/vaultRecords'
-import { hasAppPin, verifyAppPin } from '../../utils/appLock'
 import type { LifeRecord } from '../../data/models'
 
 const RECORD_TYPE_CONFIG: Record<
@@ -36,7 +35,6 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [defaultType, setDefaultType] = useState<RecordType>('life')
   const [refreshKey, setRefreshKey] = useState(0)
-  const [unlockRecord, setUnlockRecord] = useState<LifeRecord | null>(null)
 
   const records = useMemo(() => {
     let list = lifeRecordRepo.getAll()
@@ -62,11 +60,6 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
   }
 
   function openRecord(record: LifeRecord) {
-    if (hideSensitive && isSecretRecord(record)) {
-      setUnlockRecord(record)
-      return
-    }
-
     setEditingId(record.id)
     setShowModal(true)
   }
@@ -94,8 +87,13 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
         >
           <img src={QUICK_ADD_ICON.record} alt="" className="h-12 w-12 rounded-[18px] object-contain flex-shrink-0" />
           <span className="min-w-0">
-          <span className="block text-lg font-semibold text-[#222222]">메모 남기기</span>
-          <span className="block text-sm text-[#6a6a6a] mt-1">계좌, 계약, 보험, 중요한 내용을 메모합니다</span>
+            <span className="flex items-center gap-2 text-lg font-semibold text-[#222222]">
+              <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#ff385c] text-base leading-none text-white">
+                +
+              </span>
+              메모 남기기
+            </span>
+            <span className="block text-sm text-[#6a6a6a] mt-1">계좌, 계약, 보험, 중요한 내용을 메모합니다</span>
           </span>
         </button>
       </div>
@@ -112,11 +110,11 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
       </div>
 
       {/* 빠른 추가 버튼 */}
-      <div className="flex gap-2 px-4 py-3 overflow-x-auto bg-white border-b border-gray-100">
+      <div className="flex flex-wrap gap-2 px-4 py-3 bg-white border-b border-gray-100">
         {(Object.entries(RECORD_TYPE_CONFIG) as [RecordType, { label: string; dot: string }][]).map(
           ([type, cfg]) => (
             <button key={type} onClick={() => handleAdd(type)}
-              className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs text-gray-600">
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs text-gray-600">
               <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
               {cfg.label}
             </button>
@@ -199,98 +197,6 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
           onClose={() => setShowModal(false)}
         />
       )}
-
-      {unlockRecord && (
-        <SensitiveUnlockSheet
-          record={unlockRecord}
-          onClose={() => setUnlockRecord(null)}
-          onUnlocked={() => {
-            setEditingId(unlockRecord.id)
-            setUnlockRecord(null)
-            setShowModal(true)
-          }}
-        />
-      )}
-    </div>
-  )
-}
-
-function SensitiveUnlockSheet({
-  record,
-  onClose,
-  onUnlocked,
-}: {
-  record: LifeRecord
-  onClose: () => void
-  onUnlocked: () => void
-}) {
-  const [pin, setPin] = useState('')
-  const [error, setError] = useState('')
-  const hasPin = hasAppPin()
-
-  function cleanPin(value: string) {
-    return value.replace(/\D/g, '').slice(0, 4)
-  }
-
-  async function handleUnlock() {
-    const ok = await verifyAppPin(pin)
-    if (!ok) {
-      setError('PIN이 맞지 않습니다.')
-      setPin('')
-      return
-    }
-
-    onUnlocked()
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/35" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-t-[28px] bg-white p-5" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-lg font-semibold text-[#222222]">비밀 메모</p>
-            <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-              {record.record_date.replace(/-/g, '. ')} · 4자리 PIN으로 한 번 확인합니다.
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="h-10 w-10 flex-shrink-0 rounded-full bg-[#f2f2f2] text-lg text-[#6a6a6a]"
-            aria-label="닫기"
-          >
-            ×
-          </button>
-        </div>
-
-        {hasPin ? (
-          <>
-            <input
-              type="password"
-              inputMode="numeric"
-              autoFocus
-              placeholder="PIN"
-              value={pin}
-              onChange={(e) => { setPin(cleanPin(e.target.value)); setError('') }}
-              onKeyDown={(e) => e.key === 'Enter' && pin.length === 4 && void handleUnlock()}
-              className="mt-4 w-full min-h-[52px] rounded-[18px] border border-[#dddddd] bg-white px-4 py-3 text-base text-[#222222] focus:border-[#222222] focus:outline-none"
-            />
-            {error && <p className="mt-2 text-xs font-semibold text-[#ff385c]">{error}</p>}
-            <button
-              onClick={() => void handleUnlock()}
-              disabled={pin.length !== 4}
-              className="mt-4 min-h-[50px] w-full rounded-full bg-[#ff385c] text-sm font-semibold text-white disabled:opacity-40"
-            >
-              열람하기
-            </button>
-          </>
-        ) : (
-          <div className="mt-4 rounded-[18px] bg-[#f7f7f7] p-4">
-            <p className="text-sm leading-relaxed text-[#6a6a6a]">
-              아직 PIN이 없습니다. 설정에서 비밀 메모 PIN을 정하면 이 메모를 열 수 있습니다.
-            </p>
-          </div>
-        )}
-      </div>
     </div>
   )
 }
