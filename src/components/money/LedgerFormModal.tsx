@@ -6,6 +6,7 @@ import { PAYMENT_METHODS } from '../../utils/constants'
 import { getCategories } from '../../utils/categoryStore'
 import type { LedgerEntry, LedgerEntryType, PaymentMethod } from '../../data/models'
 import { trackEvent } from '../../utils/analytics'
+import SecretToggle from '../common/SecretToggle'
 
 interface Props {
   entryId: string | null
@@ -38,6 +39,7 @@ export default function LedgerFormModal({
   )
   const [memberId, setMemberId] = useState(existing?.member_id ?? 'shared')
   const [memo, setMemo] = useState(existing?.memo ?? '')
+  const [memoSecret, setMemoSecret] = useState(existing?.memo_is_secret ?? false)
   const [error, setError] = useState('')
   const [showDetails, setShowDetails] = useState(Boolean(entryId))
 
@@ -62,6 +64,7 @@ export default function LedgerFormModal({
         payment_method: entryType === 'expense' ? paymentMethod : null,
         member_id: memberId || null,
         memo,
+        memo_is_secret: memoSecret,
       })
     } else {
       const entry: LedgerEntry = {
@@ -74,6 +77,7 @@ export default function LedgerFormModal({
         payment_method: entryType === 'expense' ? paymentMethod : null,
         member_id: memberId || null,
         memo,
+        memo_is_secret: memoSecret,
         created_at: now(),
         updated_at: now(),
       }
@@ -145,7 +149,7 @@ export default function LedgerFormModal({
         </select>
       </Field>
 
-      <Field label="메모">
+      <Field label="메모" action={<SecretToggle secret={memoSecret} onChange={setMemoSecret} />}>
         <input type="text" placeholder="예) 점심, 마트, 택시" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
       </Field>
 

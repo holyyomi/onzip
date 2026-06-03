@@ -4,6 +4,7 @@ import { shoppingItemRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import type { ShoppingItem } from '../../data/models'
 import { trackEvent } from '../../utils/analytics'
+import SecretToggle from '../common/SecretToggle'
 
 interface Props {
   itemId: string | null
@@ -25,6 +26,7 @@ export default function ShoppingFormModal({ itemId, onSaved, onClose }: Props) {
   const [store, setStore] = useState(existing?.store ?? '')
   const [isFavorite, setIsFavorite] = useState(existing?.is_favorite ?? false)
   const [memo, setMemo] = useState(existing?.memo ?? '')
+  const [memoSecret, setMemoSecret] = useState(existing?.memo_is_secret ?? false)
   const [error, setError] = useState('')
   const [showDetails, setShowDetails] = useState(Boolean(itemId))
 
@@ -35,14 +37,14 @@ export default function ShoppingFormModal({ itemId, onSaved, onClose }: Props) {
       shoppingItemRepo.update(itemId, {
         name: name.trim(), category,
         expected_amount: expectedAmount ? Number(expectedAmount) : null,
-        store, is_favorite: isFavorite, memo,
+        store, is_favorite: isFavorite, memo, memo_is_secret: memoSecret,
       })
     } else {
       const item: ShoppingItem = {
         id: newId(), household_id: 'default', name: name.trim(), category,
         expected_amount: expectedAmount ? Number(expectedAmount) : null,
         actual_amount: null, store, is_done: false, is_favorite: isFavorite,
-        memo, created_at: now(), updated_at: now(),
+        memo, memo_is_secret: memoSecret, created_at: now(), updated_at: now(),
       }
       shoppingItemRepo.create(item)
     }
@@ -114,7 +116,7 @@ export default function ShoppingFormModal({ itemId, onSaved, onClose }: Props) {
               onChange={(e) => setStore(e.target.value)} className={inputCls} />
           </Field>
 
-          <Field label="메모">
+          <Field label="메모" action={<SecretToggle secret={memoSecret} onChange={setMemoSecret} />}>
             <input type="text" placeholder="예) 세일하면 2개" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
           </Field>
         </div>

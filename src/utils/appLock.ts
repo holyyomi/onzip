@@ -33,7 +33,7 @@ export async function setAppPin(pin: string): Promise<{ ok: boolean; message: st
   const hash = await sha256(`${salt}:${pin}`)
   appSettingsRepo.set('default', PIN_SALT_KEY, salt)
   appSettingsRepo.set('default', PIN_HASH_KEY, hash)
-  return { ok: true, message: '민감 메모 PIN을 저장했습니다.' }
+  return { ok: true, message: '비밀 메모 PIN을 저장했습니다.' }
 }
 
 export async function verifyAppPin(pin: string): Promise<boolean> {

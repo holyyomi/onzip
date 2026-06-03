@@ -4,6 +4,7 @@ import { choreRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import type { Chore, RepeatRule } from '../../data/models'
 import EmptyState from '../common/EmptyState'
+import SecretToggle from '../common/SecretToggle'
 
 interface Props {
   refreshKey: number
@@ -140,6 +141,7 @@ function ChoreFormModal({
   const [dueDate, setDueDate] = useState(existing?.due_date ?? '')
   const [calendarVisible, setCalendarVisible] = useState(existing?.calendar_visible ?? false)
   const [memo, setMemo] = useState(existing?.memo ?? '')
+  const [memoSecret, setMemoSecret] = useState(existing?.memo_is_secret ?? false)
   const [error, setError] = useState('')
 
   const REPEAT_OPTIONS: { value: RepeatRule; label: string }[] = [
@@ -155,14 +157,14 @@ function ChoreFormModal({
       choreRepo.update(choreId, {
         title: title.trim(), repeat_rule: repeat,
         member_id: memberId || null, due_date: dueDate || null,
-        calendar_visible: calendarVisible, memo,
+        calendar_visible: calendarVisible, memo, memo_is_secret: memoSecret,
       })
     } else {
       const chore: Chore = {
         id: newId(), household_id: 'default', title: title.trim(),
         repeat_rule: repeat, member_id: memberId || null,
         due_date: dueDate || null, calendar_visible: calendarVisible,
-        is_done: false, memo, created_at: now(), updated_at: now(),
+        is_done: false, memo, memo_is_secret: memoSecret, created_at: now(), updated_at: now(),
       }
       choreRepo.create(chore)
     }
@@ -208,7 +210,7 @@ function ChoreFormModal({
         </button>
       </div>
 
-      <Field label="메모 (선택)">
+      <Field label="메모 (선택)" action={<SecretToggle secret={memoSecret} onChange={setMemoSecret} />}>
         <input type="text" placeholder="메모" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
       </Field>
 

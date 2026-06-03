@@ -30,14 +30,19 @@ export default function FormModal({ title, onClose, children }: Props) {
 // 재사용 form 필드 래퍼
 export function Field({
   label,
+  action,
   children,
 }: {
   label: string
+  action?: ReactNode
   children: ReactNode
 }) {
   return (
     <div className="mb-3">
-      <label className="text-sm font-semibold text-[#6a6a6a] block mb-1.5">{label}</label>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <label className="text-sm font-semibold text-[#6a6a6a]">{label}</label>
+        {action}
+      </div>
       {children}
     </div>
   )

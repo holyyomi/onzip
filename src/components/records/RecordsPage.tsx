@@ -6,7 +6,7 @@ import RecordFormModal from './RecordFormModal'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import EmptyState from '../common/EmptyState'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
-import { displayRecordContent, displayRecordTitle, isSensitiveRecord, useVaultPrivacy } from '../../utils/vaultPrivacy'
+import { displayRecordContent, displayRecordTitle, isSecretRecord, useVaultPrivacy } from '../../utils/vaultPrivacy'
 import { getVaultRecordBadge, isImportantVaultRecord } from '../../utils/vaultRecords'
 import { hasAppPin, verifyAppPin } from '../../utils/appLock'
 import type { LifeRecord } from '../../data/models'
@@ -62,7 +62,7 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
   }
 
   function openRecord(record: LifeRecord) {
-    if (hideSensitive && isSensitiveRecord(record)) {
+    if (hideSensitive && isSecretRecord(record)) {
       setUnlockRecord(record)
       return
     }
@@ -150,9 +150,9 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
                       <span className="text-xs text-gray-400">{cfg.label}</span>
-                      {isSensitiveRecord(r) && (
+                      {isSecretRecord(r) && (
                         <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-xs font-semibold text-gray-500">
-                          민감
+                          비밀
                         </span>
                       )}
                       {isImportantVaultRecord(r) && (
@@ -248,7 +248,7 @@ function SensitiveUnlockSheet({
       <div className="w-full max-w-lg rounded-t-[28px] bg-white p-5" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-lg font-semibold text-[#222222]">민감 메모</p>
+            <p className="text-lg font-semibold text-[#222222]">비밀 메모</p>
             <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
               {record.record_date.replace(/-/g, '. ')} · 4자리 PIN으로 한 번 확인합니다.
             </p>
@@ -286,7 +286,7 @@ function SensitiveUnlockSheet({
         ) : (
           <div className="mt-4 rounded-[18px] bg-[#f7f7f7] p-4">
             <p className="text-sm leading-relaxed text-[#6a6a6a]">
-              아직 PIN이 없습니다. 설정에서 민감 메모 PIN을 정하면 이 메모를 열 수 있습니다.
+              아직 PIN이 없습니다. 설정에서 비밀 메모 PIN을 정하면 이 메모를 열 수 있습니다.
             </p>
           </div>
         )}

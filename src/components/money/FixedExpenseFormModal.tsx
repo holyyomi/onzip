@@ -6,6 +6,7 @@ import { PAYMENT_METHODS, DAYS_OPTIONS } from '../../utils/constants'
 import { getCategories } from '../../utils/categoryStore'
 import type { FixedExpense, PaymentMethod } from '../../data/models'
 import { trackEvent } from '../../utils/analytics'
+import SecretToggle from '../common/SecretToggle'
 
 interface Props {
   expenseId: string | null
@@ -32,6 +33,7 @@ export default function FixedExpenseFormModal({ expenseId, onSaved, onClose }: P
     existing?.calendar_visible ?? true,
   )
   const [memo, setMemo] = useState(existing?.memo ?? '')
+  const [memoSecret, setMemoSecret] = useState(existing?.memo_is_secret ?? false)
   const [error, setError] = useState('')
   const [showDetails, setShowDetails] = useState(Boolean(expenseId))
 
@@ -50,6 +52,7 @@ export default function FixedExpenseFormModal({ expenseId, onSaved, onClose }: P
         member_id: memberId || null,
         calendar_visible: calendarVisible,
         memo,
+        memo_is_secret: memoSecret,
       })
     } else {
       const fe: FixedExpense = {
@@ -65,6 +68,7 @@ export default function FixedExpenseFormModal({ expenseId, onSaved, onClose }: P
         calendar_visible: calendarVisible,
         status: 'pending',
         memo,
+        memo_is_secret: memoSecret,
         created_at: now(),
         updated_at: now(),
       }
@@ -167,7 +171,7 @@ export default function FixedExpenseFormModal({ expenseId, onSaved, onClose }: P
             </button>
           </div>
 
-          <Field label="메모">
+          <Field label="메모" action={<SecretToggle secret={memoSecret} onChange={setMemoSecret} />}>
             <input type="text" placeholder="메모" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
           </Field>
         </div>

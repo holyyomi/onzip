@@ -47,6 +47,14 @@ function readTabMemos() {
   }
 }
 
+function readTabMemoSecrets() {
+  try {
+    return JSON.parse(localStorage.getItem('onzip_tab_memo_secrets') ?? '{}') as unknown
+  } catch {
+    return {}
+  }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -87,6 +95,7 @@ export function exportLocalData(): string {
       app_settings: appSettingsRepo.getAll(),
       custom_categories: readCustomCategories(),
       tab_memos: readTabMemos(),
+      tab_memo_secrets: readTabMemoSecrets(),
       fixed_expense_month_status: readFixedExpenseMonthStatusBackup(),
       income_month_status: readIncomeMonthStatusBackup(),
       subscription_month_status: readSubscriptionMonthStatusBackup(),
@@ -145,6 +154,10 @@ export async function importLocalDataFromFile(file: File) {
   localStorage.setItem(
     'onzip_tab_memos',
     JSON.stringify(isRecord(data.tab_memos) ? data.tab_memos : {}),
+  )
+  localStorage.setItem(
+    'onzip_tab_memo_secrets',
+    JSON.stringify(isRecord(data.tab_memo_secrets) ? data.tab_memo_secrets : {}),
   )
   writeFixedExpenseMonthStatusBackup(data.fixed_expense_month_status)
   writeIncomeMonthStatusBackup(data.income_month_status)

@@ -21,6 +21,7 @@ export interface AggregatedEvent {
   is_done: boolean
   member_id?: string | null
   memo?: string
+  memo_is_secret?: boolean
   // null이면 직접 추가 일정 (수정 가능)
   source_type?: string | null
   source_id?: string | null
@@ -86,6 +87,7 @@ function toAggregated(e: CalendarEvent, date: string, isRepeat = false): Aggrega
     is_done: e.is_done,
     member_id: e.member_id,
     memo: e.memo,
+    memo_is_secret: e.memo_is_secret,
     source_type: e.source_type,
     source_id: e.source_id,
     original_id: isRepeat ? e.id : undefined,
@@ -133,6 +135,7 @@ export function getAggregatedEvents(year: number, month: number): AggregatedEven
         is_done: getFixedExpenseMonthStatus(fe, year, month) === 'done',
         member_id: fe.member_id,
         memo: fe.memo,
+        memo_is_secret: fe.memo_is_secret,
         source_type: 'fixed_expense',
         source_id: fe.id,
       })
@@ -153,6 +156,7 @@ export function getAggregatedEvents(year: number, month: number): AggregatedEven
         is_done: getSubscriptionMonthStatus(s, year, month) === 'paid',
         member_id: s.member_id,
         memo: s.memo,
+        memo_is_secret: s.memo_is_secret,
         source_type: 'subscription',
         source_id: s.id,
       })

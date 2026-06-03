@@ -3,6 +3,7 @@ import { calendarEventRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import type { CalendarEvent, RepeatRule } from '../../data/models'
 import { trackEvent } from '../../utils/analytics'
+import SecretToggle from '../common/SecretToggle'
 
 interface Props {
   eventId: string | null    // null = 신규 추가
@@ -39,6 +40,7 @@ export default function EventFormModal({
   const [repeat, setRepeat] = useState<RepeatRule>(existing?.repeat_rule ?? 'none')
   const [memberId, setMemberId] = useState<string>(existing?.member_id ?? 'shared')
   const [memo, setMemo] = useState(existing?.memo ?? '')
+  const [memoSecret, setMemoSecret] = useState(existing?.memo_is_secret ?? false)
   const [error, setError] = useState('')
   const [showDetails, setShowDetails] = useState(isEdit)
 
@@ -73,6 +75,7 @@ export default function EventFormModal({
         repeat_rule: repeat,
         member_id: memberId || null,
         memo,
+        memo_is_secret: memoSecret,
       })
     } else {
       const newEvent: CalendarEvent = {
@@ -90,6 +93,7 @@ export default function EventFormModal({
         source_type: null,
         source_id: null,
         memo,
+        memo_is_secret: memoSecret,
         created_at: now(),
         updated_at: now(),
       }
@@ -233,7 +237,10 @@ export default function EventFormModal({
             </div>
 
             <div>
-              <label className="text-sm font-semibold text-[#6a6a6a] block mb-1.5">메모</label>
+              <div className="mb-1.5 flex items-center justify-between gap-2">
+                <label className="text-sm font-semibold text-[#6a6a6a]">메모</label>
+                <SecretToggle secret={memoSecret} onChange={setMemoSecret} />
+              </div>
               <textarea
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}

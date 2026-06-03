@@ -78,6 +78,7 @@ export interface CalendarEvent {
   source_type: CalendarEventSourceType | null // null = 직접 추가
   source_id: string | null                    // 원본 데이터 ID
   memo: string
+  memo_is_secret?: boolean
   created_at: string
   updated_at: string
 }
@@ -117,6 +118,7 @@ export interface LedgerEntry {
   payment_method: PaymentMethod | null
   member_id: string | null
   memo: string
+  memo_is_secret?: boolean
   created_at: string
   updated_at: string
 }
@@ -150,6 +152,7 @@ export interface FixedExpense {
   calendar_visible: boolean
   status: FixedExpenseStatus
   memo: string
+  memo_is_secret?: boolean
   created_at: string
   updated_at: string
 }
@@ -170,6 +173,7 @@ export interface Income {
   member_id: string | null
   repeat_rule: RepeatRule
   memo: string
+  memo_is_secret?: boolean
   created_at: string
   updated_at: string
 }
@@ -191,6 +195,7 @@ export interface Subscription {
   member_id: string | null
   calendar_visible: boolean
   memo: string
+  memo_is_secret?: boolean
   created_at: string
   updated_at: string
 }
@@ -250,6 +255,7 @@ export interface ShoppingItem {
   is_done: boolean
   is_favorite: boolean
   memo: string
+  memo_is_secret?: boolean
   created_at: string
   updated_at: string
 }
@@ -268,6 +274,7 @@ export interface HouseholdSupply {
   status: SupplyStatus
   repurchase_cycle_days: number | null
   purchase_link_memo: string
+  purchase_link_memo_is_secret?: boolean
   member_id: string | null
   created_at: string
   updated_at: string
@@ -287,6 +294,7 @@ export interface Chore {
   calendar_visible: boolean
   is_done: boolean
   memo: string
+  memo_is_secret?: boolean
   created_at: string
   updated_at: string
 }
@@ -313,6 +321,7 @@ export interface LifeRecord {
   record_date: string                 // YYYY-MM-DD
   member_id: string | null
   tags: string[]
+  content_is_secret?: boolean
   related_amount: number | null
   related_event_id: string | null
   created_at: string

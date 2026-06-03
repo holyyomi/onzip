@@ -24,6 +24,7 @@ localStorage 기반 로컬 전용 데이터 구조.
 | app_settings | `onzip_app_settings` | 앱 설정 |
 | custom_categories | `onzip_custom_categories` | 사용자 추가 카테고리 |
 | tab_memos | `onzip_tab_memos` | 홈/일정/돈/생활/설정 탭별 메모 |
+| tab_memo_secrets | `onzip_tab_memo_secrets` | 탭별 빠른 메모 비밀 여부 |
 | fixed_expense_month_status | `onzip_fixed_expense_month_status` | 정기 지출 월별 완료 상태 |
 | income_month_status | `onzip_income_month_status` | 정기 수입 월별 입금 상태 |
 | subscription_month_status | `onzip_subscription_month_status` | 구독/자동결제 월별 결제 상태 |

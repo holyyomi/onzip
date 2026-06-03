@@ -5,6 +5,8 @@ import { newId, now } from '../../data/repositories/base'
 import { todayStr } from '../../utils/date'
 import type { LifeRecord, RecordType } from '../../data/models'
 import { trackEvent } from '../../utils/analytics'
+import SecretToggle from '../common/SecretToggle'
+import { isSecretRecord } from '../../utils/vaultPrivacy'
 
 interface Props {
   recordId: string | null
@@ -28,6 +30,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
 
   const [title, setTitle] = useState(existing?.title ?? '')
   const [content, setContent] = useState(existing?.content ?? '')
+  const [contentSecret, setContentSecret] = useState(existing ? isSecretRecord(existing) : false)
   const [recordType, setRecordType] = useState<RecordType>(existing?.record_type ?? defaultType)
   const [recordDate, setRecordDate] = useState(existing?.record_date ?? todayStr())
   const [memberId, setMemberId] = useState(existing?.member_id ?? 'shared')
@@ -69,6 +72,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
         title: saveTitle, content, record_type: recordType,
         record_date: recordDate, member_id: memberId || null,
         tags: parseTags(tagInput),
+        content_is_secret: contentSecret,
         related_amount: relatedAmount ? Number(relatedAmount) : null,
       })
     } else {
@@ -76,6 +80,7 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
         id: newId(), household_id: 'default', title: saveTitle,
         content, record_type: recordType, record_date: recordDate,
         member_id: memberId || null, tags: parseTags(tagInput),
+        content_is_secret: contentSecret,
         related_amount: relatedAmount ? Number(relatedAmount) : null,
         related_event_id: null, created_at: now(), updated_at: now(),
       }
@@ -117,7 +122,10 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
       </Field>
 
-      <Field label="내용">
+      <Field
+        label="내용"
+        action={<SecretToggle secret={contentSecret} onChange={setContentSecret} />}
+      >
         <textarea value={content} onChange={(e) => setContent(e.target.value)}
           rows={5}
           className={`${inputCls} resize-none`} />
@@ -150,9 +158,6 @@ export default function RecordFormModal({ recordId, defaultType, onSaved, onClos
           <Field label="태그">
             <input type="text" value={tagInput}
               onChange={(e) => setTagInput(e.target.value)} className={inputCls} />
-            <p className="mt-1 text-xs text-gray-400">
-              민감하게 숨기려면 태그에 민감 또는 비밀을 추가하세요.
-            </p>
           </Field>
 
           <Field label="관련 금액">

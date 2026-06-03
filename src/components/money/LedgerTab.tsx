@@ -5,6 +5,7 @@ import type { LedgerEntryType } from '../../data/models'
 import EmptyState from '../common/EmptyState'
 import LedgerFormModal from './LedgerFormModal'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
+import { displaySecretText, useVaultPrivacy } from '../../utils/vaultPrivacy'
 
 interface CategoryBar {
   category: string
@@ -21,6 +22,7 @@ interface Props {
 
 export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props) {
   const { hidden: hideAmounts } = useAmountPrivacy()
+  const { hidden: hideSecret } = useVaultPrivacy()
   const [filter, setFilter] = useState<'all' | LedgerEntryType>('all')
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -177,7 +179,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
                     </p>
                     <p className="text-xs text-gray-400 truncate">
                       {e.payment_method ? PAYMENT_METHOD_LABEL[e.payment_method] : ''}
-                      {e.memo ? ` · ${e.memo}` : ''}
+                      {e.memo ? ` · ${displaySecretText(e.memo, e.memo_is_secret, hideSecret)}` : ''}
                       {e.member_id ? ` · ${memberNames[e.member_id] ?? ''}` : ''}
                     </p>
                   </div>

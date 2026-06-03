@@ -5,6 +5,7 @@ import { newId, now } from '../../data/repositories/base'
 import type { HouseholdSupply, SupplyStatus } from '../../data/models'
 import { trackEvent } from '../../utils/analytics'
 import EmptyState from '../common/EmptyState'
+import SecretToggle from '../common/SecretToggle'
 
 interface Props {
   refreshKey: number
@@ -144,6 +145,7 @@ function SupplyFormModal({
   const [status, setStatus] = useState<SupplyStatus>(existing?.status ?? 'enough')
   const [cycle, setCycle] = useState(existing?.repurchase_cycle_days?.toString() ?? '')
   const [purchaseMemo, setPurchaseMemo] = useState(existing?.purchase_link_memo ?? '')
+  const [purchaseMemoSecret, setPurchaseMemoSecret] = useState(existing?.purchase_link_memo_is_secret ?? false)
   const [error, setError] = useState('')
 
   function handleSave() {
@@ -153,12 +155,13 @@ function SupplyFormModal({
         name: name.trim(), category, status,
         repurchase_cycle_days: cycle ? Number(cycle) : null,
         purchase_link_memo: purchaseMemo,
+        purchase_link_memo_is_secret: purchaseMemoSecret,
       })
     } else {
       const item: HouseholdSupply = {
         id: newId(), household_id: 'default', name: name.trim(), category,
         status, repurchase_cycle_days: cycle ? Number(cycle) : null,
-        purchase_link_memo: purchaseMemo, member_id: null,
+        purchase_link_memo: purchaseMemo, purchase_link_memo_is_secret: purchaseMemoSecret, member_id: null,
         created_at: now(), updated_at: now(),
       }
       householdSupplyRepo.create(item)
@@ -204,7 +207,10 @@ function SupplyFormModal({
           onChange={(e) => setCycle(e.target.value)} className={inputCls} inputMode="numeric" />
       </Field>
 
-      <Field label="구매처/메모">
+      <Field
+        label="구매처/메모"
+        action={<SecretToggle secret={purchaseMemoSecret} onChange={setPurchaseMemoSecret} />}
+      >
         <input type="text" placeholder="구매처 또는 링크" value={purchaseMemo}
           onChange={(e) => setPurchaseMemo(e.target.value)} className={inputCls} />
       </Field>

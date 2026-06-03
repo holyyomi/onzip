@@ -2,29 +2,51 @@ import { useEffect, useState } from 'react'
 import type { LifeRecord } from '../data/models'
 import { appSettingsRepo } from '../data/repositories'
 
-const HIDE_SENSITIVE_KEY = 'hide_sensitive_records'
+// 기존 사용자 설정을 유지하기 위해 localStorage 설정 키 이름은 그대로 둔다.
+const HIDE_SECRET_KEY = 'hide_sensitive_records'
 const VAULT_PRIVACY_EVENT = 'onzip_vault_privacy_changed'
-const SENSITIVE_TAGS = ['민감', '비밀', '숨김', 'private']
+const LEGACY_SECRET_TAGS = ['민감', '비밀', '숨김', 'private']
 
-export function isSensitiveRecord(record: Pick<LifeRecord, 'tags'>): boolean {
-  return record.tags.some((tag) => SENSITIVE_TAGS.includes(tag.toLowerCase()) || SENSITIVE_TAGS.includes(tag))
+type SecretRecordInput = Pick<LifeRecord, 'tags'> & Partial<Pick<LifeRecord, 'content_is_secret'>>
+
+function hasLegacySecretTag(record: Pick<LifeRecord, 'tags'>): boolean {
+  return record.tags.some((tag) => {
+    const normalized = tag.trim().toLowerCase()
+    return LEGACY_SECRET_TAGS.includes(normalized) || LEGACY_SECRET_TAGS.includes(tag.trim())
+  })
+}
+
+export function isSecretRecord(record: SecretRecordInput): boolean {
+  if (typeof record.content_is_secret === 'boolean') return record.content_is_secret
+  return hasLegacySecretTag(record)
+}
+
+export function isSensitiveRecord(record: SecretRecordInput): boolean {
+  return isSecretRecord(record)
 }
 
 export function isSensitiveHidden(): boolean {
-  return appSettingsRepo.get('default', HIDE_SENSITIVE_KEY) === 'true'
+  return appSettingsRepo.get('default', HIDE_SECRET_KEY) === 'true'
 }
 
 export function setSensitiveHidden(hidden: boolean): void {
-  appSettingsRepo.set('default', HIDE_SENSITIVE_KEY, hidden ? 'true' : 'false')
+  appSettingsRepo.set('default', HIDE_SECRET_KEY, hidden ? 'true' : 'false')
   window.dispatchEvent(new Event(VAULT_PRIVACY_EVENT))
 }
 
-export function displayRecordTitle(record: Pick<LifeRecord, 'title' | 'tags'>, hidden: boolean): string {
-  return hidden && isSensitiveRecord(record) ? '민감 메모' : record.title
+export function displayRecordTitle(record: Pick<LifeRecord, 'title'>, _hidden?: boolean): string {
+  return record.title
 }
 
-export function displayRecordContent(record: Pick<LifeRecord, 'content' | 'tags'>, hidden: boolean): string {
-  return hidden && isSensitiveRecord(record) ? '민감 메모 숨김이 켜져 있습니다.' : record.content
+export function displaySecretText(value: string, secret: boolean | undefined, hidden: boolean): string {
+  return hidden && secret ? '비밀 내용 숨김이 켜져 있습니다.' : value
+}
+
+export function displayRecordContent(
+  record: Pick<LifeRecord, 'content' | 'tags'> & Partial<Pick<LifeRecord, 'content_is_secret'>>,
+  hidden: boolean,
+): string {
+  return displaySecretText(record.content, isSecretRecord(record), hidden)
 }
 
 export function useVaultPrivacy() {

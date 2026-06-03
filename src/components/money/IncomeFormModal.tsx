@@ -4,6 +4,7 @@ import { incomeRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import { DAYS_OPTIONS } from '../../utils/constants'
 import type { Income, IncomeType, RepeatRule } from '../../data/models'
+import SecretToggle from '../common/SecretToggle'
 
 interface Props {
   incomeId: string | null
@@ -35,6 +36,7 @@ export default function IncomeFormModal({ incomeId, onSaved, onClose }: Props) {
   const [memberId, setMemberId] = useState(existing?.member_id ?? 'me')
   const [repeat, setRepeat] = useState<RepeatRule>(existing?.repeat_rule ?? 'monthly')
   const [memo, setMemo] = useState(existing?.memo ?? '')
+  const [memoSecret, setMemoSecret] = useState(existing?.memo_is_secret ?? false)
   const [error, setError] = useState('')
   const [showDetails, setShowDetails] = useState(Boolean(incomeId))
 
@@ -47,13 +49,13 @@ export default function IncomeFormModal({ incomeId, onSaved, onClose }: Props) {
       incomeRepo.update(incomeId, {
         title: title.trim(), amount: amt, income_day: incomeDay,
         income_type: incomeType, member_id: memberId || null,
-        repeat_rule: repeat, memo,
+        repeat_rule: repeat, memo, memo_is_secret: memoSecret,
       })
     } else {
       const item: Income = {
         id: newId(), household_id: 'default', title: title.trim(),
         amount: amt, income_day: incomeDay, income_type: incomeType,
-        member_id: memberId || null, repeat_rule: repeat, memo,
+        member_id: memberId || null, repeat_rule: repeat, memo, memo_is_secret: memoSecret,
         created_at: now(), updated_at: now(),
       }
       incomeRepo.create(item)
@@ -118,7 +120,7 @@ export default function IncomeFormModal({ incomeId, onSaved, onClose }: Props) {
             </select>
           </Field>
 
-          <Field label="메모">
+          <Field label="메모" action={<SecretToggle secret={memoSecret} onChange={setMemoSecret} />}>
             <input type="text" placeholder="예) 급여일, 입금 계좌" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
           </Field>
         </div>
