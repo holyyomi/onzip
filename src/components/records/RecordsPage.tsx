@@ -6,7 +6,7 @@ import RecordFormModal from './RecordFormModal'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import EmptyState from '../common/EmptyState'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
-import { displayRecordContent, displayRecordTitle, isSecretRecord, useVaultPrivacy } from '../../utils/vaultPrivacy'
+import { displayRecordContent, displayRecordTitle, isSecretRecord } from '../../utils/vaultPrivacy'
 import { getVaultRecordBadge, isImportantVaultRecord } from '../../utils/vaultRecords'
 import type { LifeRecord } from '../../data/models'
 
@@ -29,7 +29,6 @@ interface Props {
 
 export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
   const { hidden: hideAmounts } = useAmountPrivacy()
-  const { hidden: hideSensitive } = useVaultPrivacy()
   const [searchQuery, setSearchQuery] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -165,11 +164,11 @@ export default function RecordsPage({ externalRefreshKey, onQuickAdd }: Props) {
                       )}
                     </div>
                     <p className="text-sm font-semibold text-gray-800 truncate">
-                      {displayRecordTitle(r, hideSensitive)}
+                      {displayRecordTitle(r)}
                     </p>
                     {r.content && (
                       <p className="text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">
-                        {displayRecordContent(r, hideSensitive)}
+                        {displayRecordContent(r, true)}
                       </p>
                     )}
                     {r.tags.length > 0 && (

@@ -46,7 +46,8 @@ export function displayRecordContent(
   record: Pick<LifeRecord, 'content' | 'tags'> & Partial<Pick<LifeRecord, 'content_is_secret'>>,
   hidden: boolean,
 ): string {
-  return displaySecretText(record.content, isSecretRecord(record), hidden)
+  if (hidden && isSecretRecord(record)) return '비밀 메모입니다. 눌러서 확인하세요.'
+  return record.content
 }
 
 export function useVaultPrivacy() {
