@@ -8,6 +8,24 @@ import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import { displaySecretText, useVaultPrivacy } from '../../utils/vaultPrivacy'
 import { todayStr, todayYear, todayMonth } from '../../utils/date'
 
+function getMonthTrend() {
+  const months: { label: string; income: number; expense: number }[] = []
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(1)
+    d.setMonth(d.getMonth() - i)
+    const y = d.getFullYear()
+    const m = d.getMonth() + 1
+    const entries = ledgerEntryRepo.getByMonth(y, m)
+    months.push({
+      label: `${m}월`,
+      income: entries.filter((e) => e.entry_type === 'income').reduce((s, e) => s + e.amount, 0),
+      expense: entries.filter((e) => e.entry_type === 'expense').reduce((s, e) => s + e.amount, 0),
+    })
+  }
+  return months
+}
+
 interface CategoryBar {
   category: string
   amount: number
@@ -26,6 +44,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
   const { hidden: hideSecret } = useVaultPrivacy()
   const [filter, setFilter] = useState<'all' | LedgerEntryType>('all')
   const [search, setSearch] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [defaultType, setDefaultType] = useState<LedgerEntryType>('expense')
@@ -37,15 +56,16 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
   )
 
   const entries = useMemo(() => {
-    const byType = filter === 'all' ? monthEntries : monthEntries.filter((e) => e.entry_type === filter)
-    if (!search.trim()) return byType
+    let result = filter === 'all' ? monthEntries : monthEntries.filter((e) => e.entry_type === filter)
+    if (selectedCategory) result = result.filter((e) => e.category === selectedCategory)
+    if (!search.trim()) return result
     const q = search.trim().toLowerCase()
-    return byType.filter((e) =>
+    return result.filter((e) =>
       e.category.toLowerCase().includes(q) ||
       (e.memo ?? '').toLowerCase().includes(q) ||
       String(e.amount).includes(q),
     )
-  }, [filter, search, monthEntries])
+  }, [filter, search, selectedCategory, monthEntries])
 
   const memberNames = useMemo(
     () =>
@@ -149,7 +169,11 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
         expenseBars={categoryChart.expense}
         incomeBars={categoryChart.income}
         hideAmounts={hideAmounts}
+        selectedCategory={selectedCategory}
+        onSelectCategory={(cat) => setSelectedCategory((prev) => (prev === cat ? null : cat))}
       />
+
+      <MonthTrendChart hideAmounts={hideAmounts} />
 
       {/* 검색 + 필터 */}
       <div className="bg-white border-b border-gray-100 px-4 py-2 space-y-2">
@@ -157,10 +181,10 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="카테고리, 메모, 금액 검색"
+          placeholder="카테고리, 내역, 금액 검색"
           className="w-full rounded-full border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:border-[#222222]"
         />
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-wrap">
           {(['all', 'expense', 'income'] as const).map((f) => (
             <button
               key={f}
@@ -174,6 +198,14 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
               {f === 'all' ? '전체' : f === 'expense' ? '지출' : '수입'}
             </button>
           ))}
+          {selectedCategory && (
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-[#ff385c] text-white"
+            >
+              {selectedCategory} ×
+            </button>
+          )}
         </div>
       </div>
 
@@ -273,17 +305,21 @@ function LedgerCategoryChart({
   expenseBars,
   incomeBars,
   hideAmounts,
+  selectedCategory,
+  onSelectCategory,
 }: {
   expenseBars: CategoryBar[]
   incomeBars: CategoryBar[]
   hideAmounts: boolean
+  selectedCategory: string | null
+  onSelectCategory: (cat: string) => void
 }) {
   return (
     <section className="border-b border-gray-100 bg-white px-4 py-4">
       <div className="mb-3 flex items-end justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-base font-semibold text-[#222222]">카테고리 한눈에</h3>
-          <p className="mt-0.5 text-xs text-[#8a8a8a]">이번 달 상세내역 상위 항목</p>
+          <p className="mt-0.5 text-xs text-[#8a8a8a]">막대 클릭 시 해당 카테고리만 필터링</p>
         </div>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
@@ -292,12 +328,16 @@ function LedgerCategoryChart({
           bars={expenseBars}
           hideAmounts={hideAmounts}
           tone="expense"
+          selectedCategory={selectedCategory}
+          onSelectCategory={onSelectCategory}
         />
         <CategoryBarGroup
           title="수입"
           bars={incomeBars}
           hideAmounts={hideAmounts}
           tone="income"
+          selectedCategory={selectedCategory}
+          onSelectCategory={onSelectCategory}
         />
       </div>
     </section>
@@ -309,13 +349,18 @@ function CategoryBarGroup({
   bars,
   hideAmounts,
   tone,
+  selectedCategory,
+  onSelectCategory,
 }: {
   title: string
   bars: CategoryBar[]
   hideAmounts: boolean
   tone: LedgerEntryType
+  selectedCategory: string | null
+  onSelectCategory: (cat: string) => void
 }) {
   const barColor = tone === 'expense' ? 'bg-[#ff385c]' : 'bg-blue-500'
+  const barColorDim = tone === 'expense' ? 'bg-[#ffb3c1]' : 'bg-blue-200'
   const titleColor = tone === 'expense' ? 'text-[#ff385c]' : 'text-blue-600'
 
   return (
@@ -325,20 +370,71 @@ function CategoryBarGroup({
         {bars.length === 0 && (
           <p className="rounded-lg bg-[#f7f7f7] px-3 py-3 text-xs text-[#8a8a8a]">등록된 항목이 없습니다.</p>
         )}
-        {bars.map((bar) => (
-          <div key={bar.category}>
-            <div className="flex items-center justify-between gap-2">
-              <span className="min-w-0 truncate text-sm font-medium text-[#222222]">{bar.category}</span>
-              <span className="flex-shrink-0 text-xs font-semibold text-[#6a6a6a]">
-                {displayAmount(bar.amount, hideAmounts)}
-              </span>
+        {bars.map((bar) => {
+          const isSelected = selectedCategory === bar.category
+          const isDimmed = selectedCategory !== null && !isSelected
+          return (
+            <button
+              key={bar.category}
+              onClick={() => onSelectCategory(bar.category)}
+              className={`w-full text-left transition-opacity ${isDimmed ? 'opacity-40' : ''}`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className={`min-w-0 truncate text-sm font-medium ${isSelected ? 'text-[#ff385c]' : 'text-[#222222]'}`}>
+                  {bar.category}
+                </span>
+                <span className="flex-shrink-0 text-xs font-semibold text-[#6a6a6a]">
+                  {displayAmount(bar.amount, hideAmounts)}
+                </span>
+              </div>
+              <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-[#f2f2f2]">
+                <div
+                  className={`h-full rounded-full transition-all ${isSelected ? barColor : isDimmed ? barColorDim : barColor}`}
+                  style={{ width: `${bar.percent}%` }}
+                />
+              </div>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function MonthTrendChart({ hideAmounts }: { hideAmounts: boolean }) {
+  const months = useMemo(() => getMonthTrend(), [])
+  const maxVal = Math.max(...months.flatMap((m) => [m.income, m.expense]), 1)
+
+  return (
+    <section className="border-b border-gray-100 bg-white px-4 py-4">
+      <h3 className="text-base font-semibold text-[#222222] mb-0.5">월별 추이</h3>
+      <p className="text-xs text-[#8a8a8a] mb-4">최근 6개월 수입·지출</p>
+      <div className="flex items-end justify-between gap-1.5">
+        {months.map((m) => (
+          <div key={m.label} className="flex-1 flex flex-col items-center gap-1">
+            <div className="w-full flex gap-0.5 items-end" style={{ height: 64 }}>
+              <div
+                className="flex-1 rounded-t bg-blue-400 transition-all"
+                style={{ height: `${Math.max(4, Math.round((m.income / maxVal) * 100))}%` }}
+              />
+              <div
+                className="flex-1 rounded-t bg-[#ff385c] transition-all"
+                style={{ height: `${Math.max(4, Math.round((m.expense / maxVal) * 100))}%` }}
+              />
             </div>
-            <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-[#f2f2f2]">
-              <div className={`h-full rounded-full ${barColor}`} style={{ width: `${bar.percent}%` }} />
-            </div>
+            <p className="text-[10px] text-gray-400">{m.label}</p>
+            {!hideAmounts && (
+              <p className="text-[9px] text-[#ff385c] leading-tight">
+                {m.expense > 0 ? `-${Math.round(m.expense / 10000)}만` : ''}
+              </p>
+            )}
           </div>
         ))}
       </div>
-    </div>
+      <div className="flex gap-3 mt-2">
+        <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-2 h-2 rounded-sm bg-blue-400 inline-block" />수입</span>
+        <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-2 h-2 rounded-sm bg-[#ff385c] inline-block" />지출</span>
+      </div>
+    </section>
   )
 }

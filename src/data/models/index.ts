@@ -14,6 +14,8 @@ export type MemberRole = 'me' | 'spouse' | 'child' | 'parent' | 'family' | 'shar
 
 export type PaymentMethod =
   | 'card'
+  | 'debit_card'
+  | 'cash'
   | 'auto_transfer'
   | 'bank_transfer'
   | 'manual'
@@ -119,6 +121,7 @@ export interface LedgerEntry {
   payment_method: PaymentMethod | null
   member_id: string | null
   memo: string
+  detail_memo?: string
   memo_is_secret?: boolean
   created_at: string
   updated_at: string

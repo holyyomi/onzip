@@ -2,7 +2,7 @@ import type { PaymentMethod } from '../data/models'
 
 export const EXPENSE_CATEGORIES = [
   '식비', '카페/외식', '생활용품', '교통', '병원',
-  '쇼핑', '주거', '공과금', '구독', '기타',
+  '쇼핑', '주거', '공과금', '적금', '구독', '매장용품', '기타',
 ] as const
 
 export const INCOME_CATEGORIES = [
@@ -14,15 +14,19 @@ export const FIXED_EXPENSE_CATEGORIES = [
 ] as const
 
 export const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
-  { value: 'card', label: '카드' },
+  { value: 'card', label: '신용카드' },
+  { value: 'debit_card', label: '체크카드' },
+  { value: 'cash', label: '현금' },
+  { value: 'simple_pay', label: '간편결제' },
   { value: 'auto_transfer', label: '자동이체' },
   { value: 'bank_transfer', label: '계좌이체' },
   { value: 'manual', label: '직접납부' },
-  { value: 'simple_pay', label: '간편결제' },
 ]
 
 export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
-  card: '카드',
+  card: '신용카드',
+  debit_card: '체크카드',
+  cash: '현금',
   auto_transfer: '자동이체',
   bank_transfer: '계좌이체',
   manual: '직접납부',

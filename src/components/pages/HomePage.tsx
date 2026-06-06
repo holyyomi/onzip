@@ -57,6 +57,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
   const { hidden: hideSensitive } = useVaultPrivacy()
   const [localRefreshKey, setLocalRefreshKey] = useState(0)
   const [editingItem, setEditingItem] = useState<{ type: 'income' | 'fixed' | 'subscription'; id: string } | null>(null)
+  const [remainingModal, setRemainingModal] = useState<'expense' | 'income' | 'diff' | null>(null)
   const data = useMemo(() => {
     const today = todayStr()
     const year = todayYear()
@@ -111,6 +112,16 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         .filter((sub) => sub.monthStatus !== 'paid')
         .reduce((sum, sub) => sum + sub.amount, 0) +
       upcomingEntryExpense
+    const remainingFixedExpenses = fixedExpensesWithStatus.filter((e) => e.monthStatus !== 'done')
+    const remainingSubscriptions = subscriptionsWithStatus.filter((s) => s.monthStatus !== 'paid')
+    const remainingIncomeItems = incomesWithStatus.filter((i) => i.monthStatus !== 'received')
+    const remainingLedgerExpenses = monthEntries.filter(
+      (e) => e.entry_type === 'expense' && Number(e.date.slice(-2)) >= todayDay,
+    )
+    const remainingLedgerIncomes = monthEntries.filter(
+      (e) => e.entry_type === 'income' && Number(e.date.slice(-2)) >= todayDay,
+    )
+
     const todayEvents = getAggregatedEvents(year, month).filter((event) => event.date === today && event.type === 'schedule')
     const weekEnd = addDays(today, 7)
     const vaultDueEnd = addDays(today, 30)
@@ -176,6 +187,11 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       weekEvents,
       upcomingVaultRecords,
       importantRecords,
+      remainingFixedExpenses,
+      remainingSubscriptions,
+      remainingIncomeItems,
+      remainingLedgerExpenses,
+      remainingLedgerIncomes,
     }
   }, [refreshKey, localRefreshKey])
 
@@ -334,9 +350,9 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <MiniStat label="남은 수입" value={displayAmount(data.remainingIn, hideAmounts)} />
-          <MiniStat label="남은 지출" value={displayAmount(data.remainingOut, hideAmounts)} />
-          <MiniStat label="예상 차액" value={displayAmount(data.remainingIn - data.remainingOut, hideAmounts)} />
+          <MiniStat label="남은 수입" value={displayAmount(data.remainingIn, hideAmounts)} onClick={() => setRemainingModal('income')} />
+          <MiniStat label="남은 지출" value={displayAmount(data.remainingOut, hideAmounts)} onClick={() => setRemainingModal('expense')} />
+          <MiniStat label="예상 차액" value={displayAmount(data.remainingIn - data.remainingOut, hideAmounts)} onClick={() => setRemainingModal('diff')} />
         </div>
       </section>
 
@@ -390,6 +406,15 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
         </div>
       </section>
 
+      {remainingModal && (
+        <RemainingDetailModal
+          mode={remainingModal}
+          data={data}
+          hideAmounts={hideAmounts}
+          onClose={() => setRemainingModal(null)}
+        />
+      )}
+
       {editingItem?.type === 'income' && (
         <IncomeFormModal
           incomeId={editingItem.id}
@@ -427,7 +452,16 @@ function QuickButton({ iconSrc, label, onClick }: { iconSrc: string; label: stri
   )
 }
 
-function MiniStat({ label, value }: { label: string; value: string }) {
+function MiniStat({ label, value, onClick }: { label: string; value: string; onClick?: () => void }) {
+  if (onClick) {
+    return (
+      <button onClick={onClick} className="rounded-[16px] bg-[#f7f7f7] px-3 py-2 text-left w-full active:bg-[#ebebeb] transition-colors">
+        <p className="text-[11px] font-semibold text-[#8a8a8a]">{label}</p>
+        <p className="mt-0.5 truncate text-sm font-semibold text-[#222222]">{value}</p>
+        <p className="text-[10px] text-[#ff385c] mt-0.5">내역 ›</p>
+      </button>
+    )
+  }
   return (
     <div className="rounded-[16px] bg-[#f7f7f7] px-3 py-2">
       <p className="text-[11px] font-semibold text-[#8a8a8a]">{label}</p>
@@ -499,6 +533,131 @@ function EmptyLine({ title, text }: { title: string; text: string }) {
     <div className="rounded-[18px] border border-[#ebebeb] bg-[#f7f7f7] px-3 py-4 text-center">
       <p className="text-sm font-semibold text-[#222222]">{title}</p>
       <p className="mt-1 text-xs leading-relaxed text-[#8a8a8a]">{text}</p>
+    </div>
+  )
+}
+
+interface RemainingData {
+  remainingFixedExpenses: { id: string; title: string; amount: number; category: string }[]
+  remainingSubscriptions: { id: string; title: string; amount: number }[]
+  remainingIncomeItems: { id: string; title: string; amount: number }[]
+  remainingLedgerExpenses: { id: string; category: string; memo: string; amount: number; date: string }[]
+  remainingLedgerIncomes: { id: string; category: string; memo: string; amount: number; date: string }[]
+  remainingIn: number
+  remainingOut: number
+}
+
+function RemainingDetailModal({
+  mode,
+  data,
+  hideAmounts,
+  onClose,
+}: {
+  mode: 'expense' | 'income' | 'diff'
+  data: RemainingData
+  hideAmounts: boolean
+  onClose: () => void
+}) {
+  const title = mode === 'expense' ? '남은 지출 내역' : mode === 'income' ? '남은 수입 내역' : '예상 차액 내역'
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={onClose}>
+      <div
+        className="w-full max-w-lg rounded-t-[28px] bg-white px-5 pt-5 pb-8 max-h-[80vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-base font-semibold text-[#222222]">{title}</h3>
+          <button onClick={onClose} className="text-gray-400 text-xl leading-none">×</button>
+        </div>
+
+        {(mode === 'expense' || mode === 'diff') && (
+          <div className="mb-4">
+            {mode === 'diff' && <p className="text-xs font-semibold text-[#ff385c] mb-2">지출 예정</p>}
+            {data.remainingFixedExpenses.length === 0 && data.remainingSubscriptions.length === 0 && data.remainingLedgerExpenses.length === 0 && (
+              <p className="text-sm text-gray-400 py-2">남은 지출 항목이 없습니다.</p>
+            )}
+            {data.remainingFixedExpenses.map((e) => (
+              <div key={e.id} className="flex justify-between items-center py-2 border-b border-gray-100">
+                <div>
+                  <span className="text-xs bg-red-50 text-red-500 rounded-full px-2 py-0.5 mr-2">정기지출</span>
+                  <span className="text-sm font-medium text-gray-800">{e.title}</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-700">{displayAmount(e.amount, hideAmounts)}</span>
+              </div>
+            ))}
+            {data.remainingSubscriptions.map((s) => (
+              <div key={s.id} className="flex justify-between items-center py-2 border-b border-gray-100">
+                <div>
+                  <span className="text-xs bg-orange-50 text-orange-500 rounded-full px-2 py-0.5 mr-2">구독</span>
+                  <span className="text-sm font-medium text-gray-800">{s.title}</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-700">{displayAmount(s.amount, hideAmounts)}</span>
+              </div>
+            ))}
+            {data.remainingLedgerExpenses.map((e) => (
+              <div key={e.id} className="flex justify-between items-center py-2 border-b border-gray-100">
+                <div>
+                  <span className="text-xs bg-gray-100 text-gray-500 rounded-full px-2 py-0.5 mr-2">{e.category}</span>
+                  <span className="text-sm font-medium text-gray-800">{e.memo || e.category}</span>
+                  <span className="text-xs text-gray-400 ml-1">{e.date.slice(5).replace('-', '/')}</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-700">{displayAmount(e.amount, hideAmounts)}</span>
+              </div>
+            ))}
+            {(mode === 'expense' || mode === 'diff') && (
+              <div className="flex justify-between items-center pt-3 mt-1">
+                <span className="text-sm font-semibold text-gray-600">합계</span>
+                <span className="text-base font-bold text-[#ff385c]">{displayAmount(data.remainingOut, hideAmounts)}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {(mode === 'income' || mode === 'diff') && (
+          <div className="mb-2">
+            {mode === 'diff' && <p className="text-xs font-semibold text-blue-500 mb-2 mt-4">수입 예정</p>}
+            {data.remainingIncomeItems.length === 0 && data.remainingLedgerIncomes.length === 0 && (
+              <p className="text-sm text-gray-400 py-2">남은 수입 항목이 없습니다.</p>
+            )}
+            {data.remainingIncomeItems.map((i) => (
+              <div key={i.id} className="flex justify-between items-center py-2 border-b border-gray-100">
+                <div>
+                  <span className="text-xs bg-blue-50 text-blue-500 rounded-full px-2 py-0.5 mr-2">수입</span>
+                  <span className="text-sm font-medium text-gray-800">{i.title}</span>
+                </div>
+                <span className="text-sm font-semibold text-blue-600">{displayAmount(i.amount, hideAmounts)}</span>
+              </div>
+            ))}
+            {data.remainingLedgerIncomes.map((e) => (
+              <div key={e.id} className="flex justify-between items-center py-2 border-b border-gray-100">
+                <div>
+                  <span className="text-xs bg-gray-100 text-gray-500 rounded-full px-2 py-0.5 mr-2">{e.category}</span>
+                  <span className="text-sm font-medium text-gray-800">{e.memo || e.category}</span>
+                  <span className="text-xs text-gray-400 ml-1">{e.date.slice(5).replace('-', '/')}</span>
+                </div>
+                <span className="text-sm font-semibold text-blue-600">{displayAmount(e.amount, hideAmounts)}</span>
+              </div>
+            ))}
+            {(mode === 'income' || mode === 'diff') && (
+              <div className="flex justify-between items-center pt-3 mt-1">
+                <span className="text-sm font-semibold text-gray-600">합계</span>
+                <span className="text-base font-bold text-blue-600">{displayAmount(data.remainingIn, hideAmounts)}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {mode === 'diff' && (
+          <div className="mt-4 rounded-[16px] bg-[#f7f7f7] px-4 py-3 flex justify-between items-center">
+            <span className="text-sm font-semibold text-gray-600">예상 차액</span>
+            <span className={`text-base font-bold ${data.remainingIn - data.remainingOut >= 0 ? 'text-gray-800' : 'text-[#ff385c]'}`}>
+              {displayAmount(Math.abs(data.remainingIn - data.remainingOut), hideAmounts)}
+              {data.remainingIn - data.remainingOut < 0 ? ' 초과' : ''}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

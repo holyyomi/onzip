@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import FormModal, { Field, inputCls, FormActions } from '../common/FormModal'
 import { ledgerEntryRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
@@ -14,6 +14,39 @@ interface Props {
   defaultType: LedgerEntryType
   onSaved: () => void
   onClose: () => void
+}
+
+interface QuickEntry {
+  category: string
+  memo: string
+  amount: number | null
+}
+
+function getQuickEntries(type: LedgerEntryType): QuickEntry[] {
+  const threeMonthsAgo = new Date()
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3)
+  const cutoff = threeMonthsAgo.toISOString().slice(0, 10)
+
+  const entries = ledgerEntryRepo.getAll().filter((e) => e.entry_type === type && e.date >= cutoff)
+  const groups: Record<string, { category: string; memo: string; amounts: number[]; count: number }> = {}
+
+  entries.forEach((e) => {
+    const key = `${e.category}|${e.memo}`
+    if (!groups[key]) groups[key] = { category: e.category, memo: e.memo, amounts: [], count: 0 }
+    groups[key].count++
+    if (e.amount > 0) groups[key].amounts.push(e.amount)
+  })
+
+  return Object.values(groups)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+    .map((g) => ({
+      category: g.category,
+      memo: g.memo,
+      amount: g.amounts.length > 0
+        ? Math.round(g.amounts.reduce((s, a) => s + a, 0) / g.amounts.length)
+        : null,
+    }))
 }
 
 export default function LedgerFormModal({
@@ -39,6 +72,7 @@ export default function LedgerFormModal({
   )
   const [memberId, setMemberId] = useState(existing?.member_id ?? 'shared')
   const [memo, setMemo] = useState(existing?.memo ?? '')
+  const [detailMemo, setDetailMemo] = useState(existing?.detail_memo ?? '')
   const [memoSecret, setMemoSecret] = useState(existing?.memo_is_secret ?? false)
   const [error, setError] = useState('')
   const [showDetails, setShowDetails] = useState(Boolean(entryId))
@@ -47,6 +81,15 @@ export default function LedgerFormModal({
   const amountSuggestions = entryType === 'expense'
     ? [5000, 10000, 20000, 50000]
     : [100000, 500000, 1000000, 3000000]
+
+  const quickEntries = useMemo(() => getQuickEntries(entryType), [entryType])
+
+  function applyQuick(q: QuickEntry) {
+    setCategory(q.category)
+    setMemo(q.memo)
+    if (q.amount) setAmount(String(q.amount))
+    setError('')
+  }
 
   function handleSave() {
     const amt = Number(amount.replace(/,/g, ''))
@@ -64,6 +107,7 @@ export default function LedgerFormModal({
         payment_method: entryType === 'expense' ? paymentMethod : null,
         member_id: memberId || null,
         memo,
+        detail_memo: detailMemo || undefined,
         memo_is_secret: memoSecret,
       })
     } else {
@@ -77,6 +121,7 @@ export default function LedgerFormModal({
         payment_method: entryType === 'expense' ? paymentMethod : null,
         member_id: memberId || null,
         memo,
+        detail_memo: detailMemo || undefined,
         memo_is_secret: memoSecret,
         created_at: now(),
         updated_at: now(),
@@ -117,6 +162,27 @@ export default function LedgerFormModal({
         ))}
       </div>
 
+      {/* 자주 쓰는 항목 */}
+      {!entryId && quickEntries.length > 0 && (
+        <div className="mb-4">
+          <p className="text-xs text-gray-400 mb-2">자주 쓰는 항목</p>
+          <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+            {quickEntries.map((q, i) => (
+              <button
+                key={i}
+                onClick={() => applyQuick(q)}
+                className="flex-shrink-0 rounded-[14px] border border-[#ebebeb] bg-[#f7f7f7] px-3 py-2 text-left"
+              >
+                <p className="text-xs font-semibold text-[#222222] whitespace-nowrap">{q.category}{q.memo ? ` · ${q.memo}` : ''}</p>
+                {q.amount && (
+                  <p className="text-xs text-gray-400 mt-0.5">{q.amount.toLocaleString()}원</p>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <Field label="금액">
         <input
           type="number"
@@ -149,15 +215,31 @@ export default function LedgerFormModal({
         </select>
       </Field>
 
-      <Field label="메모" action={<SecretToggle secret={memoSecret} onChange={setMemoSecret} />}>
-        <input type="text" placeholder="예) 점심, 마트, 택시" value={memo} onChange={(e) => setMemo(e.target.value)} className={inputCls} />
+      <Field label="내역" action={<SecretToggle secret={memoSecret} onChange={setMemoSecret} />}>
+        <input
+          type="text"
+          placeholder="예) 점심, 마트, 스타벅스"
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+          className={inputCls}
+        />
+      </Field>
+
+      <Field label="상세 메모">
+        <textarea
+          placeholder="추가 메모 (선택)"
+          value={detailMemo}
+          onChange={(e) => setDetailMemo(e.target.value)}
+          rows={2}
+          className={`${inputCls} resize-none`}
+        />
       </Field>
 
       <button
         onClick={() => setShowDetails((value) => !value)}
         className="mb-3 text-sm font-semibold text-[#ff385c]"
       >
-        {showDetails ? '자세히 닫기' : '날짜/세부 정보 자세히'}
+        {showDetails ? '날짜/결제수단 닫기' : '날짜/결제수단 자세히'}
       </button>
 
       {showDetails && (
