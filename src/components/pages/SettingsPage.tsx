@@ -166,7 +166,8 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
             <div>
               <p className="text-base font-semibold text-[#222222]">납부 알림</p>
               <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
-                납부일 당일·1일 전에 알림을 보냅니다.
+                앱을 열 때 납부일 당일·1일 전 항목을 알립니다.
+                <span className="block text-xs text-gray-400 mt-0.5">앱이 닫혀 있을 때는 알림이 오지 않습니다.</span>
                 {notifPermission === 'denied' && (
                   <span className="block text-red-400 mt-0.5">브라우저 설정에서 알림을 허용해주세요.</span>
                 )}

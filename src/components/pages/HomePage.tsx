@@ -17,6 +17,9 @@ import { getVaultRecordBadge, isDatedVaultRecord, isImportantVaultRecord } from 
 import { getFixedExpenseMonthStatus, setFixedExpenseMonthStatus } from '../../utils/fixedExpenseMonthStatus'
 import { getIncomeMonthStatus, setIncomeMonthStatus } from '../../utils/incomeMonthStatus'
 import { getSubscriptionMonthStatus, setSubscriptionMonthStatus } from '../../utils/subscriptionMonthStatus'
+import IncomeFormModal from '../money/IncomeFormModal'
+import FixedExpenseFormModal from '../money/FixedExpenseFormModal'
+import SubscriptionFormModal from '../money/SubscriptionFormModal'
 
 interface Props {
   refreshKey: number
@@ -30,6 +33,8 @@ interface ImportantItem {
   title: string
   detail: string
   tab: TabId
+  sourceType?: 'income' | 'fixed' | 'subscription'
+  sourceId?: string
   actionLabel?: string
   onAction?: () => void
 }
@@ -51,6 +56,7 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
   const { hidden: hideAmounts } = useAmountPrivacy()
   const { hidden: hideSensitive } = useVaultPrivacy()
   const [localRefreshKey, setLocalRefreshKey] = useState(0)
+  const [editingItem, setEditingItem] = useState<{ type: 'income' | 'fixed' | 'subscription'; id: string } | null>(null)
   const data = useMemo(() => {
     const today = todayStr()
     const year = todayYear()
@@ -195,6 +201,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: income.title,
       detail: `${getEffectiveMonthDay(todayYear(), todayMonth(), income.income_day)}일 · ${displayAmount(income.amount, hideAmounts)}`,
       tab: 'money' as TabId,
+      sourceType: 'income' as const,
+      sourceId: income.id,
       actionLabel: '입금',
       onAction: () => completeIncome(income.id),
     })),
@@ -204,6 +212,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: expense.title,
       detail: `${getEffectiveMonthDay(todayYear(), todayMonth(), expense.payment_day)}일 · ${displayAmount(expense.amount, hideAmounts)}`,
       tab: 'money' as TabId,
+      sourceType: 'fixed' as const,
+      sourceId: expense.id,
       actionLabel: '완료',
       onAction: () => completeFixedExpense(expense.id),
     })),
@@ -213,6 +223,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: sub.title,
       detail: `${getEffectiveMonthDay(todayYear(), todayMonth(), sub.payment_day)}일 · ${displayAmount(sub.amount, hideAmounts)}`,
       tab: 'money' as TabId,
+      sourceType: 'subscription' as const,
+      sourceId: sub.id,
       actionLabel: '결제',
       onAction: () => completeSubscription(sub.id),
     })),
@@ -222,6 +234,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: income.title,
       detail: displayAmount(income.amount, hideAmounts),
       tab: 'money' as TabId,
+      sourceType: 'income' as const,
+      sourceId: income.id,
       actionLabel: '입금',
       onAction: () => completeIncome(income.id),
     })),
@@ -231,6 +245,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: expense.title,
       detail: displayAmount(expense.amount, hideAmounts),
       tab: 'money' as TabId,
+      sourceType: 'fixed' as const,
+      sourceId: expense.id,
       actionLabel: '완료',
       onAction: () => completeFixedExpense(expense.id),
     })),
@@ -240,6 +256,8 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
       title: sub.title,
       detail: displayAmount(sub.amount, hideAmounts),
       tab: 'money' as TabId,
+      sourceType: 'subscription' as const,
+      sourceId: sub.id,
       actionLabel: '결제',
       onAction: () => completeSubscription(sub.id),
     })),
@@ -278,7 +296,13 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
               label={item.label}
               title={item.title}
               detail={item.detail}
-              onClick={() => onTabChange(item.tab)}
+              onClick={() => {
+                if (item.sourceType && item.sourceId) {
+                  setEditingItem({ type: item.sourceType, id: item.sourceId })
+                } else {
+                  onTabChange(item.tab)
+                }
+              }}
               actionLabel={item.actionLabel}
               onAction={item.onAction}
             />
@@ -365,6 +389,28 @@ export default function HomePage({ refreshKey, onQuickAdd, onTabChange }: Props)
           ))}
         </div>
       </section>
+
+      {editingItem?.type === 'income' && (
+        <IncomeFormModal
+          incomeId={editingItem.id}
+          onSaved={() => { setEditingItem(null); setLocalRefreshKey((k) => k + 1) }}
+          onClose={() => setEditingItem(null)}
+        />
+      )}
+      {editingItem?.type === 'fixed' && (
+        <FixedExpenseFormModal
+          expenseId={editingItem.id}
+          onSaved={() => { setEditingItem(null); setLocalRefreshKey((k) => k + 1) }}
+          onClose={() => setEditingItem(null)}
+        />
+      )}
+      {editingItem?.type === 'subscription' && (
+        <SubscriptionFormModal
+          subId={editingItem.id}
+          onSaved={() => { setEditingItem(null); setLocalRefreshKey((k) => k + 1) }}
+          onClose={() => setEditingItem(null)}
+        />
+      )}
     </div>
   )
 }

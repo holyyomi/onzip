@@ -13,6 +13,7 @@ import OnboardingModal from '../components/common/OnboardingModal'
 import PwaUpdatePrompt from '../components/common/PwaUpdatePrompt'
 import { getLaunchMode, initGoogleAnalytics, trackEvent } from '../utils/analytics'
 import { checkAndNotify } from '../utils/notificationService'
+import { seedDefaultTemplates } from '../utils/seedTemplates'
 
 export type TabId = 'home' | 'calendar' | 'money' | 'life' | 'records' | 'settings'
 
@@ -25,6 +26,7 @@ export default function App() {
   const savedTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
+    seedDefaultTemplates()
     initGoogleAnalytics()
     trackEvent('app_open', { mode: getLaunchMode() })
     checkAndNotify()

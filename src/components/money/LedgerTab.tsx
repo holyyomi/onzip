@@ -25,6 +25,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
   const { hidden: hideAmounts } = useAmountPrivacy()
   const { hidden: hideSecret } = useVaultPrivacy()
   const [filter, setFilter] = useState<'all' | LedgerEntryType>('all')
+  const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [defaultType, setDefaultType] = useState<LedgerEntryType>('expense')
@@ -36,8 +37,15 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
   )
 
   const entries = useMemo(() => {
-    return filter === 'all' ? monthEntries : monthEntries.filter((e) => e.entry_type === filter)
-  }, [filter, monthEntries])
+    const byType = filter === 'all' ? monthEntries : monthEntries.filter((e) => e.entry_type === filter)
+    if (!search.trim()) return byType
+    const q = search.trim().toLowerCase()
+    return byType.filter((e) =>
+      e.category.toLowerCase().includes(q) ||
+      (e.memo ?? '').toLowerCase().includes(q) ||
+      String(e.amount).includes(q),
+    )
+  }, [filter, search, monthEntries])
 
   const memberNames = useMemo(
     () =>
@@ -143,8 +151,15 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
         hideAmounts={hideAmounts}
       />
 
-      {/* 필터 */}
-      <div className="flex items-center px-4 py-2 bg-white border-b border-gray-100">
+      {/* 검색 + 필터 */}
+      <div className="bg-white border-b border-gray-100 px-4 py-2 space-y-2">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="카테고리, 메모, 금액 검색"
+          className="w-full rounded-full border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:border-[#222222]"
+        />
         <div className="flex gap-1">
           {(['all', 'expense', 'income'] as const).map((f) => (
             <button

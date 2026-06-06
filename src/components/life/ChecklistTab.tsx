@@ -73,6 +73,11 @@ export default function ChecklistTab({ refreshKey, onRefresh }: Props) {
     reload()
   }
 
+  function clearDone() {
+    rows.filter((r) => r.isDone).forEach((r) => checklistItemRepo.delete(r.id))
+    reload()
+  }
+
   return (
     <div className="px-4 py-3 lg:px-8 lg:py-5">
       <section className="oz-card p-4">
@@ -83,9 +88,19 @@ export default function ChecklistTab({ refreshKey, onRefresh }: Props) {
               남은 항목 {remainingCount}개
             </p>
           </div>
-          <span className="rounded-full bg-[#f7f7f7] px-3 py-1.5 text-xs font-semibold text-[#6a6a6a]">
-            완료 {doneCount}/{rows.length}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-[#f7f7f7] px-3 py-1.5 text-xs font-semibold text-[#6a6a6a]">
+              완료 {doneCount}/{rows.length}
+            </span>
+            {doneCount > 0 && (
+              <button
+                onClick={clearDone}
+                className="rounded-full border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-400"
+              >
+                완료 삭제
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mt-4 flex gap-2">

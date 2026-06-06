@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import FormModal, { Field, inputCls, FormActions } from '../common/FormModal'
 import { choreRepo, memberRepo } from '../../data/repositories'
 import { newId, now } from '../../data/repositories/base'
 import type { Chore, RepeatRule } from '../../data/models'
 import EmptyState from '../common/EmptyState'
 import SecretToggle from '../common/SecretToggle'
+import { todayStr } from '../../utils/date'
 
 interface Props {
   refreshKey: number
@@ -15,10 +16,35 @@ const REPEAT_LABEL: Record<RepeatRule, string> = {
   none: '반복없음', daily: '매일', weekly: '매주', monthly: '매월', yearly: '매년',
 }
 
+function shouldAutoReset(chore: Chore): boolean {
+  if (!chore.is_done || chore.repeat_rule === 'none') return false
+  const today = todayStr()
+  const doneDate = chore.updated_at.slice(0, 10)
+  if (chore.repeat_rule === 'daily') return doneDate < today
+  if (chore.repeat_rule === 'weekly') {
+    const diffMs = new Date(today).getTime() - new Date(doneDate).getTime()
+    return diffMs >= 7 * 86400000
+  }
+  if (chore.repeat_rule === 'monthly') return doneDate.slice(0, 7) < today.slice(0, 7)
+  if (chore.repeat_rule === 'yearly') return doneDate.slice(0, 4) < today.slice(0, 4)
+  return false
+}
+
 export default function ChoreTab({ refreshKey, onRefresh }: Props) {
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [localRefresh, setLocalRefresh] = useState(0)
+
+  // 반복 주기가 지난 완료 항목 자동 리셋
+  useEffect(() => {
+    const all = choreRepo.getByHousehold('default')
+    const needReset = all.filter(shouldAutoReset)
+    if (needReset.length > 0) {
+      needReset.forEach((c) => choreRepo.update(c.id, { is_done: false }))
+      setLocalRefresh((k) => k + 1)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const chores = useMemo(
     () => choreRepo.getByHousehold('default'),
