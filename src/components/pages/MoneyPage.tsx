@@ -6,6 +6,9 @@ import IncomeTab from '../money/IncomeTab'
 import SubscriptionTab from '../money/SubscriptionTab'
 import CalculatorTab from '../money/CalculatorTab'
 import TabMemoCard from '../common/TabMemoCard'
+import IncomeFormModal from '../money/IncomeFormModal'
+import FixedExpenseFormModal from '../money/FixedExpenseFormModal'
+import SubscriptionFormModal from '../money/SubscriptionFormModal'
 import { QUICK_ADD_ICON } from '../../utils/featureIcons'
 import { fixedExpenseRepo, incomeRepo, ledgerEntryRepo, subscriptionRepo } from '../../data/repositories'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
@@ -164,6 +167,7 @@ function FlowSummary({
 }) {
   const { hidden: hideAmounts } = useAmountPrivacy()
   const [showAllTimeline, setShowAllTimeline] = useState(false)
+  const [editingItem, setEditingItem] = useState<{ type: 'income' | 'fixed' | 'subscription'; id: string } | null>(null)
   const data = useMemo(() => {
     const isCurrentMonthView = year === todayYear() && month === todayMonth()
     const todayDay = new Date().getDate()
@@ -373,6 +377,28 @@ function FlowSummary({
         )}
       </div>
 
+      {editingItem?.type === 'income' && (
+        <IncomeFormModal
+          incomeId={editingItem.id}
+          onSaved={() => { setEditingItem(null); onRefresh() }}
+          onClose={() => setEditingItem(null)}
+        />
+      )}
+      {editingItem?.type === 'fixed' && (
+        <FixedExpenseFormModal
+          expenseId={editingItem.id}
+          onSaved={() => { setEditingItem(null); onRefresh() }}
+          onClose={() => setEditingItem(null)}
+        />
+      )}
+      {editingItem?.type === 'subscription' && (
+        <SubscriptionFormModal
+          subId={editingItem.id}
+          onSaved={() => { setEditingItem(null); onRefresh() }}
+          onClose={() => setEditingItem(null)}
+        />
+      )}
+
       <div className="grid grid-cols-2 gap-3 lg:col-span-2">
         <FlowStat label="수입" value={displayAmount(data.inTotal, hideAmounts)} tone="in" />
         <FlowStat label="지출" value={displayAmount(data.outTotal, hideAmounts)} tone="out" />
@@ -417,7 +443,11 @@ function FlowSummary({
           {data.timeline.slice(0, timelineLimit).map((item) => {
             const dayStatus = getMoneyDayStatus(item.day, data.isCurrentMonthView, data.todayDay)
             return (
-              <div key={item.id} className="flex items-center justify-between gap-3 py-3">
+              <div
+                key={item.id}
+                className="flex items-center justify-between gap-3 py-3 cursor-pointer active:bg-gray-50 rounded-lg -mx-1 px-1"
+                onClick={() => setEditingItem({ type: item.source, id: item.sourceId })}
+              >
                 <span className="min-w-0">
                   <span className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-semibold text-[#222222]">매월 {item.day}일</span>
@@ -437,9 +467,12 @@ function FlowSummary({
                       </span>
                     )}
                   </span>
-                  <span className="mt-0.5 block truncate text-xs text-[#8a8a8a]">{item.title}</span>
+                  <span className="mt-0.5 flex items-center gap-1 text-xs text-[#8a8a8a]">
+                    <span className="truncate">{item.title}</span>
+                    <span className="flex-shrink-0 text-gray-300">수정 ›</span>
+                  </span>
                 </span>
-                <span className="flex flex-shrink-0 items-center gap-2">
+                <span className="flex flex-shrink-0 items-center gap-2" onClick={(e) => e.stopPropagation()}>
                   <span className={`text-sm font-semibold ${item.type === 'in' ? 'text-blue-600' : 'text-red-500'}`}>
                     {item.type === 'in' ? '+' : '-'}{displayAmount(item.amount, hideAmounts)}
                   </span>
