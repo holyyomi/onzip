@@ -79,6 +79,7 @@ export interface CalendarEvent {
   source_id: string | null                    // 원본 데이터 ID
   memo: string
   memo_is_secret?: boolean
+  exceptions?: string[]                       // 반복에서 제외할 날짜 목록 YYYY-MM-DD
   created_at: string
   updated_at: string
 }

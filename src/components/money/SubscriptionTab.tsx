@@ -142,6 +142,7 @@ export default function SubscriptionTab({ year, month, refreshKey, onRefresh }: 
             <span className="text-sm font-semibold text-purple-600 flex-shrink-0">
               {displayAmount(s.amount, hideAmounts)}
             </span>
+            <span className="text-xs text-gray-300 flex-shrink-0">수정 ›</span>
           </div>
         ))}
       </div>

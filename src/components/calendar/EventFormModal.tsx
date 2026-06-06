@@ -8,6 +8,7 @@ import SecretToggle from '../common/SecretToggle'
 interface Props {
   eventId: string | null    // null = 신규 추가
   defaultDate: string
+  occurrenceDate?: string   // 반복 이벤트의 특정 회차 날짜
   onSaved: () => void
   onClose: () => void
 }
@@ -25,14 +26,17 @@ const SCHEDULE_SUGGESTIONS = ['병원 예약', '학교 일정', '가족 약속',
 export default function EventFormModal({
   eventId,
   defaultDate,
+  occurrenceDate,
   onSaved,
   onClose,
 }: Props) {
   const isEdit = eventId !== null
   const existing = isEdit ? calendarEventRepo.getById(eventId) : undefined
+  const isRepeatOccurrence = !!(occurrenceDate && existing?.repeat_rule && existing.repeat_rule !== 'none')
 
+  const [scope, setScope] = useState<'this' | 'all'>('this')
   const [title, setTitle] = useState(existing?.title ?? '')
-  const [date, setDate] = useState(existing?.start_date ?? defaultDate)
+  const [date, setDate] = useState(occurrenceDate ?? existing?.start_date ?? defaultDate)
   const [time, setTime] = useState(existing?.time ?? '')
   const [eventType, setEventType] = useState<'schedule' | 'anniversary'>(
     existing?.event_type === 'anniversary' ? 'anniversary' : 'schedule',
@@ -66,17 +70,44 @@ export default function EventFormModal({
     const household = 'default'
 
     if (isEdit && existing) {
-      calendarEventRepo.update(eventId, {
-        title: title.trim(),
-        start_date: date,
-        end_date: null,
-        time: time || null,
-        event_type: eventType,
-        repeat_rule: repeat,
-        member_id: memberId || null,
-        memo,
-        memo_is_secret: memoSecret,
-      })
+      if (isRepeatOccurrence && scope === 'this') {
+        // 이번 회차만 수정: 원본에 예외 추가 + 새 단독 이벤트 생성
+        const exceptions = [...(existing.exceptions ?? []), occurrenceDate!]
+        calendarEventRepo.update(eventId!, { exceptions })
+        const newEvent: CalendarEvent = {
+          id: newId(),
+          household_id: household,
+          title: title.trim(),
+          event_type: eventType,
+          start_date: date,
+          end_date: null,
+          time: time || null,
+          amount: null,
+          member_id: memberId || null,
+          is_done: false,
+          repeat_rule: 'none',
+          source_type: null,
+          source_id: null,
+          memo,
+          memo_is_secret: memoSecret,
+          created_at: now(),
+          updated_at: now(),
+        }
+        calendarEventRepo.create(newEvent)
+      } else {
+        // 모든 일정 수정 (기존 동작)
+        calendarEventRepo.update(eventId!, {
+          title: title.trim(),
+          start_date: date,
+          end_date: null,
+          time: time || null,
+          event_type: eventType,
+          repeat_rule: repeat,
+          member_id: memberId || null,
+          memo,
+          memo_is_secret: memoSecret,
+        })
+      }
     } else {
       const newEvent: CalendarEvent = {
         id: newId(),
@@ -106,8 +137,14 @@ export default function EventFormModal({
 
   function handleDelete() {
     if (!isEdit || !eventId) return
-    if (!confirm('이 일정을 삭제할까요?')) return
-    calendarEventRepo.delete(eventId)
+    if (isRepeatOccurrence && scope === 'this') {
+      if (!confirm('이번 회차만 삭제할까요?')) return
+      const exceptions = [...(existing?.exceptions ?? []), occurrenceDate!]
+      calendarEventRepo.update(eventId, { exceptions })
+    } else {
+      if (!confirm('이 일정을 삭제할까요?')) return
+      calendarEventRepo.delete(eventId)
+    }
     onSaved()
   }
 
@@ -126,6 +163,24 @@ export default function EventFormModal({
             ✕
           </button>
         </div>
+
+        {isRepeatOccurrence && (
+          <div className="mb-4 flex gap-2">
+            {(['this', 'all'] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setScope(s)}
+                className={`flex-1 py-2.5 rounded-full text-sm font-semibold border transition-colors ${
+                  scope === s
+                    ? 'bg-[#222222] text-white border-[#222222]'
+                    : 'bg-white text-[#6a6a6a] border-[#dddddd]'
+                }`}
+              >
+                {s === 'this' ? '이번만' : '모든 일정'}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="flex gap-2 mb-4">
           {(['schedule', 'anniversary'] as const).map((t) => (

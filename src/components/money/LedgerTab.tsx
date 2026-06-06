@@ -6,6 +6,7 @@ import EmptyState from '../common/EmptyState'
 import LedgerFormModal from './LedgerFormModal'
 import { displayAmount, useAmountPrivacy } from '../../utils/amountPrivacy'
 import { displaySecretText, useVaultPrivacy } from '../../utils/vaultPrivacy'
+import { todayStr, todayYear, todayMonth } from '../../utils/date'
 
 interface CategoryBar {
   category: string
@@ -84,6 +85,11 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
       .map((date) => ({ date, items: map[date] }))
   }, [entries])
 
+  const addDefaultDate =
+    year === todayYear() && month === todayMonth()
+      ? todayStr()
+      : `${year}-${String(month).padStart(2, '0')}-01`
+
   function openAdd(type: LedgerEntryType) {
     setDefaultType(type)
     setEditingId(null)
@@ -93,17 +99,17 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
   return (
     <div>
       {/* 월 합계 바 */}
-      <div className="flex px-4 py-3 gap-3 bg-white border-b border-gray-100">
+      <div className="flex items-center px-4 py-3 gap-3 bg-white border-b border-gray-100">
         <div className="flex-1 text-center">
           <p className="text-xs text-gray-400">수입</p>
           <p className="text-sm font-semibold text-blue-600">{displayAmount(totalIncome, hideAmounts)}</p>
         </div>
-        <div className="w-px bg-gray-100" />
+        <div className="w-px self-stretch bg-gray-100" />
         <div className="flex-1 text-center">
           <p className="text-xs text-gray-400">지출</p>
           <p className="text-sm font-semibold text-red-500">{displayAmount(totalExpense, hideAmounts)}</p>
         </div>
-        <div className="w-px bg-gray-100" />
+        <div className="w-px self-stretch bg-gray-100" />
         <div className="flex-1 text-center">
           <p className="text-xs text-gray-400">합계</p>
           <p
@@ -113,6 +119,21 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
           >
             {displayAmount(Math.abs(totalIncome - totalExpense), hideAmounts)}
           </p>
+        </div>
+        <div className="w-px self-stretch bg-gray-100" />
+        <div className="flex flex-col gap-1.5">
+          <button
+            onClick={() => openAdd('income')}
+            className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600"
+          >
+            + 수입
+          </button>
+          <button
+            onClick={() => openAdd('expense')}
+            className="rounded-full border border-[#ffd1da] bg-[#fff0f3] px-3 py-1 text-xs font-semibold text-[#ff385c]"
+          >
+            + 지출
+          </button>
         </div>
       </div>
 
@@ -165,7 +186,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
                   className="w-full oz-card px-4 py-3 flex items-center gap-3 text-left"
                 >
                   <span
-                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
                       e.entry_type === 'expense'
                         ? 'bg-red-50 text-red-500'
                         : 'bg-blue-50 text-blue-500'
@@ -191,6 +212,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
                     {e.entry_type === 'income' ? '+' : '-'}
                     {displayAmount(e.amount, hideAmounts)}
                   </span>
+                  <span className="text-xs text-gray-300 flex-shrink-0">수정 ›</span>
                 </button>
               ))}
             </div>
@@ -201,7 +223,7 @@ export default function LedgerTab({ year, month, refreshKey, onRefresh }: Props)
       {showModal && (
         <LedgerFormModal
           entryId={editingId}
-          defaultDate={`${year}-${String(month).padStart(2, '0')}-01`}
+          defaultDate={addDefaultDate}
           defaultType={defaultType}
           onSaved={() => { setShowModal(false); onRefresh() }}
           onClose={() => setShowModal(false)}

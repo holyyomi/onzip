@@ -32,7 +32,9 @@ export default function CalendarPage({ externalRefreshKey }: Props) {
   const [selectedDate, setSelectedDate] = useState(todayStr())
   const [showModal, setShowModal] = useState(false)
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
+  const [editingOccurrenceDate, setEditingOccurrenceDate] = useState<string | undefined>(undefined)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [toastMessage, setToastMessage] = useState('')
 
   const events = useMemo(
     () => getAggregatedEvents(year, month),
@@ -77,16 +79,34 @@ export default function CalendarPage({ externalRefreshKey }: Props) {
 
   function handleAddEvent() { setEditingEventId(null); setShowModal(true) }
 
+  function showToast(msg: string) {
+    setToastMessage(msg)
+    setTimeout(() => setToastMessage(''), 2500)
+  }
+
   function handleEditEvent(eventId: string) {
     const event = events.find((e) => e.id === eventId)
-    if (event?.source_type) return
-    // 반복 이벤트는 original_id로 원본 편집
+    if (event?.source_type) {
+      const label =
+        event.source_type === 'fixed_expense' ? '가계부 › 입출금 탭에서 수정하세요' :
+        event.source_type === 'subscription' ? '가계부 › 자동결제 탭에서 수정하세요' :
+        event.source_type === 'checklist' ? '생활 › 체크리스트 탭에서 수정하세요' :
+        '해당 탭에서 수정하세요'
+      showToast(label)
+      return
+    }
+    // 반복 이벤트: 원본 ID로 편집, occurrence 날짜 전달
     const targetId = event?.original_id ?? eventId
     setEditingEventId(targetId)
+    setEditingOccurrenceDate(event?.original_id ? event.date : undefined)
     setShowModal(true)
   }
 
-  function handleSaved() { setShowModal(false); setRefreshKey((k) => k + 1) }
+  function handleSaved() {
+    setShowModal(false)
+    setEditingOccurrenceDate(undefined)
+    setRefreshKey((k) => k + 1)
+  }
 
   return (
     <div>
@@ -141,8 +161,16 @@ export default function CalendarPage({ externalRefreshKey }: Props) {
       {showModal && (
         <EventFormModal
           eventId={editingEventId} defaultDate={selectedDate}
-          onSaved={handleSaved} onClose={() => setShowModal(false)}
+          occurrenceDate={editingOccurrenceDate}
+          onSaved={handleSaved}
+          onClose={() => { setShowModal(false); setEditingOccurrenceDate(undefined) }}
         />
+      )}
+
+      {toastMessage && (
+        <div className="fixed left-1/2 bottom-28 z-50 -translate-x-1/2 rounded-full bg-[#222222] px-5 py-3 text-sm font-semibold text-white shadow-lg">
+          {toastMessage}
+        </div>
       )}
     </div>
   )

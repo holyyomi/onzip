@@ -117,6 +117,7 @@ export default function IncomeTab({ year, month, refreshKey, onRefresh }: Props)
             <span className="text-sm font-semibold text-blue-600 flex-shrink-0">
               {displayAmount(i.amount, hideAmounts)}
             </span>
+            <span className="text-xs text-gray-300 flex-shrink-0">수정 ›</span>
           </div>
         ))}
       </div>

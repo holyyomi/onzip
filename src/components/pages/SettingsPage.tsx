@@ -19,6 +19,13 @@ import UpdateNoticeCard from '../common/UpdateNoticeCard'
 import PwaUpdateCard from '../common/PwaUpdateCard'
 import InstallPromptCard from '../common/InstallPromptCard'
 import { useAmountPrivacy } from '../../utils/amountPrivacy'
+import { useVaultPrivacy } from '../../utils/vaultPrivacy'
+import {
+  getNotificationPermission,
+  isNotificationEnabled,
+  requestAndEnable,
+  setNotificationEnabled,
+} from '../../utils/notificationService'
 
 type SettingsSubTab = 'home' | 'members' | 'categories'
 
@@ -70,6 +77,23 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
   const [name, setName] = useState(household.name)
   const [saved, setSaved] = useState(false)
   const { hidden: hideAmounts, setHidden: setHideAmounts } = useAmountPrivacy()
+  const { hidden: hideVault, setHidden: setHideVault } = useVaultPrivacy()
+  const [notifEnabled, setNotifEnabled] = useState(isNotificationEnabled)
+  const notifPermission = getNotificationPermission()
+
+  async function handleNotifToggle() {
+    if (notifEnabled) {
+      setNotificationEnabled(false)
+      setNotifEnabled(false)
+      return
+    }
+    const result = await requestAndEnable()
+    if (result === 'granted') {
+      setNotifEnabled(true)
+    } else if (result === 'denied') {
+      alert('알림 권한이 거부되었습니다. 브라우저 설정에서 알림 권한을 허용해주세요.')
+    }
+  }
 
   function handleSave() {
     householdRepo.update(household.id, { name: name.trim() || '우리집' })
@@ -115,6 +139,50 @@ function HomeInfoTab({ onRefresh, onAppRefresh }: { onRefresh: () => void; onApp
           </button>
         </div>
       </div>
+
+      {/* 비밀 내용 가리기 */}
+      <div className="oz-card p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-base font-semibold text-[#222222]">비밀 내용 가리기</p>
+            <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
+              비밀로 표시한 메모 내용을 가립니다.
+            </p>
+          </div>
+          <button
+            onClick={() => setHideVault(!hideVault)}
+            className={`h-8 w-14 flex-shrink-0 rounded-full p-1 transition-colors ${hideVault ? 'bg-[#ff385c]' : 'bg-gray-200'}`}
+            aria-label="비밀 내용 가리기"
+          >
+            <span className={`block h-6 w-6 rounded-full bg-white shadow transition-transform ${hideVault ? 'translate-x-6' : 'translate-x-0'}`} />
+          </button>
+        </div>
+      </div>
+
+      {/* 납부 알림 */}
+      {notifPermission !== 'unsupported' && (
+        <div className="oz-card p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-base font-semibold text-[#222222]">납부 알림</p>
+              <p className="mt-1 text-sm leading-relaxed text-[#6a6a6a]">
+                납부일 당일·1일 전에 알림을 보냅니다.
+                {notifPermission === 'denied' && (
+                  <span className="block text-red-400 mt-0.5">브라우저 설정에서 알림을 허용해주세요.</span>
+                )}
+              </p>
+            </div>
+            <button
+              onClick={handleNotifToggle}
+              disabled={notifPermission === 'denied'}
+              className={`h-8 w-14 flex-shrink-0 rounded-full p-1 transition-colors ${notifEnabled && notifPermission === 'granted' ? 'bg-[#ff385c]' : 'bg-gray-200'} disabled:opacity-40`}
+              aria-label="납부 알림"
+            >
+              <span className={`block h-6 w-6 rounded-full bg-white shadow transition-transform ${notifEnabled && notifPermission === 'granted' ? 'translate-x-6' : 'translate-x-0'}`} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <PwaUpdateCard />
 

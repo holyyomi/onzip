@@ -12,6 +12,7 @@ import QuickAddModal from '../components/common/QuickAddModal'
 import OnboardingModal from '../components/common/OnboardingModal'
 import PwaUpdatePrompt from '../components/common/PwaUpdatePrompt'
 import { getLaunchMode, initGoogleAnalytics, trackEvent } from '../utils/analytics'
+import { checkAndNotify } from '../utils/notificationService'
 
 export type TabId = 'home' | 'calendar' | 'money' | 'life' | 'records' | 'settings'
 
@@ -26,6 +27,7 @@ export default function App() {
   useEffect(() => {
     initGoogleAnalytics()
     trackEvent('app_open', { mode: getLaunchMode() })
+    checkAndNotify()
   }, [])
 
   useEffect(() => {

@@ -115,6 +115,7 @@ export default function FixedExpenseTab({ year, month, refreshKey, onRefresh }: 
             <span className="text-sm font-semibold text-gray-800 flex-shrink-0">
               {displayAmount(fe.amount, hideAmounts)}
             </span>
+            <span className="text-xs text-gray-300 flex-shrink-0">수정 ›</span>
           </div>
         ))}
       </div>

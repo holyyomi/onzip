@@ -110,12 +110,14 @@ export function getAggregatedEvents(year: number, month: number): AggregatedEven
         events.push(toAggregated(e, e.start_date))
       }
     } else {
-      // 반복: 이번 달 해당 날짜 모두 생성
+      // 반복: 이번 달 해당 날짜 생성 (exceptions 제외)
       const dates = getRepeatDates(e, year, month)
-      dates.forEach((date) => {
-        const isRepeat = date !== e.start_date
-        events.push(toAggregated(e, date, isRepeat))
-      })
+      dates
+        .filter((date) => !e.exceptions?.includes(date))
+        .forEach((date) => {
+          const isRepeat = date !== e.start_date
+          events.push(toAggregated(e, date, isRepeat))
+        })
     }
   })
 
